@@ -7,7 +7,7 @@
  *   2. A page never starts leaving more than 0.12 s before its last word ends.
  *   3. Pages that share a slot never overlap: the next one starts entering
  *      only once the previous one has left. Hand-offs between tightly sung
- *      lines become quick swaps instead of a muddy crossfade.
+ *      lines become quick, gapless swaps instead of a muddy crossfade.
  */
 import type { Line, Song, Word } from "../schema/song";
 import type { Style } from "../schema/style";
@@ -126,16 +126,19 @@ export function schedule(pages: Page[], style: Style, duration: number): Page[] 
       p.exitStart = p.last + tail;
       if (!next) return;
       const naturalEnter = Math.max(0, next.first - lead);
+      let tight = false;
       if (p.exitStart + p.exitDur > naturalEnter) {
         p.exitStart = naturalEnter - p.exitDur;
         if (p.exitStart < p.last) {
           // Tight hand-off: a quick swap right around the last word.
+          tight = true;
           p.exitDur = Math.min(exitDur, QUICK_EXIT);
           const want = next.first + 0.1 - Math.min(enterDur, QUICK_ENTER) - p.exitDur;
           p.exitStart = clamp(want, p.last - EXIT_EARLY_LIMIT, p.last);
         }
       }
-      next.enterStart = Math.max(naturalEnter, p.exitStart + p.exitDur - 0.02);
+      // A tight swap is gapless: the next page arrives the moment this one is gone.
+      next.enterStart = tight ? p.exitStart + p.exitDur : Math.max(naturalEnter, p.exitStart + p.exitDur - 0.02);
       next.enterDur = clamp(next.first + 0.1 - next.enterStart, MIN_ENTER, enterDur);
     });
     const lastPage = list[list.length - 1];

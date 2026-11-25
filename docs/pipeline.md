@@ -62,8 +62,9 @@ on CPU with Whisper `medium`:
 | --- | --- |
 | Words starting within 0.3 s of the hand timing | 84.4% |
 | Median word start error | 0.043 s |
-| Badly timed words (> 0.5 s off) that are in a flagged line | 99% |
-| Unflagged words within 0.3 s | 99.5% |
+| Badly timed words (> 0.5 s off) that are in a flagged (check or glance) line | 98% |
+| Words in unflagged lines within 0.3 s | 99.0% |
+| Lines marked **check** on the two clearly sung songs | 3-4% |
 | Best and worst song | 99.3% (Spanish pop) and 59.3% (dense English rock) |
 
 What this means in practice: on clearly sung songs the timing is right almost everywhere; on

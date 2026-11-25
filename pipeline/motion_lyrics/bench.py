@@ -122,18 +122,22 @@ def run(per_lang: int, cache: Path, out: Path, variants: list[str], whisper_mode
             use_heard = heard if variant in ("production", "anchored") else None
             al = stages.align_core(lines_in, em, env, use_heard)
             pred = np.asarray([w["start"] for l in al["lines"] for w in l["words"]])
-            flagged = np.asarray([bool(l["flags"] or any(w["flags"] for w in l["words"])) for l in al["lines"] for _ in l["words"]])
+            # A line counts as flagged when the review report lists it (check or glance).
+            flagged = np.asarray([bool(l.get("review")) for l in al["lines"] for _ in l["words"]])
+            checked = np.asarray([l.get("review") == "check" for l in al["lines"] for _ in l["words"]])
             m = metrics(pred, truth)
             bad = np.abs(pred - truth) > 0.5
             m["flag_recall"] = round(float(flagged[bad].mean()), 3) if bad.any() else 1.0
-            m["lines_flagged"] = round(float(np.mean([bool(l["flags"] or any(w["flags"] for w in l["words"])) for l in al["lines"]])), 3)
+            m["check_recall"] = round(float(checked[bad].mean()), 3) if bad.any() else 1.0
+            m["lines_check"] = round(float(np.mean([l.get("review") == "check" for l in al["lines"]])), 3)
+            m["lines_flagged"] = round(float(np.mean([bool(l.get("review")) for l in al["lines"]])), 3)
             res[variant] = m
             if variant == variants[0]:
                 pooled_pred.append(pred)
                 pooled_truth.append(truth)
                 pooled_flag.append(flagged)
             log.info(f"  {variant:>12}: MAE {m['mae']:.3f}s  median {m['median']:.3f}s  within 0.3s {m['within_0_3s']:.1%}  "
-                     f"| bad words caught by flags {m['flag_recall']:.0%}, lines flagged {m['lines_flagged']:.0%}")
+                     f"| bad words in flagged lines {m['flag_recall']:.0%} (in check lines {m['check_recall']:.0%}); lines check {m['lines_check']:.0%}, flagged {m['lines_flagged']:.0%}")
         report["songs"].append(res)
 
     if pooled_pred:

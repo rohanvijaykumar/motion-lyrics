@@ -149,6 +149,18 @@ describe("page timing", () => {
     });
   });
 
+  it("tight hand-offs never leave the screen empty", () => {
+    for (const preset of ["golden-sparkle", "social-pop", "minimal-subtitles", "kinetic"]) {
+      const st = resolveStyle({ preset });
+      const g = [[[1, 1.3], [1.3, 1.6], [1.6, 1.9], [1.9, 2.2], [2.2, 2.5], [2.5, 2.8], [2.8, 3.1]] as [number, number][], [[3.15, 3.5], [3.5, 4]] as [number, number][]];
+      const pages = schedule(paginate(fakeSong(g), st), st, 60);
+      for (let i = 0; i + 1 < pages.length; i++) {
+        const gap = pages[i + 1].enterStart - (pages[i].exitStart + pages[i].exitDur);
+        if (pages[i + 1].first - pages[i].last < 0.3) expect(gap).toBeLessThanOrEqual(1e-6);
+      }
+    }
+  });
+
   it("pop layout never exceeds the word limit", () => {
     const pop = resolveStyle({ preset: "social-pop" });
     const g = [[[1, 1.2], [1.2, 1.4], [1.4, 1.6], [1.6, 1.8], [1.8, 2], [2, 2.2], [2.2, 2.4]] as [number, number][]];

@@ -11,7 +11,7 @@ worth double-checking, and renders a polished lyric video with [Remotion](https:
   translations shown under the sung line.
 - **Timing you can trust.** Vocal isolation, a multilingual forced aligner and Whisper
   cross-checking. Lines that might be off are flagged with a picture of the vocal so you can see
-  why. On a hand-timed benchmark, 99.5% of unflagged words land within 0.3 s.
+  why. On a hand-timed benchmark, 99% of words in unflagged lines land within 0.3 s.
 - **Many styles, not one.** Nine presets (karaoke fills, social captions, kinetic type, a
   scrolling sheet, cinematic, neon...) built from parts you can mix: layouts, entrances, exits,
   highlights, sparkles, glints, particles, grain and beat pulses.
