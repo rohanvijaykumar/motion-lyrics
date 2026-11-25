@@ -1,0 +1,55 @@
+{
+  "$schema": "../../schema/project.schema.json",
+  "title": "Motion Lyrics Demo",
+  "media": {
+    "audio": "media/tones.wav",
+    "duration": 22,
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  "output": {},
+  "background": {
+    "type": "gradient",
+    "color": "#0b0b10",
+    "colors": [
+      "#1b1033",
+      "#3a1c4a",
+      "#0e2a47"
+    ],
+    "dim": 0,
+    "fit": "cover"
+  },
+  "style": {
+    "preset": "golden-sparkle"
+  },
+  "graphics": [
+    {
+      "start": 0,
+      "end": 2.3,
+      "enter": "fade",
+      "exit": "fade",
+      "transition": 0.5,
+      "type": "title",
+      "title": "Motion Lyrics",
+      "subtitle": "Any video, any language",
+      "at": {
+        "x": 0.5,
+        "y": 0.42
+      },
+      "size": 110,
+      "color": "#ffffff",
+      "accent": "#ffd27a",
+      "fontFamily": null,
+      "scrim": true
+    }
+  ],
+  "localFonts": [],
+  "sectionLabels": true,
+  "pipeline": {
+    "separate": true,
+    "verify": false,
+    "whisperModel": "medium",
+    "faces": true
+  }
+}

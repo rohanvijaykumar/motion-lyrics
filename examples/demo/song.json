@@ -1,0 +1,474 @@
+{
+  "version": 1,
+  "title": "Motion Lyrics Demo",
+  "duration": 22,
+  "tracks": [
+    {
+      "id": "en",
+      "lang": "en",
+      "script": "Latn",
+      "dir": "ltr",
+      "role": "sung",
+      "tier": "primary"
+    },
+    {
+      "id": "es.companion",
+      "lang": "es",
+      "script": "Latn",
+      "dir": "ltr",
+      "role": "companion",
+      "tier": "secondary"
+    },
+    {
+      "id": "hi",
+      "lang": "hi",
+      "script": "Deva",
+      "dir": "ltr",
+      "role": "sung",
+      "tier": "primary"
+    },
+    {
+      "id": "en.companion",
+      "lang": "en",
+      "script": "Latn",
+      "dir": "ltr",
+      "role": "companion",
+      "tier": "secondary"
+    },
+    {
+      "id": "ar",
+      "lang": "ar",
+      "script": "Arab",
+      "dir": "rtl",
+      "role": "sung",
+      "tier": "primary"
+    },
+    {
+      "id": "ja",
+      "lang": "ja",
+      "script": "Jpan",
+      "dir": "ltr",
+      "role": "sung",
+      "tier": "primary"
+    }
+  ],
+  "groups": [
+    {
+      "id": "g0",
+      "section": "Verse",
+      "lines": [
+        {
+          "id": "g0l0",
+          "track": "en",
+          "sung": true,
+          "start": 2.4,
+          "end": 5.36,
+          "words": [
+            {
+              "id": "g0l0w0",
+              "text": "Every",
+              "ws": " ",
+              "start": 2.4,
+              "end": 3.012,
+              "conf": 0.95
+            },
+            {
+              "id": "g0l0w1",
+              "text": "voice",
+              "ws": " ",
+              "start": 3.052,
+              "end": 3.664,
+              "conf": 0.95
+            },
+            {
+              "id": "g0l0w2",
+              "text": "can",
+              "ws": " ",
+              "start": 3.704,
+              "end": 4.056,
+              "conf": 0.95
+            },
+            {
+              "id": "g0l0w3",
+              "text": "carry",
+              "ws": " ",
+              "start": 4.096,
+              "end": 4.708,
+              "conf": 0.95
+            },
+            {
+              "id": "g0l0w4",
+              "text": "light",
+              "ws": "",
+              "start": 4.748,
+              "end": 5.36,
+              "conf": 0.95
+            }
+          ],
+          "conf": 0.95
+        },
+        {
+          "id": "g0l1",
+          "track": "es.companion",
+          "sung": false,
+          "pairOf": "g0l0",
+          "start": 2.4,
+          "end": 5.36,
+          "words": [
+            {
+              "id": "g0l1w0",
+              "text": "Cada",
+              "ws": " ",
+              "start": 2.4,
+              "end": 2.964
+            },
+            {
+              "id": "g0l1w1",
+              "text": "voz",
+              "ws": " ",
+              "start": 2.964,
+              "end": 3.387
+            },
+            {
+              "id": "g0l1w2",
+              "text": "puede",
+              "ws": " ",
+              "start": 3.387,
+              "end": 4.091
+            },
+            {
+              "id": "g0l1w3",
+              "text": "llevar",
+              "ws": " ",
+              "start": 4.091,
+              "end": 4.937
+            },
+            {
+              "id": "g0l1w4",
+              "text": "luz",
+              "ws": "",
+              "start": 4.937,
+              "end": 5.36
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "g1",
+      "lines": [
+        {
+          "id": "g1l0",
+          "track": "hi",
+          "sung": true,
+          "start": 6.55,
+          "end": 9.51,
+          "words": [
+            {
+              "id": "g1l0w0",
+              "text": "हर",
+              "ws": " ",
+              "start": 6.55,
+              "end": 7.01,
+              "conf": 0.95
+            },
+            {
+              "id": "g1l0w1",
+              "text": "आवाज़",
+              "ws": " ",
+              "start": 7.05,
+              "end": 7.76,
+              "conf": 0.95
+            },
+            {
+              "id": "g1l0w2",
+              "text": "में",
+              "ws": " ",
+              "start": 7.8,
+              "end": 8.26,
+              "conf": 0.95
+            },
+            {
+              "id": "g1l0w3",
+              "text": "रोशनी",
+              "ws": " ",
+              "start": 8.3,
+              "end": 9.01,
+              "conf": 0.95
+            },
+            {
+              "id": "g1l0w4",
+              "text": "है",
+              "ws": "",
+              "start": 9.05,
+              "end": 9.51,
+              "conf": 0.95
+            }
+          ],
+          "conf": 0.95
+        },
+        {
+          "id": "g1l1",
+          "track": "en.companion",
+          "sung": false,
+          "pairOf": "g1l0",
+          "start": 6.55,
+          "end": 9.51,
+          "words": [
+            {
+              "id": "g1l1w0",
+              "text": "There",
+              "ws": " ",
+              "start": 6.55,
+              "end": 7.167
+            },
+            {
+              "id": "g1l1w1",
+              "text": "is",
+              "ws": " ",
+              "start": 7.167,
+              "end": 7.413
+            },
+            {
+              "id": "g1l1w2",
+              "text": "light",
+              "ws": " ",
+              "start": 7.413,
+              "end": 8.03
+            },
+            {
+              "id": "g1l1w3",
+              "text": "in",
+              "ws": " ",
+              "start": 8.03,
+              "end": 8.277
+            },
+            {
+              "id": "g1l1w4",
+              "text": "every",
+              "ws": " ",
+              "start": 8.277,
+              "end": 8.893
+            },
+            {
+              "id": "g1l1w5",
+              "text": "voice",
+              "ws": "",
+              "start": 8.893,
+              "end": 9.51
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "g2",
+      "section": "Chorus",
+      "lines": [
+        {
+          "id": "g2l0",
+          "track": "ar",
+          "sung": true,
+          "start": 10.7,
+          "end": 13.66,
+          "words": [
+            {
+              "id": "g2l0w0",
+              "text": "كل",
+              "ws": " ",
+              "start": 10.7,
+              "end": 11.122,
+              "conf": 0.95
+            },
+            {
+              "id": "g2l0w1",
+              "text": "صوت",
+              "ws": " ",
+              "start": 11.162,
+              "end": 11.814,
+              "conf": 0.95
+            },
+            {
+              "id": "g2l0w2",
+              "text": "يحمل",
+              "ws": " ",
+              "start": 11.854,
+              "end": 12.737,
+              "conf": 0.95
+            },
+            {
+              "id": "g2l0w3",
+              "text": "نورا",
+              "ws": "",
+              "start": 12.777,
+              "end": 13.66,
+              "conf": 0.95
+            }
+          ],
+          "conf": 0.95
+        },
+        {
+          "id": "g2l1",
+          "track": "en.companion",
+          "sung": false,
+          "pairOf": "g2l0",
+          "start": 10.7,
+          "end": 13.66,
+          "words": [
+            {
+              "id": "g2l1w0",
+              "text": "Every",
+              "ws": " ",
+              "start": 10.7,
+              "end": 11.373
+            },
+            {
+              "id": "g2l1w1",
+              "text": "voice",
+              "ws": " ",
+              "start": 11.373,
+              "end": 12.045
+            },
+            {
+              "id": "g2l1w2",
+              "text": "carries",
+              "ws": " ",
+              "start": 12.045,
+              "end": 12.987
+            },
+            {
+              "id": "g2l1w3",
+              "text": "light",
+              "ws": "",
+              "start": 12.987,
+              "end": 13.66
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "g3",
+      "lines": [
+        {
+          "id": "g3l0",
+          "track": "ja",
+          "sung": true,
+          "start": 14.85,
+          "end": 17.81,
+          "words": [
+            {
+              "id": "g3l0w0",
+              "text": "すべて",
+              "ws": "",
+              "start": 14.85,
+              "end": 15.41,
+              "conf": 0.95
+            },
+            {
+              "id": "g3l0w1",
+              "text": "の",
+              "ws": "",
+              "start": 15.45,
+              "end": 15.81,
+              "conf": 0.95
+            },
+            {
+              "id": "g3l0w2",
+              "text": "声",
+              "ws": "",
+              "start": 15.85,
+              "end": 16.21,
+              "conf": 0.95
+            },
+            {
+              "id": "g3l0w3",
+              "text": "に",
+              "ws": "",
+              "start": 16.25,
+              "end": 16.61,
+              "conf": 0.95
+            },
+            {
+              "id": "g3l0w4",
+              "text": "光",
+              "ws": "",
+              "start": 16.65,
+              "end": 17.01,
+              "conf": 0.95
+            },
+            {
+              "id": "g3l0w5",
+              "text": "が",
+              "ws": "",
+              "start": 17.05,
+              "end": 17.41,
+              "conf": 0.95
+            },
+            {
+              "id": "g3l0w6",
+              "text": "ある",
+              "ws": "",
+              "start": 17.45,
+              "end": 17.81,
+              "conf": 0.95
+            }
+          ],
+          "conf": 0.95
+        },
+        {
+          "id": "g3l1",
+          "track": "en.companion",
+          "sung": false,
+          "pairOf": "g3l0",
+          "start": 14.85,
+          "end": 17.81,
+          "words": [
+            {
+              "id": "g3l1w0",
+              "text": "There",
+              "ws": " ",
+              "start": 14.85,
+              "end": 15.467
+            },
+            {
+              "id": "g3l1w1",
+              "text": "is",
+              "ws": " ",
+              "start": 15.467,
+              "end": 15.713
+            },
+            {
+              "id": "g3l1w2",
+              "text": "light",
+              "ws": " ",
+              "start": 15.713,
+              "end": 16.33
+            },
+            {
+              "id": "g3l1w3",
+              "text": "in",
+              "ws": " ",
+              "start": 16.33,
+              "end": 16.577
+            },
+            {
+              "id": "g3l1w4",
+              "text": "every",
+              "ws": " ",
+              "start": 16.577,
+              "end": 17.193
+            },
+            {
+              "id": "g3l1w5",
+              "text": "voice",
+              "ws": "",
+              "start": 17.193,
+              "end": 17.81
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

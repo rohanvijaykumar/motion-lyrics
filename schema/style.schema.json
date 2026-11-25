@@ -1,0 +1,888 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "default": "custom",
+      "type": "string"
+    },
+    "layout": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "type": {
+          "default": "stack",
+          "description": "stack: a group of lines together. alternate: classic two-row karaoke. pop: a few words at a time (social captions). kinetic: words land one by one. scroll: the whole lyric sheet scrolls past.",
+          "type": "string",
+          "enum": [
+            "stack",
+            "alternate",
+            "pop",
+            "kinetic",
+            "scroll"
+          ]
+        },
+        "position": {
+          "default": "bottom",
+          "type": "string",
+          "enum": [
+            "bottom",
+            "center",
+            "top"
+          ]
+        },
+        "avoidFaces": {
+          "default": true,
+          "description": "Move text away from detected faces",
+          "type": "boolean"
+        },
+        "align": {
+          "default": "center",
+          "type": "string",
+          "enum": [
+            "center",
+            "start",
+            "end"
+          ]
+        },
+        "marginX": {
+          "default": 0.06,
+          "description": "Fraction of width kept clear at the sides",
+          "type": "number"
+        },
+        "marginY": {
+          "default": 0.09,
+          "description": "Fraction of height kept clear at the top and bottom",
+          "type": "number"
+        },
+        "maxWidth": {
+          "default": 0.86,
+          "description": "Fraction of width a line may use before wrapping",
+          "type": "number"
+        },
+        "lineGap": {
+          "default": 0.1,
+          "description": "Space between lines, em of the primary font",
+          "type": "number"
+        },
+        "wordSpacing": {
+          "default": 0.07,
+          "description": "Extra space on each side of a word, em",
+          "type": "number"
+        },
+        "wordsPerPage": {
+          "default": 3,
+          "description": "pop layout: most words on screen at once",
+          "type": "number"
+        },
+        "maxCharsPerPage": {
+          "default": 22,
+          "description": "pop layout: most characters on screen at once",
+          "type": "number"
+        },
+        "scrollVisibleLines": {
+          "default": 7,
+          "description": "scroll layout: lines visible at once",
+          "type": "number"
+        },
+        "inactiveOpacity": {
+          "default": 0.35,
+          "description": "scroll layout: opacity of lines not being sung",
+          "type": "number"
+        }
+      }
+    },
+    "text": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "primary": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "fontFamily": {
+              "default": null,
+              "description": "Google Font or local font family. null = the best font for each script.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "fontWeight": {
+              "default": 700,
+              "type": "number"
+            },
+            "fontSize": {
+              "default": 72,
+              "description": "Pixels at 1080p",
+              "type": "number"
+            },
+            "letterSpacing": {
+              "default": 0,
+              "description": "em",
+              "type": "number"
+            },
+            "lineHeight": {
+              "default": 1.3,
+              "type": "number"
+            },
+            "textTransform": {
+              "default": "none",
+              "type": "string",
+              "enum": [
+                "none",
+                "uppercase",
+                "lowercase"
+              ]
+            },
+            "italic": {
+              "default": false,
+              "type": "boolean"
+            },
+            "color": {
+              "default": "rgba(255,255,255,0.62)",
+              "description": "Words not sung yet",
+              "type": "string"
+            },
+            "sungColor": {
+              "default": "#ffffff",
+              "description": "Words being or already sung",
+              "type": "string"
+            },
+            "shadow": {
+              "default": "0 2px 14px rgba(0,0,0,0.55)",
+              "description": "CSS text-shadow for unsung text",
+              "type": "string"
+            },
+            "sungShadow": {
+              "default": "0 2px 14px rgba(0,0,0,0.55)",
+              "description": "CSS text-shadow for sung text (glow)",
+              "type": "string"
+            },
+            "strokeWidth": {
+              "default": 0,
+              "description": "Outline width in px (0 = none)",
+              "type": "number"
+            },
+            "strokeColor": {
+              "default": "rgba(0,0,0,0.85)",
+              "type": "string",
+              "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+            }
+          },
+          "description": "Typography for one track"
+        },
+        "secondary": {
+          "default": {
+            "fontSize": 54,
+            "fontWeight": 600
+          },
+          "type": "object",
+          "properties": {
+            "fontFamily": {
+              "default": null,
+              "description": "Google Font or local font family. null = the best font for each script.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "fontWeight": {
+              "default": 700,
+              "type": "number"
+            },
+            "fontSize": {
+              "default": 72,
+              "description": "Pixels at 1080p",
+              "type": "number"
+            },
+            "letterSpacing": {
+              "default": 0,
+              "description": "em",
+              "type": "number"
+            },
+            "lineHeight": {
+              "default": 1.3,
+              "type": "number"
+            },
+            "textTransform": {
+              "default": "none",
+              "type": "string",
+              "enum": [
+                "none",
+                "uppercase",
+                "lowercase"
+              ]
+            },
+            "italic": {
+              "default": false,
+              "type": "boolean"
+            },
+            "color": {
+              "default": "rgba(255,255,255,0.62)",
+              "description": "Words not sung yet",
+              "type": "string"
+            },
+            "sungColor": {
+              "default": "#ffffff",
+              "description": "Words being or already sung",
+              "type": "string"
+            },
+            "shadow": {
+              "default": "0 2px 14px rgba(0,0,0,0.55)",
+              "description": "CSS text-shadow for unsung text",
+              "type": "string"
+            },
+            "sungShadow": {
+              "default": "0 2px 14px rgba(0,0,0,0.55)",
+              "description": "CSS text-shadow for sung text (glow)",
+              "type": "string"
+            },
+            "strokeWidth": {
+              "default": 0,
+              "description": "Outline width in px (0 = none)",
+              "type": "number"
+            },
+            "strokeColor": {
+              "default": "rgba(0,0,0,0.85)",
+              "type": "string",
+              "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+            }
+          },
+          "description": "Typography for one track"
+        }
+      }
+    },
+    "tracks": {
+      "default": {},
+      "description": "Per-track overrides keyed by track id, e.g. { en: { fontSize: 60 } }",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "fontFamily": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fontWeight": {
+            "type": "number"
+          },
+          "fontSize": {
+            "type": "number"
+          },
+          "letterSpacing": {
+            "type": "number"
+          },
+          "lineHeight": {
+            "type": "number"
+          },
+          "textTransform": {
+            "type": "string",
+            "enum": [
+              "none",
+              "uppercase",
+              "lowercase"
+            ]
+          },
+          "italic": {
+            "type": "boolean"
+          },
+          "color": {
+            "type": "string",
+            "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+          },
+          "sungColor": {
+            "type": "string",
+            "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+          },
+          "shadow": {
+            "type": "string"
+          },
+          "sungShadow": {
+            "type": "string"
+          },
+          "strokeWidth": {
+            "type": "number"
+          },
+          "strokeColor": {
+            "type": "string",
+            "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+          }
+        }
+      }
+    },
+    "fontFallback": {
+      "default": "sans",
+      "description": "Family used for scripts the chosen font does not cover (Noto Sans or Noto Serif)",
+      "type": "string",
+      "enum": [
+        "sans",
+        "serif"
+      ]
+    },
+    "fonts": {
+      "default": {},
+      "description": "Font per script (ISO 15924 code), e.g. { Deva: 'Kalam', Latn: 'Kalam' }",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "timing": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "lead": {
+          "default": 0.55,
+          "description": "Seconds a page appears before its first word",
+          "type": "number"
+        },
+        "tail": {
+          "default": 1.1,
+          "description": "Seconds a page lingers after its last word",
+          "type": "number"
+        },
+        "holdLast": {
+          "default": true,
+          "description": "Keep the final page up until the video ends",
+          "type": "boolean"
+        },
+        "minEnter": {
+          "default": 0.34,
+          "description": "Shortest entrance when there is room for it",
+          "type": "number"
+        }
+      }
+    },
+    "enter": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "type": {
+          "default": "blur-rise",
+          "type": "string",
+          "enum": [
+            "fade",
+            "blur-rise",
+            "rise",
+            "slide",
+            "scale",
+            "pop",
+            "mask",
+            "typewriter",
+            "letters",
+            "none"
+          ]
+        },
+        "duration": {
+          "default": 0.6,
+          "type": "number"
+        },
+        "stagger": {
+          "default": 0.09,
+          "description": "Delay between lines of a page",
+          "type": "number"
+        },
+        "wordStagger": {
+          "default": 0.045,
+          "description": "Delay between words of a line",
+          "type": "number"
+        },
+        "distance": {
+          "default": 26,
+          "description": "px",
+          "type": "number"
+        },
+        "blur": {
+          "default": 10,
+          "description": "px",
+          "type": "number"
+        },
+        "ease": {
+          "default": "out",
+          "type": "string",
+          "enum": [
+            "out",
+            "inOut",
+            "spring",
+            "linear"
+          ]
+        }
+      }
+    },
+    "exit": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "type": {
+          "default": "drift-up",
+          "type": "string",
+          "enum": [
+            "fade",
+            "blur-rise",
+            "drift-up",
+            "sink",
+            "slide",
+            "scale",
+            "mask",
+            "none"
+          ]
+        },
+        "duration": {
+          "default": 0.38,
+          "type": "number"
+        },
+        "distance": {
+          "default": 34,
+          "type": "number"
+        },
+        "blur": {
+          "default": 8,
+          "type": "number"
+        },
+        "ease": {
+          "default": "inOut",
+          "type": "string",
+          "enum": [
+            "out",
+            "inOut",
+            "spring",
+            "linear"
+          ]
+        }
+      }
+    },
+    "highlight": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "type": {
+          "default": "wipe",
+          "type": "string",
+          "enum": [
+            "wipe",
+            "color",
+            "none"
+          ]
+        },
+        "softEdge": {
+          "default": 0,
+          "description": "wipe: feathered edge as a fraction of the word (0 = hard edge)",
+          "type": "number"
+        },
+        "wipeEase": {
+          "default": "sine",
+          "type": "string",
+          "enum": [
+            "linear",
+            "sine"
+          ]
+        },
+        "wipeLead": {
+          "default": 0.03,
+          "description": "Seconds the wipe starts before the word, to meet the consonant",
+          "type": "number"
+        },
+        "minWordDuration": {
+          "default": 0.14,
+          "description": "Shortest wipe, so quick words still read",
+          "type": "number"
+        },
+        "persist": {
+          "default": true,
+          "description": "Sung words stay highlighted",
+          "type": "boolean"
+        },
+        "colorTransition": {
+          "default": 0.12,
+          "description": "color: seconds to fade into the sung color",
+          "type": "number"
+        },
+        "liftY": {
+          "default": -5,
+          "description": "px the active word rises",
+          "type": "number"
+        },
+        "liftScale": {
+          "default": 1.035,
+          "description": "Scale of the active word",
+          "type": "number"
+        },
+        "liftIn": {
+          "default": 0.16,
+          "type": "number"
+        },
+        "liftOut": {
+          "default": 0.42,
+          "type": "number"
+        },
+        "dimUpcoming": {
+          "default": 0.55,
+          "description": "Opacity of a line waiting to be sung (1 = no dimming)",
+          "type": "number"
+        },
+        "dimFinished": {
+          "default": 0.62,
+          "description": "Opacity of a line already sung (1 = no dimming)",
+          "type": "number"
+        },
+        "underline": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "color": {
+              "default": "#ffffff",
+              "type": "string",
+              "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+            },
+            "thickness": {
+              "default": 5,
+              "type": "number"
+            },
+            "offset": {
+              "default": 8,
+              "type": "number"
+            }
+          }
+        },
+        "box": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "color": {
+              "default": "#ffd23f",
+              "type": "string",
+              "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+            },
+            "textColor": {
+              "default": "#111111",
+              "type": "string",
+              "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+            },
+            "radius": {
+              "default": 14,
+              "type": "number"
+            },
+            "padX": {
+              "default": 0.18,
+              "description": "em",
+              "type": "number"
+            },
+            "padY": {
+              "default": 0.04,
+              "description": "em",
+              "type": "number"
+            }
+          }
+        },
+        "translation": {
+          "default": "line",
+          "description": "Unsung translation lines: fill along with their sung line, or stay static",
+          "type": "string",
+          "enum": [
+            "line",
+            "none"
+          ]
+        }
+      }
+    },
+    "effects": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "scrim": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "type": {
+              "default": "radial",
+              "type": "string",
+              "enum": [
+                "radial",
+                "linear",
+                "box",
+                "none"
+              ]
+            },
+            "color": {
+              "default": "rgba(12,6,0,0.62)",
+              "description": "Darkest point of the backing",
+              "type": "string"
+            },
+            "width": {
+              "default": 0.917,
+              "description": "Fraction of frame width",
+              "type": "number"
+            },
+            "height": {
+              "default": 0.435,
+              "description": "Fraction of frame height (linear: band height)",
+              "type": "number"
+            }
+          }
+        },
+        "glint": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "size": {
+              "default": 58,
+              "description": "px",
+              "type": "number"
+            },
+            "color": {
+              "default": "#fff8e4",
+              "description": "Star",
+              "type": "string"
+            },
+            "core": {
+              "default": "rgba(255,250,232,0.95)",
+              "description": "Bright centre dot",
+              "type": "string"
+            },
+            "halo": {
+              "default": "rgba(255,240,200,0.9)",
+              "description": "Inner glow",
+              "type": "string"
+            },
+            "haloOuter": {
+              "default": "rgba(255,176,64,0.55)",
+              "description": "Outer glow",
+              "type": "string"
+            },
+            "spin": {
+              "default": 160,
+              "description": "Degrees of spin per second of word",
+              "type": "number"
+            }
+          }
+        },
+        "sparkles": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "perWord": {
+              "default": [
+                5,
+                12
+              ],
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "size": {
+              "default": [
+                18,
+                38
+              ],
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "dustRatio": {
+              "default": 0.4,
+              "description": "Share of sparkles that are tiny dots",
+              "type": "number"
+            },
+            "perChar": {
+              "default": 1.4,
+              "description": "Sparkles per character of the word, clamped to perWord",
+              "type": "number"
+            },
+            "colors": {
+              "default": [
+                "#fff8e4"
+              ],
+              "description": "Star colours, picked at random per sparkle",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+              }
+            },
+            "core": {
+              "default": "rgba(255,248,225,0.9)",
+              "type": "string",
+              "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+            },
+            "glow": {
+              "default": "rgba(255,214,140,0.85)",
+              "type": "string",
+              "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+            },
+            "glowOuter": {
+              "default": "rgba(255,170,60,0.4)",
+              "type": "string",
+              "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+            },
+            "rise": {
+              "default": [
+                30,
+                86
+              ],
+              "description": "px they float up",
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "life": {
+              "default": [
+                0.7,
+                1.25
+              ],
+              "description": "seconds",
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        "particles": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "count": {
+              "default": 40,
+              "type": "number"
+            },
+            "color": {
+              "default": "rgba(255,240,210,0.7)",
+              "type": "string",
+              "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+            },
+            "size": {
+              "default": [
+                2,
+                6
+              ],
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "speed": {
+              "default": 18,
+              "description": "px per second upward drift",
+              "type": "number"
+            }
+          }
+        },
+        "grain": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "opacity": {
+              "default": 0.08,
+              "type": "number"
+            }
+          }
+        },
+        "vignette": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "strength": {
+              "default": 0.45,
+              "type": "number"
+            }
+          }
+        },
+        "beatPulse": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "amount": {
+              "default": 0.025,
+              "description": "Extra scale on each beat",
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  }
+}

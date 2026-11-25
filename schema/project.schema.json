@@ -1,0 +1,726 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "artist": {
+      "type": "string"
+    },
+    "media": {
+      "type": "object",
+      "properties": {
+        "video": {
+          "description": "Path inside the project, e.g. media/video.mp4",
+          "type": "string"
+        },
+        "audio": {
+          "description": "Separate audio file; defaults to the video's own sound",
+          "type": "string"
+        },
+        "duration": {
+          "type": "number",
+          "description": "Seconds (filled in automatically)"
+        },
+        "width": {
+          "default": 1920,
+          "type": "number"
+        },
+        "height": {
+          "default": 1080,
+          "type": "number"
+        },
+        "fps": {
+          "default": 30,
+          "type": "number"
+        }
+      },
+      "required": [
+        "duration"
+      ],
+      "description": "Filled in automatically by `npm run make`"
+    },
+    "output": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "width": {
+          "description": "Defaults to the source width",
+          "type": "number"
+        },
+        "height": {
+          "description": "Defaults to the source height",
+          "type": "number"
+        },
+        "fps": {
+          "description": "Defaults to the source frame rate",
+          "type": "number"
+        },
+        "file": {
+          "description": "Output file name inside out/",
+          "type": "string"
+        }
+      }
+    },
+    "background": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "type": {
+          "default": "video",
+          "type": "string",
+          "enum": [
+            "video",
+            "image",
+            "color",
+            "gradient"
+          ]
+        },
+        "src": {
+          "description": "Image path when type is image",
+          "type": "string"
+        },
+        "color": {
+          "default": "#0b0b10",
+          "type": "string"
+        },
+        "colors": {
+          "default": [
+            "#1b1033",
+            "#3a1c4a",
+            "#0e2a47"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dim": {
+          "default": 0,
+          "description": "0-1 darkening over the background",
+          "type": "number"
+        },
+        "fit": {
+          "default": "cover",
+          "type": "string",
+          "enum": [
+            "cover",
+            "contain"
+          ]
+        }
+      }
+    },
+    "style": {
+      "description": "A preset name plus any style fields to override (see docs/styles.md)",
+      "allOf": [
+        {
+          "$ref": "style.schema.json"
+        }
+      ],
+      "properties": {
+        "preset": {
+          "type": "string",
+          "enum": [
+            "golden-sparkle",
+            "chalk",
+            "classic-karaoke",
+            "social-pop",
+            "kinetic",
+            "scroll-focus",
+            "minimal-subtitles",
+            "cinematic",
+            "neon"
+          ],
+          "default": "golden-sparkle"
+        }
+      }
+    },
+    "graphics": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "title"
+              },
+              "title": {
+                "type": "string"
+              },
+              "subtitle": {
+                "type": "string"
+              },
+              "at": {
+                "default": {},
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "default": 0.5,
+                    "description": "Horizontal anchor, 0 = left edge, 1 = right edge",
+                    "type": "number"
+                  },
+                  "y": {
+                    "default": 0.5,
+                    "description": "Vertical anchor, 0 = top edge, 1 = bottom edge",
+                    "type": "number"
+                  }
+                }
+              },
+              "size": {
+                "default": 110,
+                "type": "number"
+              },
+              "color": {
+                "default": "#ffffff",
+                "type": "string"
+              },
+              "accent": {
+                "default": "#ffd27a",
+                "type": "string"
+              },
+              "fontFamily": {
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "scrim": {
+                "default": true,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type",
+              "title"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "text"
+              },
+              "text": {
+                "type": "string"
+              },
+              "at": {
+                "default": {},
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "default": 0.5,
+                    "description": "Horizontal anchor, 0 = left edge, 1 = right edge",
+                    "type": "number"
+                  },
+                  "y": {
+                    "default": 0.5,
+                    "description": "Vertical anchor, 0 = top edge, 1 = bottom edge",
+                    "type": "number"
+                  }
+                }
+              },
+              "size": {
+                "default": 48,
+                "type": "number"
+              },
+              "weight": {
+                "default": 600,
+                "type": "number"
+              },
+              "color": {
+                "default": "#ffffff",
+                "type": "string"
+              },
+              "fontFamily": {
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "background": {
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type",
+              "text"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "lowerThird"
+              },
+              "title": {
+                "type": "string"
+              },
+              "subtitle": {
+                "type": "string"
+              },
+              "side": {
+                "default": "left",
+                "type": "string",
+                "enum": [
+                  "left",
+                  "right"
+                ]
+              },
+              "color": {
+                "default": "#ffffff",
+                "type": "string"
+              },
+              "accent": {
+                "default": "#ffd27a",
+                "type": "string"
+              },
+              "fontFamily": {
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type",
+              "title"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "image"
+              },
+              "src": {
+                "type": "string",
+                "description": "Path inside the project folder, e.g. media/logo.png"
+              },
+              "at": {
+                "default": {
+                  "x": 0.92,
+                  "y": 0.1
+                },
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "default": 0.5,
+                    "description": "Horizontal anchor, 0 = left edge, 1 = right edge",
+                    "type": "number"
+                  },
+                  "y": {
+                    "default": 0.5,
+                    "description": "Vertical anchor, 0 = top edge, 1 = bottom edge",
+                    "type": "number"
+                  }
+                }
+              },
+              "width": {
+                "default": 0.12,
+                "description": "Fraction of frame width",
+                "type": "number"
+              },
+              "opacity": {
+                "default": 1,
+                "type": "number"
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type",
+              "src"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "lottie"
+              },
+              "src": {
+                "type": "string",
+                "description": "Lottie JSON inside the project folder"
+              },
+              "at": {
+                "default": {},
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "default": 0.5,
+                    "description": "Horizontal anchor, 0 = left edge, 1 = right edge",
+                    "type": "number"
+                  },
+                  "y": {
+                    "default": 0.5,
+                    "description": "Vertical anchor, 0 = top edge, 1 = bottom edge",
+                    "type": "number"
+                  }
+                }
+              },
+              "width": {
+                "default": 0.3,
+                "type": "number"
+              },
+              "loop": {
+                "default": true,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type",
+              "src"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "credits"
+              },
+              "lines": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "size": {
+                "default": 44,
+                "type": "number"
+              },
+              "color": {
+                "default": "#ffffff",
+                "type": "string"
+              },
+              "fontFamily": {
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type",
+              "lines"
+            ]
+          }
+        ]
+      }
+    },
+    "localFonts": {
+      "default": [],
+      "description": "Font files to use instead of, or alongside, Google Fonts",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "family": {
+            "type": "string"
+          },
+          "src": {
+            "type": "string",
+            "description": "Font file inside the project folder, e.g. fonts/MyFont-Bold.ttf"
+          },
+          "weight": {
+            "default": "400",
+            "type": "string"
+          },
+          "style": {
+            "default": "normal",
+            "type": "string",
+            "enum": [
+              "normal",
+              "italic"
+            ]
+          }
+        },
+        "required": [
+          "family",
+          "src"
+        ]
+      }
+    },
+    "sectionLabels": {
+      "default": false,
+      "description": "Show [Section] names from lyrics.txt as labels",
+      "type": "boolean"
+    },
+    "tokenize": {
+      "default": {},
+      "description": "Per-language highlight unit, e.g. { \"zh\": \"char\" } for per-character karaoke",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "word",
+          "char"
+        ]
+      }
+    },
+    "pipeline": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "separate": {
+          "default": true,
+          "description": "Isolate the vocal before aligning (recommended)",
+          "type": "boolean"
+        },
+        "verify": {
+          "default": true,
+          "description": "Cross-check timing with Whisper and flag disagreements",
+          "type": "boolean"
+        },
+        "whisperModel": {
+          "default": "medium",
+          "type": "string"
+        },
+        "faces": {
+          "default": true,
+          "description": "Detect faces so lyrics can avoid them",
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "required": [
+    "media"
+  ]
+}

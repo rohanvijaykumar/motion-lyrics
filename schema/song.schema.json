@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "artist": {
+      "type": "string"
+    },
+    "duration": {
+      "type": "number",
+      "description": "Seconds"
+    },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "lang": {
+            "type": "string",
+            "description": "BCP-47 language tag, e.g. hi, en, ar, ja, zh-Hant"
+          },
+          "script": {
+            "type": "string",
+            "description": "ISO 15924 script code, e.g. Deva, Latn, Arab, Jpan"
+          },
+          "dir": {
+            "type": "string",
+            "enum": [
+              "ltr",
+              "rtl"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "sung",
+              "companion"
+            ]
+          },
+          "tier": {
+            "type": "string",
+            "enum": [
+              "primary",
+              "secondary"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "lang",
+          "script",
+          "dir",
+          "role",
+          "tier"
+        ]
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "section": {
+            "description": "e.g. Chorus, from a [Chorus] marker in lyrics.txt",
+            "type": "string"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "track": {
+                  "type": "string"
+                },
+                "sung": {
+                  "default": true,
+                  "description": "false = a translation/romanization shown with a sung line",
+                  "type": "boolean"
+                },
+                "pairOf": {
+                  "description": "For unsung lines: id of the sung line it accompanies",
+                  "type": "string"
+                },
+                "start": {
+                  "type": "number"
+                },
+                "end": {
+                  "type": "number"
+                },
+                "words": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "text": {
+                        "type": "string",
+                        "description": "Exactly as displayed, including attached punctuation"
+                      },
+                      "ws": {
+                        "default": " ",
+                        "description": "Whitespace shown after the word ('' for scripts without spaces)",
+                        "type": "string"
+                      },
+                      "start": {
+                        "type": "number"
+                      },
+                      "end": {
+                        "type": "number"
+                      },
+                      "conf": {
+                        "description": "0-1 timing confidence",
+                        "type": "number"
+                      },
+                      "flags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "text",
+                      "start",
+                      "end"
+                    ]
+                  }
+                },
+                "locked": {
+                  "description": "Keep this line's timing when alignment is re-run",
+                  "type": "boolean"
+                },
+                "conf": {
+                  "type": "number"
+                },
+                "flags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "review": {
+                  "description": "check = timing likely wrong, inspect its strip; glance = watch it in the draft",
+                  "type": "string",
+                  "enum": [
+                    "check",
+                    "glance"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "track",
+                "start",
+                "end",
+                "words"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "lines"
+        ]
+      }
+    }
+  },
+  "required": [
+    "version",
+    "duration",
+    "tracks",
+    "groups"
+  ]
+}

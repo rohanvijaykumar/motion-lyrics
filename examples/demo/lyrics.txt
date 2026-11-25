@@ -1,0 +1,19 @@
+@title: Motion Lyrics Demo
+@lang: en, hi, ar, ja
+
+# Placeholder lyrics that show several scripts. Lines starting with ">" are
+# translations: shown under the sung line, highlighted along with it.
+
+[Verse]
+Every voice can carry light
+> {es} Cada voz puede llevar luz
+
+हर आवाज़ में रोशनी है
+> There is light in every voice
+
+[Chorus]
+كل صوت يحمل نورا
+> Every voice carries light
+
+すべての声に光がある
+> There is light in every voice

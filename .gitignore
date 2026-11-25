@@ -1,7 +1,30 @@
-node_modules
-dist
-.DS_Store
-.env
+# Dependencies and caches
+node_modules/
+pipeline/.venv/
+.cache/
+__pycache__/
+*.pyc
 
-# Ignore the output video from Git but not videos you import into src/.
-out
+# People's videos and everything generated from them
+projects/*
+!projects/README.md
+
+# Generated output
+out/
+dist/
+build/
+examples/**/out/
+examples/**/review/
+examples/**/work/
+*.log
+*.tmp
+.t.ts
+.still.ts
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.env
+.env.*
+.vscode/
+.idea/
