@@ -48,6 +48,18 @@ def main() -> None:
     sh.add_argument("--out", type=Path, required=True)
     sh.add_argument("images", type=Path, nargs="+")
 
+    q = sub.add_parser("qc", help="measure QC frames (used by npm run qc)")
+    q.add_argument("--job", type=Path, required=True)
+    q.add_argument("--out", type=Path, required=True)
+
+    qc2 = sub.add_parser("compare", help="compare QC stills with frames from the final video")
+    qc2.add_argument("--job", type=Path, required=True)
+    qc2.add_argument("--out", type=Path, required=True)
+
+    fc = sub.add_parser("fontcheck", help="which characters font files are missing")
+    fc.add_argument("--text-file", type=Path, required=True)
+    fc.add_argument("fonts", nargs="+")
+
     pf = sub.add_parser("prefetch", help="download all models")
     pf.add_argument("--whisper", default="medium")
 
@@ -77,6 +89,18 @@ def main() -> None:
         stages.strips(args.project, [x for x in args.lines.split(",") if x])
     elif args.cmd == "sheet":
         stages.sheet(args.images, args.out)
+    elif args.cmd == "qc":
+        from . import qc
+
+        qc.run(args.job, args.out)
+    elif args.cmd == "compare":
+        from . import qc
+
+        qc.compare(args.job, args.out)
+    elif args.cmd == "fontcheck":
+        from . import qc
+
+        print(json.dumps(qc.font_coverage(args.fonts, args.text_file.read_text(encoding="utf-8")), ensure_ascii=False))
     elif args.cmd == "prefetch":
         stages.prefetch(args.whisper)
     elif args.cmd == "doctor":

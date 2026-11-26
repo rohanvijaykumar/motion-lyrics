@@ -9,12 +9,28 @@ import { ease, lerp, seg } from "./anim";
 import { useRender } from "./context";
 import { fontStack } from "./fonts";
 import { measureLine } from "./layout";
+import { maskCss } from "../core/qc";
 import { LineView } from "./Line";
 
-type Row = { lines: Line[]; start: number; end: number; height: number; top: number };
+type Row = {
+  lines: Line[];
+  start: number;
+  end: number;
+  height: number;
+  top: number;
+};
 
 export const ScrollView: React.FC = () => {
-  const { t, style, song, tracks, scale, width: W, height: H } = useRender();
+  const {
+    t,
+    style,
+    song,
+    tracks,
+    scale,
+    width: W,
+    height: H,
+    qcMask,
+  } = useRender();
   const L = style.layout;
   const maxWidthPx = W * Math.min(L.maxWidth, 1 - 2 * L.marginX);
   const gap = L.lineGap * style.text.primary.fontSize * scale * 4;
@@ -24,16 +40,28 @@ export const ScrollView: React.FC = () => {
     let top = 0;
     for (const g of song.groups) {
       for (const l of g.lines.filter((x) => x.sung)) {
-        const lines = [l, ...g.lines.filter((c) => !c.sung && c.pairOf === l.id)];
+        const lines = [
+          l,
+          ...g.lines.filter((c) => !c.sung && c.pairOf === l.id),
+        ];
         let h = 0;
         lines.forEach((line, i) => {
           const track = tracks.get(line.track)!;
           const ts = textStyleFor(style, track);
           const fs = ts.fontSize * scale;
-          const rowsN = Math.max(1, Math.ceil(measureLine(line, track, style, fs) / maxWidthPx));
+          const rowsN = Math.max(
+            1,
+            Math.ceil(measureLine(line, track, style, fs) / maxWidthPx),
+          );
           h += rowsN * fs * ts.lineHeight + (i ? fs * 0.15 : 0);
         });
-        out.push({ lines, start: l.words[0]?.start ?? l.start, end: l.words[l.words.length - 1]?.end ?? l.end, height: h, top });
+        out.push({
+          lines,
+          start: l.words[0]?.start ?? l.start,
+          end: l.words[l.words.length - 1]?.end ?? l.end,
+          height: h,
+          top,
+        });
         top += h + gap;
       }
     }
@@ -47,21 +75,43 @@ export const ScrollView: React.FC = () => {
   const centre = (i: number) => rows[i].top + rows[i].height / 2;
   const move = idx > 0 ? seg(t, act[idx], 0.6, ease.inOut3) : 1;
   const offset = idx > 0 ? lerp(centre(idx - 1), centre(idx), move) : centre(0);
-  const anchorY = L.position === "center" ? H / 2 : L.position === "top" ? H * 0.32 : H * 0.62;
+  const anchorY =
+    L.position === "center"
+      ? H / 2
+      : L.position === "top"
+        ? H * 0.32
+        : H * 0.62;
 
   const first = rows[0].start;
   const last = rows[rows.length - 1].end;
-  const fadeIn = seg(t, Math.max(0, first - style.timing.lead - 0.4), 0.6, ease.out2);
-  const fadeOut = style.timing.holdLast && song.duration - last <= 8 ? 0 : seg(t, last + style.timing.tail, 0.6, ease.in2);
+  const fadeIn = seg(
+    t,
+    Math.max(0, first - style.timing.lead - 0.4),
+    0.6,
+    ease.out2,
+  );
+  const fadeOut =
+    style.timing.holdLast && song.duration - last <= 8
+      ? 0
+      : seg(t, last + style.timing.tail, 0.6, ease.in2);
 
   return (
-    <div style={{ position: "absolute", inset: 0, opacity: fadeIn * (1 - fadeOut), overflow: "hidden" }}>
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        opacity: fadeIn * (1 - fadeOut),
+        overflow: "hidden",
+      }}
+    >
       <div
         style={{
           position: "absolute",
           left: W * L.marginX,
           width: maxWidthPx,
-          ...(L.align === "end" ? { left: undefined, right: W * L.marginX } : {}),
+          ...(L.align === "end"
+            ? { left: undefined, right: W * L.marginX }
+            : {}),
           ...(L.align === "center" ? { left: (W - maxWidthPx) / 2 } : {}),
           top: 0,
           translate: `0 ${anchorY - offset}px`,
@@ -69,11 +119,17 @@ export const ScrollView: React.FC = () => {
       >
         {rows.map((row, i) => {
           if (Math.abs(i - idx) > L.scrollVisibleLines) return null;
+          if (qcMask && Math.abs(i - idx) > 1) return null;
           const up = seg(t, act[i], 0.35, ease.out2);
-          const down = i + 1 < rows.length ? seg(t, act[i + 1], 0.35, ease.inOut2) : 0;
+          const down =
+            i + 1 < rows.length ? seg(t, act[i + 1], 0.35, ease.inOut2) : 0;
           const a = up * (1 - down);
           const distance = Math.abs(i - idx);
-          const far = Math.max(0, 1 - Math.max(0, distance - 2) / Math.max(1, L.scrollVisibleLines / 2));
+          const far = Math.max(
+            0,
+            1 -
+              Math.max(0, distance - 2) / Math.max(1, L.scrollVisibleLines / 2),
+          );
           const o = lerp(L.inactiveOpacity * far, 1, a);
           return (
             <div
@@ -85,10 +141,20 @@ export const ScrollView: React.FC = () => {
                 right: 0,
                 display: "flex",
                 flexDirection: "column",
-                alignItems: L.align === "center" ? "center" : L.align === "start" ? "flex-start" : "flex-end",
+                alignItems:
+                  L.align === "center"
+                    ? "center"
+                    : L.align === "start"
+                      ? "flex-start"
+                      : "flex-end",
                 gap: style.text.primary.fontSize * scale * 0.15,
                 scale: String(lerp(0.97, 1, a)),
-                transformOrigin: L.align === "start" ? "0% 50%" : L.align === "end" ? "100% 50%" : "50% 50%",
+                transformOrigin:
+                  L.align === "start"
+                    ? "0% 50%"
+                    : L.align === "end"
+                      ? "100% 50%"
+                      : "50% 50%",
               }}
             >
               {row.lines.map((line) => {
@@ -110,6 +176,11 @@ export const ScrollView: React.FC = () => {
                     kinetic={false}
                     pageStart={act[i]}
                     opacity={o}
+                    mask={
+                      qcMask && Math.abs(i - idx) <= 1
+                        ? maskCss(i - idx + 1)
+                        : undefined
+                    }
                   />
                 );
               })}

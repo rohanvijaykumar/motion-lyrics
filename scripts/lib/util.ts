@@ -4,11 +4,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+export const ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "..",
+);
 export const PROJECTS = path.join(ROOT, "projects");
 export const PIPELINE = path.join(ROOT, "pipeline");
 
-const color = (c: number) => (s: string) => (process.stdout.isTTY ? `\x1b[${c}m${s}\x1b[0m` : s);
+const color = (c: number) => (s: string) =>
+  process.stdout.isTTY ? `\x1b[${c}m${s}\x1b[0m` : s;
 export const bold = color(1);
 export const dim = color(2);
 export const red = color(31);
@@ -23,7 +28,8 @@ export function step(title: string) {
 }
 export const info = (s: string) => console.log(`    ${s}`);
 export const ok = (s: string) => console.log(`    ${green("✓")} ${s}`);
-export const warn = (s: string) => console.log(`    ${yellow("!")} ${yellow(s)}`);
+export const warn = (s: string) =>
+  console.log(`    ${yellow("!")} ${yellow(s)}`);
 
 export class CliError extends Error {}
 export function fail(msg: string): never {
@@ -32,7 +38,9 @@ export function fail(msg: string): never {
 
 export function readJson<T = unknown>(file: string): T {
   try {
-    return JSON.parse(fs.readFileSync(file, "utf8").replace(/^\uFEFF/, "")) as T;
+    return JSON.parse(
+      fs.readFileSync(file, "utf8").replace(/^\uFEFF/, ""),
+    ) as T;
   } catch (e) {
     fail(`Could not read ${file}: ${(e as Error).message}`);
   }
@@ -47,14 +55,29 @@ export function writeJson(file: string, data: unknown) {
 }
 
 export const exists = (p: string) => fs.existsSync(p);
-export const mtime = (p: string) => (fs.existsSync(p) ? fs.statSync(p).mtimeMs : 0);
+export const mtime = (p: string) =>
+  fs.existsSync(p) ? fs.statSync(p).mtimeMs : 0;
 
 /** Run a command, streaming its output, and fail with a clear message if it fails. */
-export function run(cmd: string, args: string[], opts: { cwd?: string; env?: NodeJS.ProcessEnv; quiet?: boolean; label?: string } = {}) {
+export function run(
+  cmd: string,
+  args: string[],
+  opts: {
+    cwd?: string;
+    env?: NodeJS.ProcessEnv;
+    quiet?: boolean;
+    label?: string;
+  } = {},
+) {
   return new Promise<string>((resolve, reject) => {
     const child = spawn(cmd, args, {
       cwd: opts.cwd ?? ROOT,
-      env: { ...process.env, PYTHONIOENCODING: "utf-8", PYTHONUTF8: "1", ...opts.env },
+      env: {
+        ...process.env,
+        PYTHONIOENCODING: "utf-8",
+        PYTHONUTF8: "1",
+        ...opts.env,
+      },
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true,
     });
@@ -70,12 +93,18 @@ export function run(cmd: string, args: string[], opts: { cwd?: string; env?: Nod
       err += s;
       if (!opts.quiet) process.stdout.write(dim(indent(s)));
     });
-    child.on("error", (e) => reject(new CliError(`Could not start ${cmd}: ${e.message}`)));
+    child.on("error", (e) =>
+      reject(new CliError(`Could not start ${cmd}: ${e.message}`)),
+    );
     child.on("close", (code) => {
       if (code === 0) resolve(out);
       else {
         const tail = (err || out).trim().split(/\r?\n/).slice(-15).join("\n");
-        reject(new CliError(`${opts.label ?? cmd} failed (exit code ${code}).\n${tail}`));
+        reject(
+          new CliError(
+            `${opts.label ?? cmd} failed (exit code ${code}).\n${tail}`,
+          ),
+        );
       }
     });
   });
@@ -84,7 +113,9 @@ export function run(cmd: string, args: string[], opts: { cwd?: string; env?: Nod
 const indent = (s: string) => s.replace(/^(?=.)/gm, "      ");
 
 export function which(cmd: string): string | null {
-  const r = spawnSync(process.platform === "win32" ? "where" : "which", [cmd], { encoding: "utf8" });
+  const r = spawnSync(process.platform === "win32" ? "where" : "which", [cmd], {
+    encoding: "utf8",
+  });
   if (r.status !== 0) return null;
   return r.stdout.split(/\r?\n/)[0]?.trim() || null;
 }
@@ -94,17 +125,30 @@ export function py(args: string[], label: string, quiet = false) {
   if (!which("uv")) {
     fail(
       "uv is not installed. It runs the audio pipeline and installs Python for you.\n" +
-        "  Windows:      powershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\"\n" +
+        '  Windows:      powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"\n' +
         "  macOS/Linux:  curl -LsSf https://astral.sh/uv/install.sh | sh\n" +
         "Then open a new terminal and run: npm run setup",
     );
   }
-  return run("uv", ["run", "--project", PIPELINE, "--frozen", "python", "-m", "motion_lyrics", ...args], {
-    cwd: PIPELINE,
-    label,
-    quiet,
-    env: { PYTHONPATH: PIPELINE },
-  });
+  return run(
+    "uv",
+    [
+      "run",
+      "--project",
+      PIPELINE,
+      "--frozen",
+      "python",
+      "-m",
+      "motion_lyrics",
+      ...args,
+    ],
+    {
+      cwd: PIPELINE,
+      label,
+      quiet,
+      env: { PYTHONPATH: PIPELINE },
+    },
+  );
 }
 
 export function slug(s: string): string {

@@ -11,7 +11,11 @@ export type Token = { text: string; ws: string };
 
 const isSpace = (s: string) => /^\s+$/u.test(s);
 
-export function segmentWords(text: string, lang?: string, mode: "word" | "char" = "word"): Token[] {
+export function segmentWords(
+  text: string,
+  lang?: string,
+  mode: "word" | "char" = "word",
+): Token[] {
   let segmenter: Intl.Segmenter;
   try {
     segmenter = new Intl.Segmenter(lang || undefined, { granularity: "word" });
@@ -64,7 +68,11 @@ function splitChars(words: Token[], lang?: string): Token[] {
   for (const w of words) {
     const chars = [...g.segment(w.text)].map((s) => s.segment);
     chars.forEach((c, i) => {
-      if (/^[\p{P}\p{S}]+$/u.test(c) && out.length && out[out.length - 1].ws === "") {
+      if (
+        /^[\p{P}\p{S}]+$/u.test(c) &&
+        out.length &&
+        out[out.length - 1].ws === ""
+      ) {
         out[out.length - 1].text += c;
       } else {
         out.push({ text: c, ws: "" });

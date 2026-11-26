@@ -24,7 +24,11 @@ export const Particles: React.FC = () => {
     <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
       {dots.map((d, i) => {
         const travel = H + 40;
-        const y = ((((d.y * travel - t * p.speed * d.speed * scale) % travel) + travel) % travel) - 20;
+        const y =
+          ((((d.y * travel - t * p.speed * d.speed * scale) % travel) +
+            travel) %
+            travel) -
+          20;
         const x = d.x * W + Math.sin(t * 0.4 + d.phase) * d.sway * scale;
         const o = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * d.twinkle + d.phase));
         const s = d.size * scale;
@@ -79,10 +83,33 @@ export const Grain: React.FC = () => {
   const cols = Math.ceil(W / TILE) + 1;
   const rows = Math.ceil(H / TILE) + 1;
   return (
-    <div style={{ position: "absolute", inset: 0, overflow: "hidden", mixBlendMode: "overlay", opacity: style.effects.grain.opacity * 2.2, pointerEvents: "none" }}>
-      <div style={{ position: "absolute", left: ox, top: oy, width: cols * TILE, height: rows * TILE, display: "flex", flexWrap: "wrap" }}>
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        mixBlendMode: "overlay",
+        opacity: style.effects.grain.opacity * 2.2,
+        pointerEvents: "none",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          left: ox,
+          top: oy,
+          width: cols * TILE,
+          height: rows * TILE,
+          display: "flex",
+          flexWrap: "wrap",
+        }}
+      >
         {Array.from({ length: cols * rows }, (_, i) => (
-          <Img key={i} src={tile} style={{ width: TILE, height: TILE, display: "block" }} />
+          <Img
+            key={i}
+            src={tile}
+            style={{ width: TILE, height: TILE, display: "block" }}
+          />
         ))}
       </div>
     </div>
@@ -101,7 +128,10 @@ export const Vignette: React.FC<{ style: Style }> = ({ style }) => (
 );
 
 /** A soft dark band behind subtitles; `visible` is 0..1, `edge` is where the text sits. */
-export const Band: React.FC<{ visible: number; edge: "bottom" | "top" }> = ({ visible, edge }) => {
+export const Band: React.FC<{ visible: number; edge: "bottom" | "top" }> = ({
+  visible,
+  edge,
+}) => {
   const { style, height: H } = useRender();
   const s = style.effects.scrim;
   if (visible <= 0) return null;

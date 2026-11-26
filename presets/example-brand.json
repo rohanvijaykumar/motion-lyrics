@@ -1,0 +1,9 @@
+{
+  "extends": "golden-sparkle",
+  "description": "Example: teal karaoke fill in Montserrat, sparkles off. Copy and edit this file to make your own.",
+  "text": {
+    "primary": { "fontFamily": "Montserrat", "fontWeight": 800, "sungColor": "#2ec4b6", "sungShadow": "0 0 18px rgba(46,196,182,.6), 0 2px 8px rgba(0,0,0,.5)" },
+    "secondary": { "fontFamily": "Montserrat", "fontWeight": 600, "sungColor": "#2ec4b6", "sungShadow": "0 0 14px rgba(46,196,182,.5), 0 2px 8px rgba(0,0,0,.5)" }
+  },
+  "effects": { "sparkles": { "enabled": false }, "glint": { "enabled": false } }
+}

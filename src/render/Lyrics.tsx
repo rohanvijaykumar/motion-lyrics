@@ -5,29 +5,61 @@ import { pageEnd, paginate, schedule } from "../core/timeline";
 import { seg } from "./anim";
 import { useRender } from "./context";
 import { Band } from "./effects/Global";
-import { choosePosition, measureLine, pageHeight, type Position } from "./layout";
+import {
+  choosePosition,
+  measureLine,
+  pageHeight,
+  type Position,
+} from "./layout";
 import { PageView } from "./Page";
 import { ScrollView } from "./Scroll";
 
 export const LyricsLayer: React.FC = () => {
   const ctx = useRender();
-  const { style, song, analysis, fps, width: W, height: H, scale, tracks, t } = ctx;
-  const maxWidthPx = W * Math.min(style.layout.maxWidth, 1 - 2 * style.layout.marginX);
+  const {
+    style,
+    song,
+    faces,
+    fps,
+    width: W,
+    height: H,
+    scale,
+    tracks,
+    t,
+  } = ctx;
+  const maxWidthPx =
+    W * Math.min(style.layout.maxWidth, 1 - 2 * style.layout.marginX);
 
   const plan = useMemo(() => {
     if (style.layout.type === "scroll") return null;
     const pages = schedule(paginate(song, style), style, song.duration);
-    const heights = pages.map((p) => pageHeight(p, style, tracks, scale, maxWidthPx));
-    const widths = pages.map((p) =>
-      Math.min(maxWidthPx, Math.max(...p.lines.map((l) => measureLine(l, tracks.get(l.track)!, style, style.text.primary.fontSize * scale)))),
+    const heights = pages.map((p) =>
+      pageHeight(p, style, tracks, scale, maxWidthPx),
     );
-    const rowH = Math.max(0, ...heights) + style.layout.lineGap * style.text.primary.fontSize * scale * 3;
+    const widths = pages.map((p) =>
+      Math.min(
+        maxWidthPx,
+        Math.max(
+          ...p.lines.map((l) =>
+            measureLine(
+              l,
+              tracks.get(l.track)!,
+              style,
+              style.text.primary.fontSize * scale,
+            ),
+          ),
+        ),
+      ),
+    );
+    const rowH =
+      Math.max(0, ...heights) +
+      style.layout.lineGap * style.text.primary.fontSize * scale * 3;
     const positions: Position[] = pages.map((p, i) => {
       const h = style.layout.type === "alternate" ? rowH * 2 : heights[i];
-      return choosePosition(p, style, analysis, W, H, widths[i], h);
+      return choosePosition(p, style, faces, W, H, widths[i], h);
     });
     return { pages, positions, rowH };
-  }, [style, song, analysis, tracks, scale, maxWidthPx, W, H]);
+  }, [style, song, faces, tracks, scale, maxWidthPx, W, H]);
 
   if (!plan) return <ScrollView />;
   const { pages, positions, rowH } = plan;
@@ -48,16 +80,32 @@ export const LyricsLayer: React.FC = () => {
 
   return (
     <>
-      {band > 0 ? <Band visible={band} edge={bandEdge} /> : null}
+      {band > 0 && !ctx.qcMask ? <Band visible={band} edge={bandEdge} /> : null}
       {pages.map((p, i) => {
         const from = Math.max(0, Math.floor(p.enterStart * fps));
-        const to = Math.min(Math.ceil(song.duration * fps) + 1, Math.ceil(pageEnd(p) * fps) + 1);
+        const to = Math.min(
+          Math.ceil(song.duration * fps) + 1,
+          Math.ceil(pageEnd(p) * fps) + 1,
+        );
         if (to <= from) return null;
         const pos = positions[i];
         // alternate layout: slot 0 sits one row further from the edge than slot 1.
-        const offset = style.layout.type === "alternate" && p.slot === 0 ? (pos === "top" ? 0 : rowH) : style.layout.type === "alternate" && pos === "top" ? rowH : 0;
+        const offset =
+          style.layout.type === "alternate" && p.slot === 0
+            ? pos === "top"
+              ? 0
+              : rowH
+            : style.layout.type === "alternate" && pos === "top"
+              ? rowH
+              : 0;
         return (
-          <Sequence key={p.id} from={from} durationInFrames={to - from} layout="none" name={`Lyrics ${p.id}`}>
+          <Sequence
+            key={p.id}
+            from={from}
+            durationInFrames={to - from}
+            layout="none"
+            name={`Lyrics ${p.id}`}
+          >
             <PageView page={p} position={pos} rowOffsetPx={offset} />
           </Sequence>
         );

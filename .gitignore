@@ -28,3 +28,6 @@ Thumbs.db
 .env.*
 .vscode/
 .idea/
+
+# Personal defaults (copy of motion-lyrics.config.example.json)
+motion-lyrics.config.json

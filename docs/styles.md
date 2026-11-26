@@ -40,9 +40,9 @@ once if the file is missing). `npm run presets` lists the presets. Sizes are in 
 | --- | --- | --- |
 | `type` | `stack` (screen of lines), `alternate` (two-row karaoke), `pop` (a few words at a time), `kinetic` (words land as sung), `scroll` (scrolling sheet) | `stack` |
 | `position` | `bottom`, `center`, `top` | `bottom` |
-| `avoidFaces` | move a screen to the other end of the frame when it would cover a detected face | `true` |
+| `avoidFaces` | off: lyrics stay in one place for the whole video. On: a screen moves to the other end of the frame when it would cover a detected face | `false` |
 | `align` | `center`, `start`, `end` (start = left for left-to-right scripts) | `center` |
-| `marginX`, `marginY` | safe margins as fractions of the frame | `0.06`, `0.09` |
+| `marginX`, `marginY` | safe margins as fractions of the frame (vertical video always keeps at least 15% at the top and bottom, clear of app buttons) | `0.06`, `0.09` |
 | `maxWidth` | fraction of the width a line may use before wrapping | `0.86` |
 | `lineGap`, `wordSpacing` | spacing in em | `0.1`, `0.07` |
 | `wordsPerPage`, `maxCharsPerPage` | `pop` layout limits | `3`, `22` |

@@ -10,35 +10,67 @@ import { ease, lerp, seg, styleEase } from "./anim";
 import { useRender } from "./context";
 import { fontStack } from "./fonts";
 import type { Position } from "./layout";
-import { measureLine } from "./layout";
+import { marginYFor, measureLine } from "./layout";
+import { maskCss } from "../core/qc";
 import { LineView } from "./Line";
 
 type Props = { page: Page; position: Position; rowOffsetPx: number };
 
 /** How strongly a line is "the one being sung" (0..1), with gentle ramps. */
-function focus(line: Line, page: Page, t: number): { up: number; down: number; isFirst: boolean } {
+function focus(
+  line: Line,
+  page: Page,
+  t: number,
+): { up: number; down: number; isFirst: boolean } {
   const sung = page.lines.filter((l) => l.sung);
-  const anchor = line.sung ? line : sung.find((l) => l.id === line.pairOf) ?? line;
+  const anchor = line.sung
+    ? line
+    : (sung.find((l) => l.id === line.pairOf) ?? line);
   const idx = sung.indexOf(anchor);
   const ls = anchor.words[0]?.start ?? anchor.start;
   const le = anchor.words[anchor.words.length - 1]?.end ?? anchor.end;
   const next = sung[idx + 1];
-  const up = idx <= 0 ? 1 : seg(t, Math.max(page.enterStart, ls - 0.28), 0.3, ease.out2);
-  const down = next ? seg(t, Math.max(le, (next.words[0]?.start ?? next.start) - 0.3), 0.35, ease.inOut2) : 0;
+  const up =
+    idx <= 0 ? 1 : seg(t, Math.max(page.enterStart, ls - 0.28), 0.3, ease.out2);
+  const down = next
+    ? seg(
+        t,
+        Math.max(le, (next.words[0]?.start ?? next.start) - 0.3),
+        0.35,
+        ease.inOut2,
+      )
+    : 0;
   return { up, down, isFirst: idx <= 0 };
 }
 
 export const PageView: React.FC<Props> = ({ page, position, rowOffsetPx }) => {
-  const { t, style, tracks, scale, width: W, height: H, analysis } = useRender();
+  const {
+    t,
+    style,
+    tracks,
+    scale,
+    width: W,
+    height: H,
+    analysis,
+    qcMask,
+    adjust,
+  } = useRender();
+  const fix = adjust[page.groupId] ?? { scale: 1, backing: 0, outline: false };
   const L = style.layout;
   const h = style.highlight;
   const maxWidthPx = W * Math.min(L.maxWidth, 1 - 2 * L.marginX);
 
   // ---- entrance & exit -------------------------------------------------------
   const ent = page.enterDur;
-  const wordStagger = ent > 0.5 ? style.enter.wordStagger : style.enter.wordStagger * 0.55;
+  const wordStagger =
+    ent > 0.5 ? style.enter.wordStagger : style.enter.wordStagger * 0.55;
   const lineStagger = Math.min(style.enter.stagger, ent / 5);
-  const ex = seg(t, page.exitStart, page.exitDur, styleEase(style.exit.ease, "out"));
+  const ex = seg(
+    t,
+    page.exitStart,
+    page.exitDur,
+    styleEase(style.exit.ease, "out"),
+  );
   let exOpacity = 1 - ex;
   let exX = 0;
   let exY = 0;
@@ -71,7 +103,10 @@ export const PageView: React.FC<Props> = ({ page, position, rowOffsetPx }) => {
     default:
       break;
   }
-  const exClip = style.exit.type === "mask" ? `inset(-40% -10% ${ex * 140 - 40}% -10%)` : undefined;
+  const exClip =
+    style.exit.type === "mask"
+      ? `inset(-40% -10% ${ex * 140 - 40}% -10%)`
+      : undefined;
 
   // ---- beat pulse ----------------------------------------------------------------
   let pulse = 1;
@@ -81,7 +116,8 @@ export const PageView: React.FC<Props> = ({ page, position, rowOffsetPx }) => {
       if (b > t) break;
       last = b;
     }
-    if (last >= 0 && t - last < 0.5) pulse = 1 + style.effects.beatPulse.amount * Math.exp(-(t - last) / 0.12);
+    if (last >= 0 && t - last < 0.5)
+      pulse = 1 + style.effects.beatPulse.amount * Math.exp(-(t - last) / 0.12);
   }
 
   // ---- scrim ---------------------------------------------------------------------
@@ -89,11 +125,12 @@ export const PageView: React.FC<Props> = ({ page, position, rowOffsetPx }) => {
   const scrimIn = seg(t, page.enterStart, 0.7, ease.out2);
   const fitRow = L.type === "alternate" || L.type === "pop";
 
+  const my = marginYFor(style, W, H);
   const anchorStyle: React.CSSProperties =
     position === "bottom"
-      ? { bottom: H * L.marginY + rowOffsetPx }
+      ? { bottom: H * my + rowOffsetPx }
       : position === "top"
-        ? { top: H * L.marginY + rowOffsetPx }
+        ? { top: H * my + rowOffsetPx }
         : { top: "50%", translate: `0 calc(-50% + ${rowOffsetPx}px)` };
 
   return (
@@ -103,7 +140,12 @@ export const PageView: React.FC<Props> = ({ page, position, rowOffsetPx }) => {
         left: W * L.marginX,
         right: W * L.marginX,
         display: "flex",
-        justifyContent: L.align === "center" ? "center" : L.align === "start" ? "flex-start" : "flex-end",
+        justifyContent:
+          L.align === "center"
+            ? "center"
+            : L.align === "start"
+              ? "flex-start"
+              : "flex-end",
         ...anchorStyle,
       }}
     >
@@ -112,17 +154,47 @@ export const PageView: React.FC<Props> = ({ page, position, rowOffsetPx }) => {
           position: "relative",
           display: "flex",
           flexDirection: "column",
-          alignItems: L.align === "center" ? "center" : L.align === "start" ? "flex-start" : "flex-end",
+          alignItems:
+            L.align === "center"
+              ? "center"
+              : L.align === "start"
+                ? "flex-start"
+                : "flex-end",
           gap: L.lineGap * style.text.primary.fontSize * scale,
           maxWidth: maxWidthPx,
           opacity: exOpacity,
           translate: exX || exY ? `${exX}px ${exY}px` : undefined,
-          scale: exScale * pulse !== 1 ? String(exScale * pulse) : undefined,
+          scale:
+            exScale * pulse * fix.scale !== 1
+              ? String(exScale * pulse * fix.scale)
+              : undefined,
+          transformOrigin:
+            position === "bottom"
+              ? "50% 100%"
+              : position === "top"
+                ? "50% 0%"
+                : "50% 50%",
           filter: exBlur > 0.05 ? `blur(${exBlur}px)` : undefined,
           clipPath: exClip,
         }}
       >
-        {scrim.type === "radial" ? (
+        {!qcMask && fix.backing > 0 ? (
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: scrim.width * W,
+              height: scrim.height * H,
+              translate: "-50% -50%",
+              background: `radial-gradient(closest-side, rgba(0,0,0,${0.75 * fix.backing}), rgba(0,0,0,${0.45 * fix.backing}) 55%, transparent)`,
+              opacity: scrimIn,
+              zIndex: 0,
+              pointerEvents: "none",
+            }}
+          />
+        ) : null}
+        {qcMask ? null : scrim.type === "radial" ? (
           <div
             style={{
               position: "absolute",
@@ -152,7 +224,22 @@ export const PageView: React.FC<Props> = ({ page, position, rowOffsetPx }) => {
         ) : null}
         {page.lines.map((line, li) => {
           const track = tracks.get(line.track)!;
-          const ts = textStyleFor(style, track);
+          const base = textStyleFor(style, track);
+          const OUTLINE =
+            "0 0 3px #000, 0 0 3px #000, 0 2px 8px rgba(0,0,0,.9)";
+          const ts = fix.outline
+            ? {
+                ...base,
+                shadow:
+                  base.shadow === "none"
+                    ? OUTLINE
+                    : `${OUTLINE}, ${base.shadow}`,
+                sungShadow:
+                  base.sungShadow === "none"
+                    ? OUTLINE
+                    : `${OUTLINE}, ${base.sungShadow}`,
+              }
+            : base;
           const f = focus(line, page, t);
           let o = f.isFirst ? 1 : lerp(h.dimUpcoming, 1, f.up);
           o = lerp(o, h.dimFinished, f.down);
@@ -179,6 +266,7 @@ export const PageView: React.FC<Props> = ({ page, position, rowOffsetPx }) => {
               opacity={o}
               fontSizeOverride={fontSize}
               nowrap={fitRow}
+              mask={qcMask ? maskCss(li) : undefined}
             />
           );
         })}

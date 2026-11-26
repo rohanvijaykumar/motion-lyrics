@@ -60,13 +60,25 @@ export type ParseOptions = {
 const LRC_STAMP = /\[\d{1,2}:\d{2}(?:[.:]\d{1,3})?\]/g;
 const TAG = /^\{([A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*)\}\s*/;
 
-export function parseLyrics(source: string, opts: ParseOptions = {}): ParsedLyrics {
+export function parseLyrics(
+  source: string,
+  opts: ParseOptions = {},
+): ParsedLyrics {
   const warnings: string[] = [];
   let title: string | undefined;
   let artist: string | undefined;
   let langs = (opts.langs ?? []).map(normLang).filter(Boolean);
 
-  type Raw = { kind: "line"; text: string; tag?: string; companion: boolean; row: number } | { kind: "break" } | { kind: "section"; name: string };
+  type Raw =
+    | {
+        kind: "line";
+        text: string;
+        tag?: string;
+        companion: boolean;
+        row: number;
+      }
+    | { kind: "break" }
+    | { kind: "section"; name: string };
   const raws: Raw[] = [];
   source
     .replace(/^\uFEFF/, "")
@@ -82,12 +94,16 @@ export function parseLyrics(source: string, opts: ParseOptions = {}): ParsedLyri
         if (key === "title") title = meta[2].trim();
         else if (key === "artist") artist = meta[2].trim();
         else if (key === "lang" || key === "langs" || key === "languages")
-          langs = meta[2].split(/[,\s]+/).map(normLang).filter(Boolean);
+          langs = meta[2]
+            .split(/[,\s]+/)
+            .map(normLang)
+            .filter(Boolean);
         else warnings.push(`Line ${row}: unknown setting @${meta[1]} ignored`);
         return;
       }
       const section = /^\[([^\]]+)\]$/.exec(line);
-      if (section) return raws.push({ kind: "section", name: section[1].trim() });
+      if (section)
+        return raws.push({ kind: "section", name: section[1].trim() });
       let text = line;
       let companion = false;
       if (text.startsWith(">")) {
@@ -105,10 +121,16 @@ export function parseLyrics(source: string, opts: ParseOptions = {}): ParsedLyri
     });
 
   const ambiguousWarned = new Set<string>();
-  const resolveLang = (text: string, tag: string | undefined, row: number): string => {
+  const resolveLang = (
+    text: string,
+    tag: string | undefined,
+    row: number,
+  ): string => {
     if (tag) return tag;
     const script = detectScript(text);
-    const matches = langs.filter((l) => scriptsCompatible(script, scriptOfLang(l)));
+    const matches = langs.filter((l) =>
+      scriptsCompatible(script, scriptOfLang(l)),
+    );
     if (matches.length > 1 && !ambiguousWarned.has(script)) {
       ambiguousWarned.add(script);
       warnings.push(
@@ -126,11 +148,22 @@ export function parseLyrics(source: string, opts: ParseOptions = {}): ParsedLyri
   };
 
   const tracks: ParsedTrack[] = [];
-  const trackFor = (lang: string, role: "sung" | "companion", sample: string): string => {
+  const trackFor = (
+    lang: string,
+    role: "sung" | "companion",
+    sample: string,
+  ): string => {
     const id = role === "sung" ? lang : `${lang}.companion`;
     if (!tracks.some((t) => t.id === id)) {
       const script = detectScript(sample, lang);
-      tracks.push({ id, lang, script, dir: dirOf(script), role, tier: "secondary" });
+      tracks.push({
+        id,
+        lang,
+        script,
+        dir: dirOf(script),
+        role,
+        tier: "secondary",
+      });
     }
     return id;
   };
@@ -166,10 +199,17 @@ export function parseLyrics(source: string, opts: ParseOptions = {}): ParsedLyri
       lang,
       sung: !r.companion,
       text: r.text,
-      words: tokens.map((t, i) => ({ id: `${id}w${i}`, text: t.text, ws: t.ws })),
+      words: tokens.map((t, i) => ({
+        id: `${id}w${i}`,
+        text: t.text,
+        ws: t.ws,
+      })),
     };
     if (r.companion) {
-      if (!lastSung) warnings.push(`Line ${r.row}: translation line ">" has no sung line before it`);
+      if (!lastSung)
+        warnings.push(
+          `Line ${r.row}: translation line ">" has no sung line before it`,
+        );
       else line.pairOf = lastSung.id;
     } else {
       lastSung = line;
@@ -179,13 +219,17 @@ export function parseLyrics(source: string, opts: ParseOptions = {}): ParsedLyri
 
   // Tiers: a sung language that opens a screen is primary (large); a second sung
   // language within a screen and all translations are secondary (smaller).
-  const leaders = new Set(groups.map((g) => g.lines.find((l) => l.sung)?.track).filter(Boolean));
-  for (const t of tracks) t.tier = t.role === "sung" && leaders.has(t.id) ? "primary" : "secondary";
+  const leaders = new Set(
+    groups.map((g) => g.lines.find((l) => l.sung)?.track).filter(Boolean),
+  );
+  for (const t of tracks)
+    t.tier = t.role === "sung" && leaders.has(t.id) ? "primary" : "secondary";
   // Present languages in the order they first appear.
   const order = tracks.map((t) => t.lang);
   langs = [...new Set([...order, ...langs.filter((l) => order.includes(l))])];
 
-  if (!groups.some((g) => g.lines.some((l) => l.sung))) warnings.push("No sung lines found in the lyrics.");
+  if (!groups.some((g) => g.lines.some((l) => l.sung)))
+    warnings.push("No sung lines found in the lyrics.");
   return { title, artist, langs, tracks, groups, warnings };
 }
 

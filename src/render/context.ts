@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+import type { FaceSample, Framing } from "../core/frame";
 import type { Analysis, Song, Track } from "../schema/song";
 import type { Style } from "../schema/style";
 
@@ -14,6 +15,16 @@ export type RenderCtx = {
   song: Song;
   analysis: Analysis | null;
   tracks: Map<string, Track>;
+  /** How the source video sits in this output frame. */
+  framing: Framing;
+  /** Where the crop is centred over time (source fractions). */
+  focus: (t: number) => { x: number; y: number };
+  /** Face boxes in output-frame fractions, after any crop. */
+  faces: FaceSample[];
+  /** QC mask mode: draw each line in its own flat colour, no effects. */
+  qcMask: boolean;
+  /** Per-screen fixes from project.json "adjust". */
+  adjust: Record<string, { scale: number; backing: number; outline: boolean }>;
 };
 
 export const Ctx = createContext<RenderCtx | null>(null);

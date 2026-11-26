@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import { parseLyrics } from "../src/core/lyrics";
-import { DEFAULT_FONT_FOR_SCRIPT, DEFAULT_SERIF_FONT_FOR_SCRIPT, detectScript, dirOf, scriptOfLang } from "../src/core/script";
+import {
+  DEFAULT_FONT_FOR_SCRIPT,
+  DEFAULT_SERIF_FONT_FOR_SCRIPT,
+  detectScript,
+  dirOf,
+  scriptOfLang,
+} from "../src/core/script";
 import { segmentWords } from "../src/core/segment";
 import { EXIT_EARLY_LIMIT, paginate, schedule } from "../src/core/timeline";
 import { rng } from "../src/core/random";
@@ -41,22 +47,41 @@ describe("scripts and words", () => {
       { text: "tal,", ws: " " },
       { text: "niño?", ws: "" },
     ]);
-    expect(segmentWords("Stop — go", "en").map((w) => w.text)).toEqual(["Stop —", "go"]);
+    expect(segmentWords("Stop — go", "en").map((w) => w.text)).toEqual([
+      "Stop —",
+      "go",
+    ]);
   });
 
   it("splits languages written without spaces", () => {
     const th = segmentWords("สวัสดีครับ ยินดีต้อนรับ", "th");
     expect(th.length).toBeGreaterThanOrEqual(3);
-    expect(th.map((w) => w.text + w.ws).join("")).toBe("สวัสดีครับ ยินดีต้อนรับ");
+    expect(th.map((w) => w.text + w.ws).join("")).toBe(
+      "สวัสดีครับ ยินดีต้อนรับ",
+    );
     const ja = segmentWords("こんにちは、世界。", "ja");
     expect(ja.map((w) => w.text).join("")).toBe("こんにちは、世界。");
-    expect(segmentWords("我们会", "zh", "char").map((w) => w.text)).toEqual(["我", "们", "会"]);
+    expect(segmentWords("我们会", "zh", "char").map((w) => w.text)).toEqual([
+      "我",
+      "们",
+      "会",
+    ]);
   });
 
   it("never loses or reorders characters", () => {
-    for (const line of ["Every voice can carry light!", "मैं ठीक हूँ, धन्यवाद।", "كل صوت يحمل نورا", "Ça va? Très bien."]) {
+    for (const line of [
+      "Every voice can carry light!",
+      "मैं ठीक हूँ, धन्यवाद।",
+      "كل صوت يحمل نورا",
+      "Ça va? Très bien.",
+    ]) {
       const w = segmentWords(line);
-      expect(w.map((x) => x.text + x.ws).join("").replace(/\s+/g, " ")).toBe(line.replace(/\s+/g, " "));
+      expect(
+        w
+          .map((x) => x.text + x.ws)
+          .join("")
+          .replace(/\s+/g, " "),
+      ).toBe(line.replace(/\s+/g, " "));
     }
   });
 });
@@ -111,7 +136,16 @@ function fakeSong(lines: [number, number][][]): Song {
   return SongSchema.parse({
     version: 1,
     duration: 60,
-    tracks: [{ id: "en", lang: "en", script: "Latn", dir: "ltr", role: "sung", tier: "primary" }],
+    tracks: [
+      {
+        id: "en",
+        lang: "en",
+        script: "Latn",
+        dir: "ltr",
+        role: "sung",
+        tier: "primary",
+      },
+    ],
     groups: lines.map((g, gi) => ({
       id: `g${gi}`,
       lines: [
@@ -121,7 +155,13 @@ function fakeSong(lines: [number, number][][]): Song {
           sung: true,
           start: g[0][0],
           end: g[g.length - 1][1],
-          words: g.map(([s, e], wi) => ({ id: `g${gi}l0w${wi}`, text: `w${wi}`, ws: " ", start: s, end: e })),
+          words: g.map(([s, e], wi) => ({
+            id: `g${gi}l0w${wi}`,
+            text: `w${wi}`,
+            ws: " ",
+            start: s,
+            end: e,
+          })),
         },
       ],
     })),
@@ -131,8 +171,32 @@ function fakeSong(lines: [number, number][][]): Song {
 describe("page timing", () => {
   const style = resolveStyle({ preset: "golden-sparkle" });
   const cases: [string, [number, number][][]][] = [
-    ["roomy", [[[2, 2.5], [2.5, 3]], [[8, 8.5], [8.5, 9]]]],
-    ["tight hand-off", [[[2, 2.5], [2.5, 3.0]], [[3.15, 3.5], [3.5, 4]]]],
+    [
+      "roomy",
+      [
+        [
+          [2, 2.5],
+          [2.5, 3],
+        ],
+        [
+          [8, 8.5],
+          [8.5, 9],
+        ],
+      ],
+    ],
+    [
+      "tight hand-off",
+      [
+        [
+          [2, 2.5],
+          [2.5, 3.0],
+        ],
+        [
+          [3.15, 3.5],
+          [3.5, 4],
+        ],
+      ],
+    ],
     ["back-to-back", [[[1, 1.4]], [[1.4, 1.8]], [[1.8, 2.2]], [[2.25, 3]]]],
     ["starts at zero", [[[0, 0.4]], [[5, 6]]]],
   ];
@@ -140,32 +204,75 @@ describe("page timing", () => {
     const pages = schedule(paginate(fakeSong(groups), style), style, 60);
     pages.forEach((p, i) => {
       expect(p.enterStart).toBeGreaterThanOrEqual(0);
-      expect(p.exitStart).toBeGreaterThanOrEqual(p.last - EXIT_EARLY_LIMIT - 1e-6);
+      expect(p.exitStart).toBeGreaterThanOrEqual(
+        p.last - EXIT_EARLY_LIMIT - 1e-6,
+      );
       const next = pages[i + 1];
-      if (next) expect(next.enterStart).toBeGreaterThanOrEqual(p.exitStart + p.exitDur - 0.021);
-      if (!pages[i - 1] || pages[i - 1].exitStart + pages[i - 1].exitDur <= p.first - 0.3) {
-        expect(p.enterStart + p.enterDur).toBeLessThanOrEqual(Math.max(p.first + 0.1, p.enterStart + 0.12) + 1e-6);
+      if (next)
+        expect(next.enterStart).toBeGreaterThanOrEqual(
+          p.exitStart + p.exitDur - 0.021,
+        );
+      if (
+        !pages[i - 1] ||
+        pages[i - 1].exitStart + pages[i - 1].exitDur <= p.first - 0.3
+      ) {
+        expect(p.enterStart + p.enterDur).toBeLessThanOrEqual(
+          Math.max(p.first + 0.1, p.enterStart + 0.12) + 1e-6,
+        );
       }
     });
   });
 
   it("tight hand-offs never leave the screen empty", () => {
-    for (const preset of ["golden-sparkle", "social-pop", "minimal-subtitles", "kinetic"]) {
+    for (const preset of [
+      "golden-sparkle",
+      "social-pop",
+      "minimal-subtitles",
+      "kinetic",
+    ]) {
       const st = resolveStyle({ preset });
-      const g = [[[1, 1.3], [1.3, 1.6], [1.6, 1.9], [1.9, 2.2], [2.2, 2.5], [2.5, 2.8], [2.8, 3.1]] as [number, number][], [[3.15, 3.5], [3.5, 4]] as [number, number][]];
+      const g = [
+        [
+          [1, 1.3],
+          [1.3, 1.6],
+          [1.6, 1.9],
+          [1.9, 2.2],
+          [2.2, 2.5],
+          [2.5, 2.8],
+          [2.8, 3.1],
+        ] as [number, number][],
+        [
+          [3.15, 3.5],
+          [3.5, 4],
+        ] as [number, number][],
+      ];
       const pages = schedule(paginate(fakeSong(g), st), st, 60);
       for (let i = 0; i + 1 < pages.length; i++) {
-        const gap = pages[i + 1].enterStart - (pages[i].exitStart + pages[i].exitDur);
-        if (pages[i + 1].first - pages[i].last < 0.3) expect(gap).toBeLessThanOrEqual(1e-6);
+        const gap =
+          pages[i + 1].enterStart - (pages[i].exitStart + pages[i].exitDur);
+        if (pages[i + 1].first - pages[i].last < 0.3)
+          expect(gap).toBeLessThanOrEqual(1e-6);
       }
     }
   });
 
   it("pop layout never exceeds the word limit", () => {
     const pop = resolveStyle({ preset: "social-pop" });
-    const g = [[[1, 1.2], [1.2, 1.4], [1.4, 1.6], [1.6, 1.8], [1.8, 2], [2, 2.2], [2.2, 2.4]] as [number, number][]];
+    const g = [
+      [
+        [1, 1.2],
+        [1.2, 1.4],
+        [1.4, 1.6],
+        [1.6, 1.8],
+        [1.8, 2],
+        [2, 2.2],
+        [2.2, 2.4],
+      ] as [number, number][],
+    ];
     const pages = paginate(fakeSong(g), pop);
-    expect(pages.every((p) => p.lines[0].words.length <= pop.layout.wordsPerPage)).toBe(true);
+    expect(
+      pages.every((p) => p.lines[0].words.length <= pop.layout.wordsPerPage),
+    ).toBe(true);
     expect(pages.reduce((n, p) => n + p.lines[0].words.length, 0)).toBe(7);
   });
 });
@@ -178,28 +285,46 @@ describe("styles", () => {
   });
 
   it("overrides merge deeply and track overrides apply", () => {
-    const s = resolveStyle({ preset: "golden-sparkle", text: { primary: { fontSize: 90 } }, tracks: { en: { sungColor: "#ff0000" } } });
+    const s = resolveStyle({
+      preset: "golden-sparkle",
+      text: { primary: { fontSize: 90 } },
+      tracks: { en: { sungColor: "#ff0000" } },
+    });
     expect(s.text.primary.fontSize).toBe(90);
     expect(s.text.primary.fontFamily).toBe("Poppins");
-    expect(textStyleFor(s, { id: "en", tier: "secondary" }).sungColor).toBe("#ff0000");
+    expect(textStyleFor(s, { id: "en", tier: "secondary" }).sungColor).toBe(
+      "#ff0000",
+    );
     expect(textStyleFor(s, { id: "en", tier: "secondary" }).fontSize).toBe(60);
   });
 
   it("rejects unknown presets and bad values clearly", () => {
     expect(() => resolveStyle({ preset: "nope" })).toThrow(/Available/);
-    expect(() => resolveStyle({ preset: "chalk", layout: { type: "zigzag" } })).toThrow(/layout\.type/);
+    expect(() =>
+      resolveStyle({ preset: "chalk", layout: { type: "zigzag" } }),
+    ).toThrow(/layout\.type/);
   });
 
   it("every font named by presets and script defaults exists in Google Fonts", () => {
-    const index = fs.readFileSync("node_modules/@remotion/google-fonts/dist/esm/index.mjs", "utf8");
-    const names = new Set<string>([...Object.values(DEFAULT_FONT_FOR_SCRIPT), ...Object.values(DEFAULT_SERIF_FONT_FOR_SCRIPT), "Noto Sans", "Noto Serif"]);
+    const index = fs.readFileSync(
+      "node_modules/@remotion/google-fonts/dist/esm/index.mjs",
+      "utf8",
+    );
+    const names = new Set<string>([
+      ...Object.values(DEFAULT_FONT_FOR_SCRIPT),
+      ...Object.values(DEFAULT_SERIF_FONT_FOR_SCRIPT),
+      "Noto Sans",
+      "Noto Serif",
+    ]);
     for (const p of Object.values(PRESETS)) {
       for (const tier of ["primary", "secondary"] as const) {
         const f = p.text?.[tier]?.fontFamily;
         if (f) names.add(f);
       }
     }
-    const missing = [...names].filter((n) => !index.includes(`fontFamily: '${n}'`));
+    const missing = [...names].filter(
+      (n) => !index.includes(`fontFamily: '${n}'`),
+    );
     expect(missing).toEqual([]);
   });
 });
@@ -208,7 +333,21 @@ describe("song builder", () => {
   const parsed = parseLyrics("@lang: en\nOne two three\n> Uno dos tres");
   const alignment = {
     version: 1 as const,
-    lines: [{ id: "g0l0", words: ["One", "two", "three"].map((t, i) => ({ id: `g0l0w${i}`, text: t, start: 1 + i, end: 1.8 + i, score: 0.5, voiced: 1, flags: [], conf: 0.9 })) }],
+    lines: [
+      {
+        id: "g0l0",
+        words: ["One", "two", "three"].map((t, i) => ({
+          id: `g0l0w${i}`,
+          text: t,
+          start: 1 + i,
+          end: 1.8 + i,
+          score: 0.5,
+          voiced: 1,
+          flags: [],
+          conf: 0.9,
+        })),
+      },
+    ],
   };
 
   it("times translations across their sung line", () => {
@@ -217,7 +356,9 @@ describe("song builder", () => {
     expect(tr.sung).toBe(false);
     expect(tr.start).toBe(1);
     expect(tr.end).toBeCloseTo(3.8);
-    expect(validateSong(song, 10).filter((i) => i.level === "error")).toEqual([]);
+    expect(validateSong(song, 10).filter((i) => i.level === "error")).toEqual(
+      [],
+    );
   });
 
   it("keeps locked lines when re-aligned", () => {
@@ -231,7 +372,8 @@ describe("song builder", () => {
 
   it("catches broken timing", () => {
     const { song } = buildSong(parsed, alignment, 10, null);
-    song.groups[0].lines[0].words[1].end = song.groups[0].lines[0].words[1].start - 0.1;
+    song.groups[0].lines[0].words[1].end =
+      song.groups[0].lines[0].words[1].start - 0.1;
     expect(validateSong(song, 10).some((i) => i.level === "error")).toBe(true);
   });
 });

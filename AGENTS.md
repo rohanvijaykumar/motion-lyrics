@@ -62,25 +62,38 @@ Rules that prevent most mistakes:
 
 **Gate:** the file has the person's exact lyrics; `@lang` lists every language.
 
-## 3. Make it
+## 3. Ask the person first (required)
+
+Before running anything for a new video, ask the person and wait for their answers:
+
+1. **Style**: which preset? Show them `npm run presets` (or the gallery in README.md).
+2. **Position**: lyrics at the bottom, center or top? They stay there for the whole video.
+3. **Face avoidance**: on or off? On lets lyrics jump to the other end of the frame when a face
+   is underneath, which makes positions change during the video. Default and recommended: off.
+4. Optional: a **font** (Google Fonts name or a font file), a highlight **colour**, and the
+   **export sizes** they need (1080p / 4K, 16:9 / 9:16).
+
+Never choose these for them silently. Pass the answers as flags in the next step.
+
+## 4. Make it
 
 ```bash
-npm run make -- <name> --video <path/to/video.mp4> --lyrics <path/to/lyrics.txt> --preset <preset> --no-render
+npm run make -- <name> --video <path/to/video.mp4> --lyrics <path/to/lyrics.txt> \
+  --preset <preset> --position bottom --avoid-faces off [--font "<font>"] [--color "#hex"] --no-render
 ```
 
 - `<name>`: short project name, e.g. `my-song`. The project goes to `projects/<name>/`.
-- `--preset`: run `npm run presets` to list looks. Default `golden-sparkle`.
 - Audio-only song? Use `--audio song.mp3` instead of `--video`; you get an animated background.
-- `--no-render` stops after the review pack so you can check timing first (recommended for agents).
+- `--no-render` stops after the timing review so you can check timing first (recommended for agents).
 
 What it does: copies/converts the video, extracts audio, isolates the vocal (Demucs), finds
 beats, loudness and faces, listens with Whisper, aligns every word (MMS forced aligner with
-Whisper anchors), builds `song.json`, and writes the review pack.
+Whisper anchors), builds `song.json`, and writes the timing review.
 
 **Gate:** the command ends with `Done.` If it fails, read the error: every error says what to do.
-See section 7 for common failures.
+See section 9 for common failures.
 
-## 4. Review (the step that prevents mistakes)
+## 5. Timing review (the step that prevents mistakes)
 
 Open `projects/<name>/review/report.md`. It lists:
 
@@ -116,28 +129,49 @@ npm run still -- <name> --time 12.6 --debug
 The overlay strip (top of frame) shows the vocal loudness curve and word boxes around the
 playhead; red = check, orange = glance, green = confident.
 
-Then open `review/contact-sheet.jpg`: one frame per lyric screen. Check that:
+**Gate:** every Check line is fixed or confirmed. Tell the person which lines you changed and
+that you cannot hear audio, so they should watch the video once with sound.
 
-- every screen's text is fully inside the frame and readable,
-- no text covers a face (lyrics move away from faces automatically; confirm it),
-- the scripts render properly (no empty boxes, no broken joining in Arabic/Indic text).
-
-**Gate:** every Check line is fixed or confirmed; the contact sheet looks right. Tell the
-person which lines you changed and that you cannot hear audio, so they should watch the
-draft once with sound.
-
-## 5. Draft, then final render
+## 6. Render with visual QC
 
 ```bash
-npm run render -- <name> --draft     # half size + timing overlay -> projects/<name>/out/draft.mp4
-npm run render -- <name>             # full quality -> projects/<name>/out/<name>.mp4
+npm run render -- <name>                                 # the source size and shape
+npm run render -- <name> --size 4k --aspect 9:16         # one other format
+npm run render -- <name> --all                           # 1080p and 4K, 16:9 and 9:16
+npm run render -- <name> --draft                         # quick half-size preview with the timing overlay
 ```
 
-Partial renders for quick checks: `--from 30 --to 45`.
+Every render (except drafts) first runs visual QC on a settled frame of **every lyric line** in
+that format: on screen, inside the 5% safe area, not clipped, no collisions, readable contrast,
+readable size, and every character covered by the intended font. Failures are fixed per screen
+without moving lyrics (shrink to fit, dark backing, outline, or wider margins for the whole
+video), re-rendered and re-checked up to three times. After the render, frames from the real
+video are compared with the checked frames.
 
-**Gate:** final render finishes with `Saved ...`. Give the person the absolute path.
+Then **look yourself** (QC measures, you judge): open `review/qc/<format>/report.md`, every image
+in `review/qc/<format>/failed/`, and a few `*-frame.jpg` images, plus `review/contact-sheet.jpg`.
+Confirm the text sits where the person asked, the font looks right, and scripts render properly
+(no empty boxes, no broken joining in Arabic or Indic text). If something looks wrong that QC
+did not catch, fix it in project.json (`adjust`, `style`) and run `npm run qc -- <name>` again.
 
-## 6. Changing the look
+**Gate:** each format's QC report says **PASS** (or every remaining problem is explained to the
+person) and the render finished with `Saved ...`. Give the person the absolute paths.
+
+## 7. Approve and clean up
+
+Only after the person says they are happy with the video:
+
+```bash
+npm run approve -- <name> --yes
+```
+
+It refuses videos whose QC did not pass (unless `--force`), records the approval in
+project.json, and deletes working files: audio and vocal copies, speech caches, render staging
+and bundles, QC and review frame images, drafts and unapproved renders. It keeps project files,
+reports, the contact sheet and approved videos. Add `--media` only if the person also wants the
+copied source video removed. Never run it without the person's approval.
+
+## 8. Changing the look
 
 All in `projects/<name>/project.json` (autocomplete via `schema/project.schema.json`):
 
@@ -145,7 +179,7 @@ All in `projects/<name>/project.json` (autocomplete via `schema/project.schema.j
 "style": {
   "preset": "golden-sparkle",
   "text": { "primary": { "fontSize": 88 }, "secondary": { "sungColor": "#ffd27a" } },
-  "layout": { "position": "top", "avoidFaces": true },
+  "layout": { "position": "bottom", "avoidFaces": false },
   "effects": { "sparkles": { "enabled": false } }
 },
 "graphics": [
@@ -154,12 +188,12 @@ All in `projects/<name>/project.json` (autocomplete via `schema/project.schema.j
 ]
 ```
 
-Full reference: `docs/styles.md` and `docs/graphics.md`. After editing, run
-`npm run validate -- <name>` then a still or draft.
+Fonts: put font files in `projects/<name>/fonts/` (family = file name before the dash), or use
+any Google Fonts name. Reusable looks: `presets/*.json`. House defaults:
+`motion-lyrics.config.json`. Full reference: `docs/styles.md` and `docs/graphics.md`. After
+editing, run `npm run validate -- <name>` then `npm run qc -- <name>`.
 
-Live preview while editing: `npm run studio -- <name>` (refresh the browser after saving).
-
-## 7. When something fails
+## 9. When something fails
 
 | Symptom | Fix |
 | --- | --- |
@@ -169,10 +203,12 @@ Live preview while editing: `npm run studio -- <name>` (refresh the browser afte
 | `Alignment is out of date for line ...` | Lyrics changed after aligning: `npm run align -- <name>` |
 | Many Check lines everywhere | Wrong language tags or lyrics not matching the song. Compare lyrics.txt with the audio; fix `@lang`/`{lang}` |
 | Words in an instrumental intro | Lyrics include a line that is not sung, or the vocal is very quiet: check lyrics; `--force` re-runs everything |
-| Text covers a face | `"layout": { "position": "top" }` for that project, or keep `avoidFaces` on and lower `marginY` |
+| Text covers a face | Ask the person: a different `position`, or `avoidFaces` on (positions may then change) |
+| QC "font-not-found" | The font name is not a Google Font and no file is in `fonts/`: fix the spelling or add the file |
+| QC problems remain after 3 rounds | Read `review/qc/<format>/report.md`; adjust `style` (sizes, margins) or `adjust` in project.json, then `npm run qc` |
 | Video will not decode | The CLI converts unusual formats automatically; if it still fails, convert to H.264 MP4 first |
 
-## 8. Extending the framework (code changes)
+## 10. Extending the framework (code changes)
 
 - **New preset:** add an entry in `src/style/presets.ts` (only the fields that differ from
   defaults), add it to `docs/styles.md`, run `npm test`.

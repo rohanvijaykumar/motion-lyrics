@@ -50,14 +50,25 @@ function build(dir: string, preset: string, width: number, height: number) {
   let t = 1.0;
   for (const g of parsed.groups) {
     for (const l of g.lines.filter((x) => x.sung)) {
-      const lens = l.words.map((w) => Math.max(2, graphemes(w.text, l.lang).length));
+      const lens = l.words.map((w) =>
+        Math.max(2, graphemes(w.text, l.lang).length),
+      );
       const total = lens.reduce((a, b) => a + b, 0);
       let acc = 0;
       const words = l.words.map((w, i) => {
         const s = t + (2.8 * acc) / total;
         acc += lens[i];
         const e = t + (2.8 * acc) / total;
-        return { id: w.id, text: w.text, start: s, end: e - 0.03, score: 0.9, voiced: 1, flags: [], conf: 0.95 };
+        return {
+          id: w.id,
+          text: w.text,
+          start: s,
+          end: e - 0.03,
+          score: 0.9,
+          voiced: 1,
+          flags: [],
+          conf: 0.95,
+        };
       });
       lines.push({ id: l.id, words, conf: 0.95, flags: [] });
       mids.push(t + 1.6);
@@ -67,7 +78,14 @@ function build(dir: string, preset: string, width: number, height: number) {
   const duration = t + 1;
   const { song } = buildSong(parsed, { version: 1, lines }, duration, null);
   writeJson(path.join(dir, "song.json"), song);
-  writeJson(path.join(dir, "analysis.json"), { version: 1, duration, beats: [], tempo: null, envelope: null, faces: [] });
+  writeJson(path.join(dir, "analysis.json"), {
+    version: 1,
+    duration,
+    beats: [],
+    tempo: null,
+    envelope: null,
+    faces: [],
+  });
   writeJson(
     path.join(dir, "project.json"),
     ProjectSchema.parse({
@@ -86,14 +104,38 @@ async function main() {
   for (const preset of PRESET_NAMES) {
     const vertical = preset === "social-pop";
     const dir = path.join(OUT, preset);
-    const mids = build(dir, preset, vertical ? 1080 : 1920, vertical ? 1920 : 1080);
-    const pick = preset === "golden-sparkle" ? mids.map((m, i) => [m, i] as const) : [[mids[(PRESET_NAMES.indexOf(preset) * 2) % mids.length], 0] as const, [mids[(PRESET_NAMES.indexOf(preset) * 2 + 3) % mids.length], 1] as const];
-    const items = pick.map(([time, i]) => ({ time, out: path.join(OUT, `${preset}-${i}.jpg`) }));
+    const mids = build(
+      dir,
+      preset,
+      vertical ? 1080 : 1920,
+      vertical ? 1920 : 1080,
+    );
+    const pick =
+      preset === "golden-sparkle"
+        ? mids.map((m, i) => [m, i] as const)
+        : [
+            [
+              mids[(PRESET_NAMES.indexOf(preset) * 2) % mids.length],
+              0,
+            ] as const,
+            [
+              mids[(PRESET_NAMES.indexOf(preset) * 2 + 3) % mids.length],
+              1,
+            ] as const,
+          ];
+    const items = pick.map(([time, i]) => ({
+      time,
+      out: path.join(OUT, `${preset}-${i}.jpg`),
+    }));
     await renderStills(dir, items, vertical ? 0.28 : 0.5);
     images.push(...items.map((x) => x.out));
     console.log(`rendered ${preset}`);
   }
-  await py(["sheet", "--out", path.join(OUT, "sheet.jpg"), ...images], "Contact sheet", true);
+  await py(
+    ["sheet", "--out", path.join(OUT, "sheet.jpg"), ...images],
+    "Contact sheet",
+    true,
+  );
   console.log(`Wrote ${path.join(OUT, "sheet.jpg")}`);
 }
 

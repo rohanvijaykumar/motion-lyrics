@@ -13,8 +13,15 @@ import { z } from "zod";
 
 export const WordSchema = z.object({
   id: z.string(),
-  text: z.string().describe("Exactly as displayed, including attached punctuation"),
-  ws: z.string().default(" ").describe("Whitespace shown after the word ('' for scripts without spaces)"),
+  text: z
+    .string()
+    .describe("Exactly as displayed, including attached punctuation"),
+  ws: z
+    .string()
+    .default(" ")
+    .describe(
+      "Whitespace shown after the word ('' for scripts without spaces)",
+    ),
   start: z.number(),
   end: z.number(),
   conf: z.number().optional().describe("0-1 timing confidence"),
@@ -24,30 +31,48 @@ export const WordSchema = z.object({
 export const LineSchema = z.object({
   id: z.string(),
   track: z.string(),
-  sung: z.boolean().default(true).describe("false = a translation/romanization shown with a sung line"),
-  pairOf: z.string().optional().describe("For unsung lines: id of the sung line it accompanies"),
+  sung: z
+    .boolean()
+    .default(true)
+    .describe("false = a translation/romanization shown with a sung line"),
+  pairOf: z
+    .string()
+    .optional()
+    .describe("For unsung lines: id of the sung line it accompanies"),
   start: z.number(),
   end: z.number(),
   words: z.array(WordSchema),
-  locked: z.boolean().optional().describe("Keep this line's timing when alignment is re-run"),
+  locked: z
+    .boolean()
+    .optional()
+    .describe("Keep this line's timing when alignment is re-run"),
   conf: z.number().optional(),
   flags: z.array(z.string()).optional(),
   review: z
     .enum(["check", "glance"])
     .optional()
-    .describe("check = timing likely wrong, inspect its strip; glance = watch it in the draft"),
+    .describe(
+      "check = timing likely wrong, inspect its strip; glance = watch it in the draft",
+    ),
 });
 
 export const GroupSchema = z.object({
   id: z.string(),
-  section: z.string().optional().describe("e.g. Chorus, from a [Chorus] marker in lyrics.txt"),
+  section: z
+    .string()
+    .optional()
+    .describe("e.g. Chorus, from a [Chorus] marker in lyrics.txt"),
   lines: z.array(LineSchema),
 });
 
 export const TrackSchema = z.object({
   id: z.string(),
-  lang: z.string().describe("BCP-47 language tag, e.g. hi, en, ar, ja, zh-Hant"),
-  script: z.string().describe("ISO 15924 script code, e.g. Deva, Latn, Arab, Jpan"),
+  lang: z
+    .string()
+    .describe("BCP-47 language tag, e.g. hi, en, ar, ja, zh-Hant"),
+  script: z
+    .string()
+    .describe("ISO 15924 script code, e.g. Deva, Latn, Arab, Jpan"),
   dir: z.enum(["ltr", "rtl"]),
   role: z.enum(["sung", "companion"]),
   tier: z.enum(["primary", "secondary"]),
@@ -80,9 +105,18 @@ export const AnalysisSchema = z.object({
     .default(null)
     .describe("Vocal loudness, used by the timing overlay"),
   faces: z
-    .array(z.object({ t: z.number(), boxes: z.array(z.tuple([z.number(), z.number(), z.number(), z.number()])) }))
+    .array(
+      z.object({
+        t: z.number(),
+        boxes: z.array(
+          z.tuple([z.number(), z.number(), z.number(), z.number()]),
+        ),
+      }),
+    )
     .default([])
-    .describe("Face boxes (x, y, w, h as fractions of the frame) sampled over time"),
+    .describe(
+      "Face boxes (x, y, w, h as fractions of the frame) sampled over time",
+    ),
 });
 
 export type Analysis = z.infer<typeof AnalysisSchema>;

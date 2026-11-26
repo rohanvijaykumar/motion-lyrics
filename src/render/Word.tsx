@@ -27,24 +27,52 @@ type Props = {
   entrance: Entrance;
   /** Effects never start before the page is on screen. */
   pageStart: number;
+  /** QC mask mode: draw the word in this flat colour only. */
+  mask?: string;
 };
 
 const PAD = 0.45; // em of room around the fill so glows are not cut off
 
-export const WordView: React.FC<Props> = ({ word, t, style, ts, scale, dir, script, lang, sung, entrance, pageStart }) => {
+export const WordView: React.FC<Props> = ({
+  word,
+  t,
+  style,
+  ts,
+  scale,
+  dir,
+  script,
+  lang,
+  sung,
+  entrance,
+  pageStart,
+  mask: maskColor,
+}) => {
   const h = style.highlight;
   const fx = style.effects;
   const wipe = wipeTiming(word.start, word.end, style, t, dir);
   const sparks = useMemo(
-    () => (sung && fx.sparkles.enabled && h.type === "wipe" ? makeSparks(word.id, [...word.text].length, style) : []),
+    () =>
+      sung && fx.sparkles.enabled && h.type === "wipe"
+        ? makeSparks(word.id, [...word.text].length, style)
+        : [],
     [word.id, word.text, sung, fx.sparkles.enabled, h.type, style],
   );
 
   // ---- entrance ------------------------------------------------------------
   const enterType = style.enter.type;
-  const letterMode = (enterType === "typewriter" || enterType === "letters") && LETTER_SAFE_SCRIPTS.has(script);
-  const effType = (enterType === "typewriter" || enterType === "letters") && !letterMode ? "rise" : enterType;
-  const ep = seg(t, entrance.start, entrance.dur, effType === "pop" ? ease.backOut(2.2) : ease.out3);
+  const letterMode =
+    (enterType === "typewriter" || enterType === "letters") &&
+    LETTER_SAFE_SCRIPTS.has(script);
+  const effType =
+    (enterType === "typewriter" || enterType === "letters") && !letterMode
+      ? "rise"
+      : enterType;
+  const ep = seg(
+    t,
+    entrance.start,
+    entrance.dur,
+    effType === "pop" ? ease.backOut(2.2) : ease.out3,
+  );
   const epLin = seg(t, entrance.start, entrance.dur);
   let opacity = 1;
   let tx = 0;
@@ -108,12 +136,17 @@ export const WordView: React.FC<Props> = ({ word, t, style, ts, scale, dir, scri
   fillOpacity *= 1 - doneFade;
 
   const boxOn = h.box.enabled && sung;
-  const boxA = boxOn ? seg(t, word.start - 0.04, 0.09, ease.out2) * (1 - seg(t, word.end, 0.1)) : 0;
+  const boxA = boxOn
+    ? seg(t, word.start - 0.04, 0.09, ease.out2) * (1 - seg(t, word.end, 0.1))
+    : 0;
 
   // ---- text --------------------------------------------------------------------
   const strokeCss: React.CSSProperties =
     ts.strokeWidth > 0
-      ? { WebkitTextStroke: `${ts.strokeWidth * 2 * scale}px ${ts.strokeColor}`, paintOrder: "stroke fill" }
+      ? {
+          WebkitTextStroke: `${ts.strokeWidth * 2 * scale}px ${ts.strokeColor}`,
+          paintOrder: "stroke fill",
+        }
       : {};
   const glyphs = letterMode ? graphemes(word.text, lang) : null;
   const renderText = () => {
@@ -125,14 +158,22 @@ export const WordView: React.FC<Props> = ({ word, t, style, ts, scale, dir, scri
           ? t >= entrance.start + i * per
             ? 1
             : 0
-          : seg(t, entrance.start + i * per * 0.6, Math.max(0.12, entrance.dur * 0.5), ease.out3);
+          : seg(
+              t,
+              entrance.start + i * per * 0.6,
+              Math.max(0.12, entrance.dur * 0.5),
+              ease.out3,
+            );
       return (
         <span
           key={i}
           style={{
             opacity: gp,
             display: "inline-block",
-            translate: enterType === "letters" ? `0 ${(1 - gp) * dist * 0.6}px` : undefined,
+            translate:
+              enterType === "letters"
+                ? `0 ${(1 - gp) * dist * 0.6}px`
+                : undefined,
             whiteSpace: "pre",
           }}
         >
@@ -150,8 +191,12 @@ export const WordView: React.FC<Props> = ({ word, t, style, ts, scale, dir, scri
       ? `linear-gradient(${towards}, #000 calc(${maskPos} - ${edge}), transparent ${maskPos})`
       : undefined;
 
-  const showFill = h.type !== "none" && fill > 0 && fillOpacity > 0;
-  const fillColor = boxOn && boxA > 0.01 ? interpolateColors(boxA, [0, 1], [ts.sungColor, h.box.textColor]) : ts.sungColor;
+  const showFill =
+    !maskColor && h.type !== "none" && fill > 0 && fillOpacity > 0;
+  const fillColor =
+    boxOn && boxA > 0.01
+      ? interpolateColors(boxA, [0, 1], [ts.sungColor, h.box.textColor])
+      : ts.sungColor;
 
   return (
     <span
@@ -159,17 +204,19 @@ export const WordView: React.FC<Props> = ({ word, t, style, ts, scale, dir, scri
         position: "relative",
         display: "inline-block",
         // Scripts written without spaces keep their words touching.
-        margin: NO_SPACE_SCRIPTS.has(script) ? 0 : `0 ${style.layout.wordSpacing}em`,
+        margin: NO_SPACE_SCRIPTS.has(script)
+          ? 0
+          : `0 ${style.layout.wordSpacing}em`,
         transformOrigin: "50% 70%",
         opacity,
         translate: tx || ty ? `${tx}px ${ty}px` : undefined,
         scale: sc !== 1 ? String(sc) : undefined,
-        filter: blur > 0.05 ? `blur(${blur}px)` : undefined,
+        filter: blur > 0.05 && !maskColor ? `blur(${blur}px)` : undefined,
         clipPath: clip,
         whiteSpace: "nowrap",
       }}
     >
-      {boxOn && boxA > 0 ? (
+      {!maskColor && boxOn && boxA > 0 ? (
         <span
           style={{
             position: "absolute",
@@ -186,9 +233,13 @@ export const WordView: React.FC<Props> = ({ word, t, style, ts, scale, dir, scri
         style={{
           position: "relative",
           zIndex: 1,
-          color: ts.color,
-          textShadow: ts.shadow === "none" ? undefined : ts.shadow,
-          ...strokeCss,
+          color: maskColor ?? ts.color,
+          textShadow: maskColor || ts.shadow === "none" ? undefined : ts.shadow,
+          ...(maskColor && ts.strokeWidth > 0
+            ? {
+                WebkitTextStroke: `${ts.strokeWidth * 2 * scale}px ${maskColor}`,
+              }
+            : strokeCss),
         }}
       >
         {renderText()}
@@ -214,7 +265,7 @@ export const WordView: React.FC<Props> = ({ word, t, style, ts, scale, dir, scri
           {renderText()}
         </span>
       ) : null}
-      {h.underline.enabled && sung ? (
+      {!maskColor && h.underline.enabled && sung ? (
         <span
           style={{
             position: "absolute",
@@ -229,14 +280,27 @@ export const WordView: React.FC<Props> = ({ word, t, style, ts, scale, dir, scri
           }}
         />
       ) : null}
-      {sung && h.type === "wipe" && fx.glint.enabled ? (
+      {!maskColor && sung && h.type === "wipe" && fx.glint.enabled ? (
         <span style={{ position: "absolute", inset: 0, zIndex: 3 }}>
-          <Glint w={wipe} t={t} style={style} scale={scale} notBefore={pageStart} />
+          <Glint
+            w={wipe}
+            t={t}
+            style={style}
+            scale={scale}
+            notBefore={pageStart}
+          />
         </span>
       ) : null}
-      {sparks.length ? (
+      {!maskColor && sparks.length ? (
         <span style={{ position: "absolute", inset: 0, zIndex: 3 }}>
-          <Sparkles sparks={sparks} w={wipe} t={t} style={style} scale={scale} notBefore={pageStart} />
+          <Sparkles
+            sparks={sparks}
+            w={wipe}
+            t={t}
+            style={style}
+            scale={scale}
+            notBefore={pageStart}
+          />
         </span>
       ) : null}
     </span>

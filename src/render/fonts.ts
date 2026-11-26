@@ -10,14 +10,35 @@
 import { getAvailableFonts } from "@remotion/google-fonts";
 import { loadFont as loadLocalFont } from "@remotion/fonts";
 import { continueRender, delayRender, staticFile } from "remotion";
-import { DEFAULT_FONT_FOR_SCRIPT, DEFAULT_SERIF_FONT_FOR_SCRIPT } from "../core/script";
+import {
+  DEFAULT_FONT_FOR_SCRIPT,
+  DEFAULT_SERIF_FONT_FOR_SCRIPT,
+} from "../core/script";
 import type { Style, TextStyle } from "../schema/style";
 
-export type FontNeed = { family: string; weight: number; italic: boolean; text: string };
+export type FontNeed = {
+  family: string;
+  weight: number;
+  italic: boolean;
+  text: string;
+};
 
-export function fontStack(style: Style, ts: TextStyle, script: string): string[] {
-  const fallback = (style.fontFallback === "serif" ? DEFAULT_SERIF_FONT_FOR_SCRIPT : DEFAULT_FONT_FOR_SCRIPT)[script];
-  const stack = [style.fonts[script], ts.fontFamily, fallback, style.fontFallback === "serif" ? "Noto Serif" : "Noto Sans"];
+export function fontStack(
+  style: Style,
+  ts: TextStyle,
+  script: string,
+): string[] {
+  const fallback = (
+    style.fontFallback === "serif"
+      ? DEFAULT_SERIF_FONT_FOR_SCRIPT
+      : DEFAULT_FONT_FOR_SCRIPT
+  )[script];
+  const stack = [
+    style.fonts[script],
+    ts.fontFamily,
+    fallback,
+    style.fontFallback === "serif" ? "Noto Serif" : "Noto Sans",
+  ];
   return [...new Set(stack.filter((f): f is string => !!f))];
 }
 
@@ -34,7 +55,10 @@ function parseRanges(s: string | undefined): RangeList | null {
       return [parseInt(a, 16), parseInt(b, 16)] as [number, number];
     }
     if (p.includes("?")) {
-      return [parseInt(p.replace(/\?/g, "0"), 16), parseInt(p.replace(/\?/g, "F"), 16)] as [number, number];
+      return [
+        parseInt(p.replace(/\?/g, "0"), 16),
+        parseInt(p.replace(/\?/g, "F"), 16),
+      ] as [number, number];
     }
     const v = parseInt(p, 16);
     return [v, v] as [number, number];
@@ -42,12 +66,15 @@ function parseRanges(s: string | undefined): RangeList | null {
 }
 
 const covers = (ranges: RangeList, cps: Set<number>) => {
-  for (const cp of cps) for (const [a, b] of ranges) if (cp >= a && cp <= b) return true;
+  for (const cp of cps)
+    for (const [a, b] of ranges) if (cp >= a && cp <= b) return true;
   return false;
 };
 
 const nearestWeight = (available: string[], want: number) =>
-  available.map(Number).sort((a, b) => Math.abs(a - want) - Math.abs(b - want))[0];
+  available
+    .map(Number)
+    .sort((a, b) => Math.abs(a - want) - Math.abs(b - want))[0];
 
 /**
  * Load every Google Font needed, only the slices whose characters appear in the text.
@@ -56,7 +83,8 @@ const nearestWeight = (available: string[], want: number) =>
 export async function loadGoogleFonts(needs: FontNeed[]): Promise<void> {
   const available = getAvailableFonts();
   const byFamily = new Map<string, FontNeed[]>();
-  for (const n of needs) byFamily.set(n.family, [...(byFamily.get(n.family) ?? []), n]);
+  for (const n of needs)
+    byFamily.set(n.family, [...(byFamily.get(n.family) ?? []), n]);
 
   await Promise.all(
     [...byFamily.entries()].map(async ([family, list]) => {
@@ -70,9 +98,16 @@ export async function loadGoogleFonts(needs: FontNeed[]): Promise<void> {
         if (!forStyle.length) continue;
         const styleFonts = info.fonts[styleKey] ?? info.fonts.normal;
         const actualStyle = info.fonts[styleKey] ? styleKey : "normal";
-        const weights = [...new Set(forStyle.map((n) => String(nearestWeight(Object.keys(styleFonts), n.weight))))];
+        const weights = [
+          ...new Set(
+            forStyle.map((n) =>
+              String(nearestWeight(Object.keys(styleFonts), n.weight)),
+            ),
+          ),
+        ];
         const cps = new Set<number>();
-        for (const n of forStyle) for (const ch of n.text) cps.add(ch.codePointAt(0)!);
+        for (const n of forStyle)
+          for (const ch of n.text) cps.add(ch.codePointAt(0)!);
         const subsetKeys = Object.keys(styleFonts[weights[0]] ?? {});
         const subsets = subsetKeys.filter((k) => {
           const r = parseRanges(info.unicodeRanges[k]);
@@ -91,14 +126,26 @@ export async function loadGoogleFonts(needs: FontNeed[]): Promise<void> {
 }
 
 /** Load project-supplied font files (project.json "localFonts"). */
-export async function loadLocalFonts(fonts: { family: string; src: string; weight: string; style: string }[]) {
+export async function loadLocalFonts(
+  fonts: { family: string; src: string; weight: string; style: string }[],
+) {
   await Promise.all(
-    fonts.map((f) => loadLocalFont({ family: f.family, url: staticFile(f.src), weight: f.weight, style: f.style })),
+    fonts.map((f) =>
+      loadLocalFont({
+        family: f.family,
+        url: staticFile(f.src),
+        weight: f.weight,
+        style: f.style,
+      }),
+    ),
   );
 }
 
 /** Block rendering until fonts are ready. Call once per render tab. */
-export function holdRenderFor<T>(label: string, work: () => Promise<T>): Promise<T> {
+export function holdRenderFor<T>(
+  label: string,
+  work: () => Promise<T>,
+): Promise<T> {
   const handle = delayRender(label, { timeoutInMilliseconds: 120000 });
   return work().finally(() => continueRender(handle));
 }

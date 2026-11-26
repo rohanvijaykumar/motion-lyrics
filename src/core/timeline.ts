@@ -31,9 +31,16 @@ const QUICK_EXIT = 0.2;
 const QUICK_ENTER = 0.22;
 const MIN_ENTER = 0.12;
 
-const sungWords = (lines: Line[]): Word[] => lines.filter((l) => l.sung).flatMap((l) => l.words);
+const sungWords = (lines: Line[]): Word[] =>
+  lines.filter((l) => l.sung).flatMap((l) => l.words);
 
-function makePage(id: string, groupId: string, lines: Line[], slot: number, section?: string): Page | null {
+function makePage(
+  id: string,
+  groupId: string,
+  lines: Line[],
+  slot: number,
+  section?: string,
+): Page | null {
   const words = sungWords(lines);
   if (!words.length) return null;
   return {
@@ -65,7 +72,13 @@ export function paginate(song: Song, style: Style): Page[] {
     for (const g of song.groups) {
       for (const l of g.lines.filter((x) => x.sung)) {
         const companions = g.lines.filter((c) => !c.sung && c.pairOf === l.id);
-        const p = makePage(l.id, g.id, [l, ...companions], type === "alternate" ? n % 2 : 0, g.section);
+        const p = makePage(
+          l.id,
+          g.id,
+          [l, ...companions],
+          type === "alternate" ? n % 2 : 0,
+          g.section,
+        );
         if (p) {
           pages.push(p);
           n++;
@@ -79,7 +92,13 @@ export function paginate(song: Song, style: Style): Page[] {
         let chars = 0;
         const flush = () => {
           if (!chunk.length) return;
-          const sub: Line = { ...l, id: `${l.id}p${pages.length}`, words: chunk, start: chunk[0].start, end: chunk[chunk.length - 1].end };
+          const sub: Line = {
+            ...l,
+            id: `${l.id}p${pages.length}`,
+            words: chunk,
+            start: chunk[0].start,
+            end: chunk[chunk.length - 1].end,
+          };
           const p = makePage(sub.id, g.id, [sub], 0, g.section);
           if (p) pages.push(p);
           chunk = [];
@@ -91,7 +110,9 @@ export function paginate(song: Song, style: Style): Page[] {
           const len = [...w.text].length;
           if (
             chunk.length &&
-            (chunk.length >= style.layout.wordsPerPage || chars + len > style.layout.maxCharsPerPage || gap > 0.6)
+            (chunk.length >= style.layout.wordsPerPage ||
+              chars + len > style.layout.maxCharsPerPage ||
+              gap > 0.6)
           )
             flush();
           chunk.push(w);
@@ -106,7 +127,11 @@ export function paginate(song: Song, style: Style): Page[] {
 }
 
 /** Fill in enter/exit times. `duration` is the video length in seconds. */
-export function schedule(pages: Page[], style: Style, duration: number): Page[] {
+export function schedule(
+  pages: Page[],
+  style: Style,
+  duration: number,
+): Page[] {
   const lead = style.timing.lead;
   const tail = style.timing.tail;
   const enterDur = style.enter.type === "none" ? 0.001 : style.enter.duration;
@@ -133,20 +158,30 @@ export function schedule(pages: Page[], style: Style, duration: number): Page[] 
           // Tight hand-off: a quick swap right around the last word.
           tight = true;
           p.exitDur = Math.min(exitDur, QUICK_EXIT);
-          const want = next.first + 0.1 - Math.min(enterDur, QUICK_ENTER) - p.exitDur;
+          const want =
+            next.first + 0.1 - Math.min(enterDur, QUICK_ENTER) - p.exitDur;
           p.exitStart = clamp(want, p.last - EXIT_EARLY_LIMIT, p.last);
         }
       }
       // A tight swap is gapless: the next page arrives the moment this one is gone.
-      next.enterStart = tight ? p.exitStart + p.exitDur : Math.max(naturalEnter, p.exitStart + p.exitDur - 0.02);
-      next.enterDur = clamp(next.first + 0.1 - next.enterStart, MIN_ENTER, enterDur);
+      next.enterStart = tight
+        ? p.exitStart + p.exitDur
+        : Math.max(naturalEnter, p.exitStart + p.exitDur - 0.02);
+      next.enterDur = clamp(
+        next.first + 0.1 - next.enterStart,
+        MIN_ENTER,
+        enterDur,
+      );
     });
     const lastPage = list[list.length - 1];
     if (lastPage) {
       if (style.timing.holdLast && duration - lastPage.last <= 8) {
         lastPage.exitStart = duration + 1; // stays to the end
       } else {
-        lastPage.exitStart = Math.min(lastPage.last + tail, Math.max(lastPage.last, duration - lastPage.exitDur));
+        lastPage.exitStart = Math.min(
+          lastPage.last + tail,
+          Math.max(lastPage.last, duration - lastPage.exitDur),
+        );
       }
     }
   }

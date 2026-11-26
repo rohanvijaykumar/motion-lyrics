@@ -13,7 +13,11 @@ video.mp4 + lyrics.txt
    ├─ verify     confidence per word; "check" / "glance" level per line
    ├─ song.json  timed lyrics (+ translations timed with their sung line)
    ├─ review     report.md, contact sheet, timing strips for flagged lines
-   └─ render     Remotion: React components draw every frame; ffmpeg encodes
+   ├─ qc         a frame of every lyric line per export format: position, size,
+   │             contrast, fonts; fix and re-check (never moves lyrics)
+   ├─ render     Remotion: React components draw every frame; ffmpeg encodes
+   ├─ verify     frames from the finished video match the checked frames
+   └─ approve    record the approved video; clean up working files
 ```
 
 Every stage reads and writes files in the project folder, so any stage can be re-run alone
@@ -31,9 +35,28 @@ and every intermediate result can be inspected:
 | `work/alignment.json` | align | word times, scores, flags |
 | `song.json` | build | the timed lyrics the renderer uses (safe to edit) |
 | `review/` | review | report, contact sheet, strips |
+| `review/qc/<format>/` | qc | QC report and images of any failed frames |
 | `out/` | render | videos |
 
 `make` skips stages whose outputs are newer than their inputs; `--force` redoes everything.
+
+## Export formats and visual QC
+
+`render` takes `--size 1080|4k`, `--aspect 16:9|9:16` or `--all`. The composition is laid out at
+the target size (text is drawn at full resolution, never upscaled). Footage is placed by the
+framing rules in `src/core/frame.ts`: `cover` crops to fill and follows the faces over time
+(smoothed over about two seconds), `contain` shows the whole picture with bars, and `blur`
+shows the whole picture over an enlarged, blurred copy.
+
+Before each render, `scripts/lib/qc.ts` picks a settled moment for every sung line (after its
+screen has finished entering, mid-line, before it leaves) and renders two frames: the real one
+and a mask with each line in a flat colour on black. `pipeline/motion_lyrics/qc.py` measures
+each line's exact pixel box from the mask, and judges contrast between the sung line's letters
+and a ring of picture around them. Fonts are checked separately: each character is matched
+against the Google Fonts unicode ranges or, for your own files, the font's character map
+(fontTools). Fixes are written to `project.json` (`adjust` per screen, or wider margins for the
+whole video) and never move lyrics. After the render, frames are taken from the finished file
+at the same moments and compared with the checked frames.
 
 ## Why these choices
 

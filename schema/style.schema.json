@@ -32,8 +32,8 @@
           ]
         },
         "avoidFaces": {
-          "default": true,
-          "description": "Move text away from detected faces",
+          "default": false,
+          "description": "Off (default): lyrics stay in one place all video. On: a screen moves to the other end of the frame if it would cover a face.",
           "type": "boolean"
         },
         "align": {

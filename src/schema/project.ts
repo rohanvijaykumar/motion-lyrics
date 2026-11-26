@@ -6,8 +6,14 @@ import { z } from "zod";
 import { StyleSchema } from "./style";
 
 const Placement = z.object({
-  x: z.number().default(0.5).describe("Horizontal anchor, 0 = left edge, 1 = right edge"),
-  y: z.number().default(0.5).describe("Vertical anchor, 0 = top edge, 1 = bottom edge"),
+  x: z
+    .number()
+    .default(0.5)
+    .describe("Horizontal anchor, 0 = left edge, 1 = right edge"),
+  y: z
+    .number()
+    .default(0.5)
+    .describe("Vertical anchor, 0 = top edge, 1 = bottom edge"),
 });
 
 const GraphicBase = z.object({
@@ -51,7 +57,9 @@ export const GraphicSchema = z.discriminatedUnion("type", [
   }),
   GraphicBase.extend({
     type: z.literal("image"),
-    src: z.string().describe("Path inside the project folder, e.g. media/logo.png"),
+    src: z
+      .string()
+      .describe("Path inside the project folder, e.g. media/logo.png"),
     at: Placement.prefault({ x: 0.92, y: 0.1 }),
     width: z.number().default(0.12).describe("Fraction of frame width"),
     opacity: z.number().default(1),
@@ -80,7 +88,12 @@ export const BackgroundSchema = z.object({
   color: z.string().default("#0b0b10"),
   colors: z.array(z.string()).default(["#1b1033", "#3a1c4a", "#0e2a47"]),
   dim: z.number().default(0).describe("0-1 darkening over the background"),
-  fit: z.enum(["cover", "contain"]).default("cover"),
+  fit: z
+    .enum(["cover", "contain", "blur"])
+    .default("cover")
+    .describe(
+      "cover = fill the frame, cropping around faces; contain = whole picture with bars; blur = whole picture over a blurred copy",
+    ),
 });
 
 export const ProjectSchema = z.object({
@@ -89,8 +102,14 @@ export const ProjectSchema = z.object({
   artist: z.string().optional(),
   media: z
     .object({
-      video: z.string().optional().describe("Path inside the project, e.g. media/video.mp4"),
-      audio: z.string().optional().describe("Separate audio file; defaults to the video's own sound"),
+      video: z
+        .string()
+        .optional()
+        .describe("Path inside the project, e.g. media/video.mp4"),
+      audio: z
+        .string()
+        .optional()
+        .describe("Separate audio file; defaults to the video's own sound"),
       duration: z.number().describe("Seconds (filled in automatically)"),
       width: z.number().default(1920),
       height: z.number().default(1080),
@@ -110,30 +129,80 @@ export const ProjectSchema = z.object({
     .object({ preset: z.string().default("golden-sparkle") })
     .catchall(z.unknown())
     .prefault({})
-    .describe("A preset name plus any style fields to override (see docs/styles.md)"),
+    .describe(
+      "A preset name plus any style fields to override (see docs/styles.md)",
+    ),
   graphics: z.array(GraphicSchema).default([]),
   localFonts: z
     .array(
       z.object({
         family: z.string(),
-        src: z.string().describe("Font file inside the project folder, e.g. fonts/MyFont-Bold.ttf"),
+        src: z
+          .string()
+          .describe(
+            "Font file inside the project folder, e.g. fonts/MyFont-Bold.ttf",
+          ),
         weight: z.string().default("400"),
         style: z.enum(["normal", "italic"]).default("normal"),
       }),
     )
     .default([])
     .describe("Font files to use instead of, or alongside, Google Fonts"),
-  sectionLabels: z.boolean().default(false).describe("Show [Section] names from lyrics.txt as labels"),
+  sectionLabels: z
+    .boolean()
+    .default(false)
+    .describe("Show [Section] names from lyrics.txt as labels"),
+  adjust: z
+    .partialRecord(
+      z.enum(["landscape", "portrait", "square"]),
+      z.record(
+        z.string(),
+        z.object({
+          scale: z
+            .number()
+            .default(1)
+            .describe("Shrink (<1) or grow this screen's text"),
+          backing: z
+            .number()
+            .default(0)
+            .describe("Extra dark backing behind this screen, 0-1"),
+          outline: z
+            .boolean()
+            .default(false)
+            .describe("Add a dark outline for legibility"),
+          reason: z.string().optional().describe("Why QC (or you) changed it"),
+        }),
+      ),
+    )
+    .default({})
+    .describe(
+      "Per-screen fixes by frame shape, then screen id (g0, g1...). Written by QC; never moves lyrics.",
+    ),
+  approved: z
+    .array(z.object({ file: z.string(), sha256: z.string(), at: z.string() }))
+    .default([])
+    .describe("Videos approved with npm run approve (kept by cleanup)"),
   tokenize: z
     .record(z.string(), z.enum(["word", "char"]))
     .default({})
-    .describe('Per-language highlight unit, e.g. { "zh": "char" } for per-character karaoke'),
+    .describe(
+      'Per-language highlight unit, e.g. { "zh": "char" } for per-character karaoke',
+    ),
   pipeline: z
     .object({
-      separate: z.boolean().default(true).describe("Isolate the vocal before aligning (recommended)"),
-      verify: z.boolean().default(true).describe("Cross-check timing with Whisper and flag disagreements"),
+      separate: z
+        .boolean()
+        .default(true)
+        .describe("Isolate the vocal before aligning (recommended)"),
+      verify: z
+        .boolean()
+        .default(true)
+        .describe("Cross-check timing with Whisper and flag disagreements"),
       whisperModel: z.string().default("medium"),
-      faces: z.boolean().default(true).describe("Detect faces so lyrics can avoid them"),
+      faces: z
+        .boolean()
+        .default(true)
+        .describe("Detect faces so lyrics can avoid them"),
     })
     .prefault({}),
 });

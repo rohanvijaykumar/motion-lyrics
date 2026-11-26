@@ -58,7 +58,9 @@
     "dev": "tsx scripts/cli.ts studio",
     "test": "vitest run",
     "lint": "eslint src scripts && tsc",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "qc": "tsx scripts/cli.ts qc",
+    "approve": "tsx scripts/cli.ts approve"
   },
   "allowScripts": {
     "esbuild": false

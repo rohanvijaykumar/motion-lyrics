@@ -24,4 +24,5 @@ export function rng(seed: string): () => number {
   };
 }
 
-export const between = (r: () => number, lo: number, hi: number) => lo + (hi - lo) * r();
+export const between = (r: () => number, lo: number, hi: number) =>
+  lo + (hi - lo) * r();

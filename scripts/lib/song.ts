@@ -4,29 +4,61 @@
  */
 import type { ParsedLyrics } from "../../src/core/lyrics";
 import { graphemes } from "../../src/core/segment";
-import { SongSchema, type Line, type Song, type Word } from "../../src/schema/song";
+import {
+  SongSchema,
+  type Line,
+  type Song,
+  type Word,
+} from "../../src/schema/song";
 
-type AlignedWord = { id: string; text: string; start: number; end: number; score: number; voiced: number; flags: string[]; conf?: number };
-type AlignedLine = { id: string; words: AlignedWord[]; conf?: number; flags?: string[]; review?: "check" | "glance" | null };
+type AlignedWord = {
+  id: string;
+  text: string;
+  start: number;
+  end: number;
+  score: number;
+  voiced: number;
+  flags: string[];
+  conf?: number;
+};
+type AlignedLine = {
+  id: string;
+  words: AlignedWord[];
+  conf?: number;
+  flags?: string[];
+  review?: "check" | "glance" | null;
+};
 export type Alignment = { version: 1; lines: AlignedLine[] };
 
 const r3 = (v: number) => Math.round(v * 1000) / 1000;
-const lineKey = (l: { track: string; words: { text: string }[] }) => `${l.track}|${l.words.map((w) => w.text).join(" ")}`;
+const lineKey = (l: { track: string; words: { text: string }[] }) =>
+  `${l.track}|${l.words.map((w) => w.text).join(" ")}`;
 
 /** lyrics.json: what the Python aligner needs. */
 export function lyricsForAligner(parsed: ParsedLyrics) {
   return {
     version: 1,
     lines: parsed.groups.flatMap((g) =>
-      g.lines.map((l) => ({ id: l.id, lang: l.lang, sung: l.sung, words: l.words.map((w) => ({ id: w.id, text: w.text })) })),
+      g.lines.map((l) => ({
+        id: l.id,
+        lang: l.lang,
+        sung: l.sung,
+        words: l.words.map((w) => ({ id: w.id, text: w.text })),
+      })),
     ),
   };
 }
 
-export function buildSong(parsed: ParsedLyrics, alignment: Alignment, duration: number, previous: Song | null): { song: Song; kept: string[]; notes: string[] } {
+export function buildSong(
+  parsed: ParsedLyrics,
+  alignment: Alignment,
+  duration: number,
+  previous: Song | null,
+): { song: Song; kept: string[]; notes: string[] } {
   const aligned = new Map(alignment.lines.map((l) => [l.id, l]));
   const locked = new Map<string, Line>();
-  for (const g of previous?.groups ?? []) for (const l of g.lines) if (l.locked) locked.set(lineKey(l), l);
+  for (const g of previous?.groups ?? [])
+    for (const l of g.lines) if (l.locked) locked.set(lineKey(l), l);
   const kept: string[] = [];
   const notes: string[] = [];
 
@@ -42,14 +74,22 @@ export function buildSong(parsed: ParsedLyrics, alignment: Alignment, duration: 
       let review: "check" | "glance" | undefined;
       let isLocked = false;
       if (prev && prev.words.length === pl.words.length) {
-        words = pl.words.map((w, i) => ({ ...w, start: prev.words[i].start, end: prev.words[i].end, conf: 1, flags: [] }));
+        words = pl.words.map((w, i) => ({
+          ...w,
+          start: prev.words[i].start,
+          end: prev.words[i].end,
+          conf: 1,
+          flags: [],
+        }));
         conf = 1;
         isLocked = true;
         kept.push(pl.id);
       } else {
         const al = aligned.get(pl.id);
         if (!al || al.words.length !== pl.words.length) {
-          throw new Error(`Alignment is out of date for line ${pl.id} ("${pl.text}"). Re-run: npm run align -- <project>`);
+          throw new Error(
+            `Alignment is out of date for line ${pl.id} ("${pl.text}"). Re-run: npm run align -- <project>`,
+          );
         }
         words = pl.words.map((w, i) => ({
           id: w.id,
@@ -89,7 +129,9 @@ export function buildSong(parsed: ParsedLyrics, alignment: Alignment, duration: 
       }
       const pair = pl.pairOf ? sungLines.get(pl.pairOf) : undefined;
       if (!pair) {
-        notes.push(`Translation line ${pl.id} has no sung line before it in the same group; it is shown with the group.`);
+        notes.push(
+          `Translation line ${pl.id} has no sung line before it in the same group; it is shown with the group.`,
+        );
       }
       const start = pair?.start ?? lines[0]?.start ?? 0;
       const end = pair?.end ?? lines[lines.length - 1]?.end ?? start + 1;
@@ -118,7 +160,12 @@ export function buildSong(parsed: ParsedLyrics, alignment: Alignment, duration: 
 }
 
 /** Spread a translation's words across its sung line, in proportion to their length. */
-function spread(words: { id: string; text: string; ws: string }[], start: number, end: number, lang: string): Word[] {
+function spread(
+  words: { id: string; text: string; ws: string }[],
+  start: number,
+  end: number,
+  lang: string,
+): Word[] {
   const lens = words.map((w) => Math.max(1, graphemes(w.text, lang).length));
   const total = lens.reduce((a, b) => a + b, 0);
   let acc = 0;
@@ -131,14 +178,22 @@ function spread(words: { id: string; text: string; ws: string }[], start: number
 }
 
 /** Make word times well-formed: inside the video, in order, never zero-length. */
-function sanitize(words: Word[], duration: number, notes: string[], lineId: string) {
+function sanitize(
+  words: Word[],
+  duration: number,
+  notes: string[],
+  lineId: string,
+) {
   let prevStart = -Infinity;
   for (const w of words) {
-    if (!Number.isFinite(w.start) || !Number.isFinite(w.end)) throw new Error(`Line ${lineId}: word "${w.text}" has no timing`);
+    if (!Number.isFinite(w.start) || !Number.isFinite(w.end))
+      throw new Error(`Line ${lineId}: word "${w.text}" has no timing`);
     w.start = Math.min(Math.max(0, w.start), duration);
     w.end = Math.min(Math.max(w.end, w.start + 0.05), duration + 0.5);
     if (w.start < prevStart) {
-      notes.push(`Line ${lineId}: word "${w.text}" started before the previous word; moved to keep order.`);
+      notes.push(
+        `Line ${lineId}: word "${w.text}" started before the previous word; moved to keep order.`,
+      );
       w.start = prevStart;
       w.end = Math.max(w.end, w.start + 0.05);
     }
@@ -148,7 +203,11 @@ function sanitize(words: Word[], duration: number, notes: string[], lineId: stri
   }
 }
 
-export type Issue = { level: "error" | "warning"; where: string; message: string };
+export type Issue = {
+  level: "error" | "warning";
+  where: string;
+  message: string;
+};
 
 /** Checks run by `npm run validate` and before every render. */
 export function validateSong(song: Song, duration: number): Issue[] {
@@ -159,21 +218,57 @@ export function validateSong(song: Song, duration: number): Issue[] {
   for (const g of song.groups) {
     for (const l of g.lines) {
       const where = `line ${l.id}`;
-      if (!trackIds.has(l.track)) issues.push({ level: "error", where, message: `unknown track "${l.track}"` });
-      if (!l.words.length) issues.push({ level: "error", where, message: "has no words" });
-      if (!l.sung && l.pairOf && !lineIds.has(l.pairOf)) issues.push({ level: "error", where, message: `pairOf "${l.pairOf}" does not exist` });
+      if (!trackIds.has(l.track))
+        issues.push({
+          level: "error",
+          where,
+          message: `unknown track "${l.track}"`,
+        });
+      if (!l.words.length)
+        issues.push({ level: "error", where, message: "has no words" });
+      if (!l.sung && l.pairOf && !lineIds.has(l.pairOf))
+        issues.push({
+          level: "error",
+          where,
+          message: `pairOf "${l.pairOf}" does not exist`,
+        });
       let prev = -Infinity;
       for (const w of l.words) {
         const ww = `${where} word "${w.text}"`;
-        if (!(w.end > w.start)) issues.push({ level: "error", where: ww, message: `end (${w.end}) must be after start (${w.start})` });
-        if (w.start < 0 || w.end > duration + 0.5) issues.push({ level: "error", where: ww, message: `outside the video (0-${duration.toFixed(2)}s)` });
-        if (w.start < prev - 0.001) issues.push({ level: "error", where: ww, message: "starts before the previous word" });
-        if (w.end - w.start > 8) issues.push({ level: "warning", where: ww, message: `lasts ${(w.end - w.start).toFixed(1)}s` });
+        if (!(w.end > w.start))
+          issues.push({
+            level: "error",
+            where: ww,
+            message: `end (${w.end}) must be after start (${w.start})`,
+          });
+        if (w.start < 0 || w.end > duration + 0.5)
+          issues.push({
+            level: "error",
+            where: ww,
+            message: `outside the video (0-${duration.toFixed(2)}s)`,
+          });
+        if (w.start < prev - 0.001)
+          issues.push({
+            level: "error",
+            where: ww,
+            message: "starts before the previous word",
+          });
+        if (w.end - w.start > 8)
+          issues.push({
+            level: "warning",
+            where: ww,
+            message: `lasts ${(w.end - w.start).toFixed(1)}s`,
+          });
         prev = w.start;
       }
       if (l.sung && l.words.length) {
         if (l.words[0].start < lastSung - 1.0)
-          issues.push({ level: "warning", where, message: "starts more than 1s before the previous sung line (overlapping singers are fine; otherwise check timing)" });
+          issues.push({
+            level: "warning",
+            where,
+            message:
+              "starts more than 1s before the previous sung line (overlapping singers are fine; otherwise check timing)",
+          });
         lastSung = Math.max(lastSung, l.words[0].start);
       }
     }

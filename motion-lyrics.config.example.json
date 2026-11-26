@@ -1,0 +1,27 @@
+{
+  "//": "Copy this file to motion-lyrics.config.json to set your defaults for every new project. Remove anything you do not need. Graphics paths may point anywhere on your computer; the file is copied into each new project.",
+  "preset": "golden-sparkle",
+  "position": "bottom",
+  "avoidFaces": false,
+  "font": "Poppins",
+  "export": {
+    "size": "1080",
+    "aspect": "16:9",
+    "all": false
+  },
+  "graphics": [
+    {
+      "type": "image",
+      "src": "C:/path/to/your/logo.png",
+      "start": 0,
+      "end": 9999,
+      "width": 0.1,
+      "at": {
+        "x": 0.92,
+        "y": 0.08
+      },
+      "opacity": 0.85
+    }
+  ],
+  "ask": true
+}

@@ -1,6 +1,10 @@
 import React from "react";
 import { Composition } from "remotion";
-import { calculateLyricMetadata, LyricVideo, LyricVideoSchema } from "./LyricVideo";
+import {
+  calculateLyricMetadata,
+  LyricVideo,
+  LyricVideoSchema,
+} from "./LyricVideo";
 
 /**
  * One composition renders any project: the CLI points Remotion's public
@@ -18,7 +22,12 @@ export const RemotionRoot: React.FC = () => {
       fps={30}
       width={1920}
       height={1080}
-      defaultProps={{ debug: false }}
+      defaultProps={{
+        debug: false,
+        size: "source",
+        aspect: "source",
+        qcMask: false,
+      }}
     />
   );
 };

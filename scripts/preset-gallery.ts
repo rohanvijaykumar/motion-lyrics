@@ -19,7 +19,9 @@ async function main() {
   for (const name of PRESET_NAMES) {
     const dir = path.join(TMP, name);
     fs.cpSync(DEMO, dir, { recursive: true });
-    const project = readJson<Record<string, unknown>>(path.join(dir, "project.json"));
+    const project = readJson<Record<string, unknown>>(
+      path.join(dir, "project.json"),
+    );
     project.style = { preset: name };
     project.graphics = [];
     project.sectionLabels = false;

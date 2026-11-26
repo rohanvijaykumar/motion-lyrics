@@ -15,7 +15,10 @@ export const ease = {
   backOut: (s: number) => Easing.out(Easing.back(s)),
 };
 
-export function styleEase(name: "out" | "inOut" | "spring" | "linear", dir: "in" | "out" = "in"): EaseFn {
+export function styleEase(
+  name: "out" | "inOut" | "spring" | "linear",
+  dir: "in" | "out" = "in",
+): EaseFn {
   if (name === "linear") return ease.linear;
   if (name === "spring") return ease.backOut(1.8);
   if (name === "inOut") return ease.inOut2;
@@ -23,7 +26,12 @@ export function styleEase(name: "out" | "inOut" | "spring" | "linear", dir: "in"
 }
 
 /** Progress 0..1 of a segment that starts at t0 and lasts dur, eased. */
-export function seg(t: number, t0: number, dur: number, fn: EaseFn = ease.linear): number {
+export function seg(
+  t: number,
+  t0: number,
+  dur: number,
+  fn: EaseFn = ease.linear,
+): number {
   if (dur <= 0) return t >= t0 ? 1 : 0;
   const x = (t - t0) / dur;
   if (x <= 0) return 0;

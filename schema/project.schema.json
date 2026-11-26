@@ -106,10 +106,12 @@
         },
         "fit": {
           "default": "cover",
+          "description": "cover = fill the frame, cropping around faces; contain = whole picture with bars; blur = whole picture over a blurred copy",
           "type": "string",
           "enum": [
             "cover",
-            "contain"
+            "contain",
+            "blur"
           ]
         }
       }
@@ -678,6 +680,73 @@
       "default": false,
       "description": "Show [Section] names from lyrics.txt as labels",
       "type": "boolean"
+    },
+    "adjust": {
+      "default": {},
+      "description": "Per-screen fixes by frame shape, then screen id (g0, g1...). Written by QC; never moves lyrics.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "enum": [
+          "landscape",
+          "portrait",
+          "square"
+        ]
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string"
+        },
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "scale": {
+              "default": 1,
+              "description": "Shrink (<1) or grow this screen's text",
+              "type": "number"
+            },
+            "backing": {
+              "default": 0,
+              "description": "Extra dark backing behind this screen, 0-1",
+              "type": "number"
+            },
+            "outline": {
+              "default": false,
+              "description": "Add a dark outline for legibility",
+              "type": "boolean"
+            },
+            "reason": {
+              "description": "Why QC (or you) changed it",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "approved": {
+      "default": [],
+      "description": "Videos approved with npm run approve (kept by cleanup)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "file",
+          "sha256",
+          "at"
+        ]
+      }
     },
     "tokenize": {
       "default": {},

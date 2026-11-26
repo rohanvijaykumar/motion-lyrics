@@ -9,18 +9,39 @@ import { between, rng } from "../../core/random";
 import type { Style } from "../../schema/style";
 import { ease, lerp, seg } from "../anim";
 
-const STAR_PATH = "M10 0C10.9 6.6 13.4 9.1 20 10C13.4 10.9 10.9 13.4 10 20C9.1 13.4 6.6 10.9 0 10C6.6 9.1 9.1 6.6 10 0Z";
+const STAR_PATH =
+  "M10 0C10.9 6.6 13.4 9.1 20 10C13.4 10.9 10.9 13.4 10 20C9.1 13.4 6.6 10.9 0 10C6.6 9.1 9.1 6.6 10 0Z";
 
 const Star: React.FC<{ fill: string }> = ({ fill }) => (
-  <svg viewBox="0 0 20 20" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible" }}>
+  <svg
+    viewBox="0 0 20 20"
+    style={{
+      position: "absolute",
+      inset: 0,
+      width: "100%",
+      height: "100%",
+      overflow: "visible",
+    }}
+  >
     <path d={STAR_PATH} fill={fill} />
   </svg>
 );
 
-export type WipeTiming = { hs: number; d: number; dir: "ltr" | "rtl"; head: number };
+export type WipeTiming = {
+  hs: number;
+  d: number;
+  dir: "ltr" | "rtl";
+  head: number;
+};
 
 /** Where the wipe is and how long it lasts, shared by the fill and its effects. */
-export function wipeTiming(start: number, end: number, style: Style, t: number, dir: "ltr" | "rtl"): WipeTiming {
+export function wipeTiming(
+  start: number,
+  end: number,
+  style: Style,
+  t: number,
+  dir: "ltr" | "rtl",
+): WipeTiming {
   const h = style.highlight;
   const hs = start - h.wipeLead;
   const d = Math.max(h.minWordDuration, end - start);
@@ -28,13 +49,13 @@ export function wipeTiming(start: number, end: number, style: Style, t: number, 
   return { hs, d, dir, head: seg(t, hs, d, fn) };
 }
 
-export const Glint: React.FC<{ w: WipeTiming; t: number; style: Style; scale: number; notBefore: number }> = ({
-  w,
-  t,
-  style,
-  scale,
-  notBefore,
-}) => {
+export const Glint: React.FC<{
+  w: WipeTiming;
+  t: number;
+  style: Style;
+  scale: number;
+  notBefore: number;
+}> = ({ w, t, style, scale, notBefore }) => {
   const g = style.effects.glint;
   const hs = Math.max(notBefore, w.hs);
   const he = Math.max(hs + 0.102, w.hs + w.d - 0.06);
@@ -88,20 +109,41 @@ export const Glint: React.FC<{ w: WipeTiming; t: number; style: Style; scale: nu
   );
 };
 
-type Spark = { p: number; dot: boolean; sz: number; top: number; dx: number; dy: number; rot: number; life: number; color: string };
+type Spark = {
+  p: number;
+  dot: boolean;
+  sz: number;
+  top: number;
+  dx: number;
+  dy: number;
+  rot: number;
+  life: number;
+  color: string;
+};
 
 export function makeSparks(seed: string, chars: number, style: Style): Spark[] {
   const sp = style.effects.sparkles;
   const r = rng(seed);
-  const n = Math.max(sp.perWord[0], Math.min(sp.perWord[1], Math.round(chars * sp.perChar)));
+  const n = Math.max(
+    sp.perWord[0],
+    Math.min(sp.perWord[1], Math.round(chars * sp.perChar)),
+  );
   const [s0, s1] = sp.size;
-  const starSizes = [s0, lerp(s0, s1, 0.2), lerp(s0, s1, 0.4), lerp(s0, s1, 0.6), s1].map(Math.round);
+  const starSizes = [
+    s0,
+    lerp(s0, s1, 0.2),
+    lerp(s0, s1, 0.4),
+    lerp(s0, s1, 0.6),
+    s1,
+  ].map(Math.round);
   const dotSizes = [7, 8, 10];
   const out: Spark[] = [];
   for (let k = 0; k < n; k++) {
     const p = (k + between(r, 0.15, 0.85)) / n;
     const dot = r() < sp.dustRatio;
-    const sz = dot ? dotSizes[Math.floor(r() * dotSizes.length)] : starSizes[Math.floor(r() * starSizes.length)];
+    const sz = dot
+      ? dotSizes[Math.floor(r() * dotSizes.length)]
+      : starSizes[Math.floor(r() * starSizes.length)];
     out.push({
       p,
       dot,
@@ -135,8 +177,12 @@ export const Sparkles: React.FC<{
         const drift = seg(t, t0 + 0.142, q.life, ease.sineOut);
         const peak = q.dot ? 1.2 : 1;
         const s = drift > 0 ? lerp(peak, 0.15, drift) : lerp(0, peak, pop);
-        const rot = drift > 0 ? lerp(q.rot * 0.35, q.rot, drift) : lerp(0, q.rot * 0.35, pop);
-        const opacity = drift > 0 ? 1 - drift : Math.min(1, seg(t, t0, 0.14) * 1.4);
+        const rot =
+          drift > 0
+            ? lerp(q.rot * 0.35, q.rot, drift)
+            : lerp(0, q.rot * 0.35, pop);
+        const opacity =
+          drift > 0 ? 1 - drift : Math.min(1, seg(t, t0, 0.14) * 1.4);
         const sz = q.sz * scale;
         const left = w.dir === "rtl" ? 100 - q.p * 100 : q.p * 100;
         return (
