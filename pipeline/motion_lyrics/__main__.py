@@ -11,6 +11,15 @@ import os
 from pathlib import Path
 
 os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+
+# Verify HTTPS with the operating system's certificate store (like a browser does).
+# Python's own store misses some certificate chains, which breaks model downloads.
+try:
+    import truststore
+
+    truststore.inject_into_ssl()
+except Exception:  # pragma: no cover - fall back to Python's default
+    pass
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 

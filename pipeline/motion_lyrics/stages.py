@@ -251,15 +251,28 @@ def prefetch(whisper_model: str) -> None:
     log.info("All models ready")
 
 
-def doctor() -> dict:
+def doctor(whisper_model: str = "medium") -> dict:
+    """Environment and model check used by `npm run doctor`."""
     import platform
 
     import torch
 
-    info = {
+    hub = Path(torch.hub.get_dir()) / "checkpoints"
+    models = {
+        "Demucs (singer separation)": any(hub.glob("955717e8-*.th")),
+        "MMS (word timing)": any(hub.glob("*mms*")) or any(hub.glob("model.pt")),
+        "Face detector": (CACHE / "models" / "face_detection_yunet_2023mar.onnx").exists(),
+    }
+    try:
+        from huggingface_hub import try_to_load_from_cache
+
+        hit = try_to_load_from_cache(f"Systran/faster-whisper-{whisper_model}", "model.bin")
+        models[f"Whisper {whisper_model} (cross-check)"] = isinstance(hit, str)
+    except Exception:
+        models[f"Whisper {whisper_model} (cross-check)"] = False
+    return {
         "python": platform.python_version(),
         "torch": torch.__version__,
         "cuda": bool(torch.cuda.is_available()),
+        "models": models,
     }
-    _ = np.zeros(1)
-    return info

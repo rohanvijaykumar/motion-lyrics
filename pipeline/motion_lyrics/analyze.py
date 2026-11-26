@@ -40,8 +40,15 @@ def _yunet(cache: Path) -> Path:
         cache.mkdir(parents=True, exist_ok=True)
         log.info("Downloading the face detector (230 KB)")
         req = urllib.request.Request(YUNET_URL, headers={"User-Agent": "motion-lyrics"})
-        with urllib.request.urlopen(req, timeout=60) as r:
-            path.write_bytes(r.read())
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(req, timeout=60) as r:
+                    path.write_bytes(r.read())
+                break
+            except Exception as e:
+                if attempt == 2:
+                    raise
+                log.warn(f"Download failed ({e}); retrying")
     return path
 
 

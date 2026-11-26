@@ -883,6 +883,9 @@ async function cmdDoctor() {
         true,
         `Python ${j.python}, PyTorch ${j.torch}${j.cuda ? " (GPU)" : " (CPU)"}`,
       );
+      for (const [model, present] of Object.entries((j.models ?? {}) as Record<string, boolean>)) {
+        check(present, `Model: ${model}`, "Run: npm run setup (it downloads the models)");
+      }
     } catch (e) {
       check(
         false,

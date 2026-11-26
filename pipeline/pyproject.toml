@@ -17,6 +17,7 @@ dependencies = [
   "langcodes>=3.4",
   "pillow>=10",
   "fonttools>=4.50",
+  "truststore>=0.9",
 ]
 
 [tool.uv]

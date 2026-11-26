@@ -689,6 +689,7 @@ dependencies = [
     { name = "torchaudio", version = "2.8.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
     { name = "torchaudio", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'darwin'" },
     { name = "torchaudio", version = "2.8.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_python_implementation != 'CPython' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "truststore" },
     { name = "uroman" },
 ]
 
@@ -713,6 +714,7 @@ requires-dist = [
     { name = "torch", marker = "sys_platform == 'darwin'", specifier = "==2.8.0" },
     { name = "torchaudio", marker = "sys_platform != 'darwin'", specifier = "==2.8.0", index = "https://download.pytorch.org/whl/cpu" },
     { name = "torchaudio", marker = "sys_platform == 'darwin'", specifier = "==2.8.0" },
+    { name = "truststore", specifier = ">=0.9" },
     { name = "uroman", specifier = ">=1.3.1" },
 ]
 
