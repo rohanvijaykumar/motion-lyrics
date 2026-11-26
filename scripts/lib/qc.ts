@@ -26,7 +26,12 @@ import { facesInOutput, outputSize, type Framing } from "../../src/core/frame";
 import { parseFontFile, FONT_EXTENSIONS } from "../../src/core/fontfiles";
 import { MASK_COLORS } from "../../src/core/qc";
 import { DEFAULT_FONT_FOR_SCRIPT } from "../../src/core/script";
-import { paginate, schedule, type Page } from "../../src/core/timeline";
+import {
+  lyricsEndBy,
+  paginate,
+  schedule,
+  type Page,
+} from "../../src/core/timeline";
 import { fontStack } from "../../src/render/fonts";
 import type { Project } from "../../src/schema/project";
 import type { Song } from "../../src/schema/song";
@@ -87,6 +92,7 @@ function moments(
   W: number,
   H: number,
   adjust: Record<string, { scale: number }>,
+  endBy: number = song.duration,
 ): Moment[] {
   const scale = Math.min(W, H) / 1080;
   const tracks = new Map(song.tracks.map((t) => [t.id, t]));
@@ -123,7 +129,12 @@ function moments(
     });
     return out;
   }
-  const pages: Page[] = schedule(paginate(song, style), style, song.duration);
+  const pages: Page[] = schedule(
+    paginate(song, style),
+    style,
+    song.duration,
+    endBy,
+  );
   for (const page of pages) {
     const settle = page.enterStart + page.enterDur + 0.08;
     const leave = Math.min(page.exitStart - 0.05, song.duration - 0.05);
@@ -309,7 +320,14 @@ export async function runQc(
       string,
       { scale: number; backing: number; outline: boolean; reason?: string }
     >;
-    const all = moments(song, style, W, H, adjust);
+    const all = moments(
+      song,
+      style,
+      W,
+      H,
+      adjust,
+      lyricsEndBy(song.duration, project.graphics),
+    );
     lineCount = all.length;
     const list = todo ? all.filter((m) => todo!.has(m.id)) : all;
     info(

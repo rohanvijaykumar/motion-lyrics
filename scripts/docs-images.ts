@@ -82,7 +82,7 @@ async function presets() {
   );
 }
 
-async function features() {
+async function features(only?: string) {
   const F = (n: string) => path.join(OUT, "features", `${n}.jpg`);
   // Title card at the start.
   await shot(
@@ -211,6 +211,7 @@ async function main() {
   fs.mkdirSync(TMP, { recursive: true });
   if (which === "all" || which === "presets") await presets();
   if (which === "all" || which === "features") await features();
+  if (which === "credits") await features("credits");
   console.log(`Images written to ${OUT}`);
 }
 

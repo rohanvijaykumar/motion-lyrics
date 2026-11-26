@@ -23,6 +23,8 @@ export type RenderCtx = {
   faces: FaceSample[];
   /** QC mask mode: draw each line in its own flat colour, no effects. */
   qcMask: boolean;
+  /** Lyrics are off screen by this time (video end, or when end credits start). */
+  lyricsEndBy: number;
   /** Per-screen fixes from project.json "adjust". */
   adjust: Record<string, { scale: number; backing: number; outline: boolean }>;
 };

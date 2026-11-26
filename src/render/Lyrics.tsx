@@ -32,7 +32,12 @@ export const LyricsLayer: React.FC = () => {
 
   const plan = useMemo(() => {
     if (style.layout.type === "scroll") return null;
-    const pages = schedule(paginate(song, style), style, song.duration);
+    const pages = schedule(
+      paginate(song, style),
+      style,
+      song.duration,
+      ctx.lyricsEndBy,
+    );
     const heights = pages.map((p) =>
       pageHeight(p, style, tracks, scale, maxWidthPx),
     );

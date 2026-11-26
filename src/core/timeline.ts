@@ -131,6 +131,8 @@ export function schedule(
   pages: Page[],
   style: Style,
   duration: number,
+  /** Lyrics must be gone by this time (end credits); defaults to the video end. */
+  endBy: number = duration,
 ): Page[] {
   const lead = style.timing.lead;
   const tail = style.timing.tail;
@@ -175,7 +177,13 @@ export function schedule(
     });
     const lastPage = list[list.length - 1];
     if (lastPage) {
-      if (style.timing.holdLast && duration - lastPage.last <= 8) {
+      if (endBy < duration) {
+        // End credits follow: leave just before they start.
+        lastPage.exitStart = Math.max(
+          lastPage.last,
+          Math.min(lastPage.last + tail, endBy - lastPage.exitDur),
+        );
+      } else if (style.timing.holdLast && duration - lastPage.last <= 8) {
         lastPage.exitStart = duration + 1; // stays to the end
       } else {
         lastPage.exitStart = Math.min(
@@ -195,6 +203,20 @@ export function schedule(
 }
 
 export const pageEnd = (p: Page) => p.exitStart + p.exitDur;
+
+/**
+ * When the lyrics must be off screen: the end of the video, or earlier when
+ * end credits begin (the final screen is never held underneath the credits).
+ */
+export function lyricsEndBy(
+  duration: number,
+  graphics: { type: string; start: number }[],
+): number {
+  const credits = graphics
+    .filter((g) => g.type === "credits")
+    .map((g) => g.start);
+  return credits.length ? Math.min(duration, ...credits) : duration;
+}
 
 /** 0 -> 1 progress of a word being sung at time t. */
 export function wordProgress(w: Word, t: number): number {

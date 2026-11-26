@@ -9,7 +9,12 @@ import {
   scriptOfLang,
 } from "../src/core/script";
 import { segmentWords } from "../src/core/segment";
-import { EXIT_EARLY_LIMIT, paginate, schedule } from "../src/core/timeline";
+import {
+  EXIT_EARLY_LIMIT,
+  lyricsEndBy,
+  paginate,
+  schedule,
+} from "../src/core/timeline";
 import { rng } from "../src/core/random";
 import { SongSchema, type Song } from "../src/schema/song";
 import { StyleSchema } from "../src/schema/style";
@@ -254,6 +259,19 @@ describe("page timing", () => {
           expect(gap).toBeLessThanOrEqual(1e-6);
       }
     }
+  });
+
+  it("lyrics clear before end credits", () => {
+    const st = resolveStyle({ preset: "golden-sparkle" });
+    const pages = schedule(
+      paginate(fakeSong([[[1, 2]], [[50, 55]]]), st),
+      st,
+      60,
+      lyricsEndBy(60, [{ type: "credits", start: 56 }]),
+    );
+    const last = pages[pages.length - 1];
+    expect(last.exitStart + last.exitDur).toBeLessThanOrEqual(56 + 1e-6);
+    expect(lyricsEndBy(60, [])).toBe(60);
   });
 
   it("pop layout never exceeds the word limit", () => {

@@ -25,6 +25,7 @@ import {
   type Framing,
 } from "./core/frame";
 import { detectScript } from "./core/script";
+import { lyricsEndBy } from "./core/timeline";
 import { Ctx, type RenderCtx } from "./render/context";
 import { Grain, Particles, Vignette } from "./render/effects/Global";
 import {
@@ -280,6 +281,7 @@ export const LyricVideo: React.FC<Props> = ({ debug, qcMask, loaded }) => {
     focus,
     faces,
     qcMask: !!qcMask,
+    lyricsEndBy: lyricsEndBy(song.duration, project.graphics),
     adjust:
       project.adjust[
         width > height ? "landscape" : height > width ? "portrait" : "square"
