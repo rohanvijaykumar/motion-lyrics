@@ -44,6 +44,87 @@ minutes on a typical laptop CPU, most of it rendering.
 
 ---
 
+## Installation
+
+Pick whichever suits you. All of them end in the same place: a working install that
+`npm run doctor` confirms as **Everything is ready**.
+
+### Option 1: let your agent install it (recommended)
+
+Give the agent the repository link, as in the quick start above. It clones the repository,
+installs any missing prerequisites and runs the setup. No further steps.
+
+### Option 2: one-step setup script
+
+Clone or [download the ZIP](https://github.com/rohanvijaykumar/motion-lyrics/archive/refs/heads/main.zip)
+(unzip it), open a terminal in the folder, and run the script for your system. It installs
+anything missing (Node.js; Git on Windows; uv and Python), then the packages, the models
+(about 3 GB, once) and the render browser.
+
+<details open>
+<summary><b>Windows (PowerShell)</b></summary>
+
+```powershell
+git clone https://github.com/rohanvijaykumar/motion-lyrics.git
+cd motion-lyrics
+powershell -ExecutionPolicy Bypass -File setup.ps1
+```
+
+Or right-click `setup.ps1` and choose **Run with PowerShell**.
+</details>
+
+<details>
+<summary><b>macOS / Linux</b></summary>
+
+```bash
+git clone https://github.com/rohanvijaykumar/motion-lyrics.git
+cd motion-lyrics
+sh setup.sh
+```
+
+On macOS without Homebrew or Node.js, install Node.js from [nodejs.org](https://nodejs.org)
+first; on Linux the script uses NodeSource and `apt`.
+</details>
+
+### Option 3: manual install
+
+1. Install the prerequisites:
+   - [Node.js](https://nodejs.org) 20 or newer
+   - [Git](https://git-scm.com/downloads) (or use the ZIP download above)
+   - [uv](https://docs.astral.sh/uv/getting-started/installation/), which installs the right
+     Python for you. `npm run setup` installs uv automatically if it is missing.
+2. Then:
+
+   ```bash
+   git clone https://github.com/rohanvijaykumar/motion-lyrics.git
+   cd motion-lyrics
+   npm install
+   npm run setup      # Python pipeline, models (about 3 GB), render browser
+   npm run doctor     # checks everything, including each model
+   ```
+
+### Option 4: try the preview only
+
+`npm install` followed by `npm run studio` opens the bundled demo in Remotion Studio without
+the audio models. That is enough to explore the styles and graphics; making videos from your own
+footage needs the full setup.
+
+### Updating
+
+```bash
+git pull
+npm install
+npm run setup      # quick when nothing changed; fetches any new models
+```
+
+### Requirements
+
+Windows 10/11, macOS or Linux; about 6 GB of free disk space for the install plus room for
+your projects; an internet connection for the first setup and for Google Fonts while
+rendering. A GPU is optional; everything runs on the CPU.
+
+---
+
 ## Iterate in plain language
 
 Revisions are requests to the agent, the same way you would brief an editor:
