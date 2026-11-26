@@ -5,11 +5,63 @@ exactly how to turn a video and its lyrics into a finished lyric video with
 this repository, without guessing. Follow the stages in order. Each stage
 ends with a **gate**: do not move on until the gate passes.
 
-People can follow it too; every step is a single command.
+**The person you are helping may not be technical.** They were told to give you this
+repository's link and talk to you. Do everything for them: install, set up, make, check,
+render, change and clean up. Speak in plain language, never ask them to run commands
+themselves, and never paste raw logs at them. Ask only the questions in section 3, and
+explain choices in everyday words.
+
+---
+
+## Start here: from a bare machine
+
+If the person gave you only the link (or "set up motion-lyrics"):
+
+1. Clone it into a sensible folder (their Documents, or where they say):
+   `git clone https://github.com/rohanvijaykumar/motion-lyrics.git`.
+   No git? On Windows install it with `winget install --id Git.Git -e`; on macOS run
+   `xcode-select --install`; or download the ZIP from GitHub and unzip it.
+2. Run the one-step setup from the repository folder. It installs whatever is missing
+   (Node.js, Git on Windows, uv and Python), then the packages, about 3 GB of models and the
+   render browser:
+   - Windows: `powershell -ExecutionPolicy Bypass -File setup.ps1`
+   - macOS / Linux: `sh setup.sh`
+   This takes 5 to 20 minutes. Tell the person it is downloading once, then carry on.
+3. **Gate:** it ends with `Everything is ready.` If something fails, read the message, fix it
+   (install the missing program, retry the download) and run it again.
+
+Then ask for their video and lyrics (a file, or pasted text you save as `lyrics.txt`) and
+continue with section 2.
+
+## What people ask for, and what you do
+
+| They say | You do |
+| --- | --- |
+| "Make a lyric video from this video with these lyrics" | Sections 2-6 |
+| "Bigger / smaller lyrics" | `style.text.primary.fontSize` (and `secondary`) in project.json, then section 6 |
+| "Use this font" / sends a font file | Google font name, or copy the file into `projects/<name>/fonts/`; set `style.text.*.fontFamily` |
+| "Change the colour" | `sungColor` (sung words) and `color` (not yet sung) |
+| "Move the lyrics to the top/centre" | `style.layout.position` |
+| "Try another style" | `style.preset`; show the gallery in README.md or run `npm run presets` |
+| "Add a title / song name at the start" | a `title` graphic in `graphics` (docs/graphics.md) |
+| "Add our logo" | copy it into `projects/<name>/media/`, add an `image` graphic |
+| "Add the singer's name" | a `lowerThird` graphic |
+| "Add credits at the end" | a `credits` graphic |
+| "Show the English translation" | add `> translation` lines under the sung lines in lyrics.txt, `npm run align` |
+| "Just subtitles" / "captions for Reels" | presets `minimal-subtitles` / `social-pop` |
+| "Make a vertical / TikTok / Reels version" | `npm run render -- <name> --size 1080 --aspect 9:16` |
+| "4K" / "all sizes" | `--size 4k` / `--all` |
+| "This line is early/late" | section 5 (`npm run shift`), then render |
+| "Done, it's perfect" | section 7 (approve and clean up) |
+
+After any change: `npm run validate -- <name>`, then render (which runs QC), look at the QC
+frames, and show the person a still of the change (`npm run still -- <name> --time <s>`) before
+or along with the new video.
 
 ---
 
 ## 0. Ground rules
+
 
 - **Never invent lyrics.** Use the lyrics the person gives you, exactly as written. If they
   give none, the pipeline drafts them with speech recognition and you must tell them the
@@ -26,14 +78,15 @@ People can follow it too; every step is a single command.
 
 ## 1. Setup (once per machine)
 
+Use "Start here" above. If the repository is already cloned and Node.js is installed:
+
 ```bash
 npm install
-npm run setup        # Python pipeline via uv, ~3 GB of models, headless browser, JSON schemas
+npm run setup        # installs uv/Python if needed, ~3 GB of models, the render browser, JSON schemas
 npm run doctor       # must end with "Everything is ready."
 ```
 
-**Gate:** `npm run doctor` passes. If uv is missing, install it (the error message gives the
-one-line command for each OS) and open a new terminal.
+**Gate:** `npm run doctor` passes.
 
 ## 2. Write `lyrics.txt`
 

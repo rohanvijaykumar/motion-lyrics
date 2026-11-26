@@ -42,17 +42,29 @@ export const Background: React.FC<{ project: Project }> = ({ project }) => {
               scale: "1.08",
             }}
           >
-            <OffthreadVideo src={src} muted style={{ width: "100%", height: "100%", objectFit: "fill" }} />
+            <OffthreadVideo
+              src={src}
+              muted
+              style={{ width: "100%", height: "100%", objectFit: "fill" }}
+            />
           </div>
           <div style={box(r)}>
-            <OffthreadVideo src={src} muted={separateAudio} style={{ width: "100%", height: "100%", objectFit: "fill" }} />
+            <OffthreadVideo
+              src={src}
+              muted={separateAudio}
+              style={{ width: "100%", height: "100%", objectFit: "fill" }}
+            />
           </div>
         </>
       );
     } else {
       layer = (
         <div style={box(r)}>
-          <OffthreadVideo src={src} muted={separateAudio} style={{ width: "100%", height: "100%", objectFit: "fill" }} />
+          <OffthreadVideo
+            src={src}
+            muted={separateAudio}
+            style={{ width: "100%", height: "100%", objectFit: "fill" }}
+          />
         </div>
       );
     }

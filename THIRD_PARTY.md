@@ -23,3 +23,5 @@ written by Ulf Hermjakob, USC Information Sciences Institute (2015-2020).
 If you need a fully commercial-friendly alignment model, replace the MMS bundle in
 `pipeline/motion_lyrics/align.py` (`_load_model`) with a CTC model under a permissive license and
 re-run `npm run bench` to confirm accuracy.
+
+**Example photos:** the background photos in `examples/photos/` are public domain or CC0 from Wikimedia Commons; see [examples/photos/CREDITS.md](examples/photos/CREDITS.md).

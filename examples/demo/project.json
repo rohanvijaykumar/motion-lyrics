@@ -10,14 +10,15 @@
   },
   "output": {},
   "background": {
-    "type": "gradient",
+    "type": "image",
+    "src": "media/background.jpg",
     "color": "#0b0b10",
     "colors": [
       "#1b1033",
       "#3a1c4a",
       "#0e2a47"
     ],
-    "dim": 0,
+    "dim": 0.2,
     "fit": "cover"
   },
   "style": {
@@ -46,6 +47,9 @@
   ],
   "localFonts": [],
   "sectionLabels": true,
+  "adjust": {},
+  "approved": [],
+  "tokenize": {},
   "pipeline": {
     "separate": true,
     "verify": false,

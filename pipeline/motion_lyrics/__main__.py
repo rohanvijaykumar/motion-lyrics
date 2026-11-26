@@ -46,6 +46,7 @@ def main() -> None:
 
     sh = sub.add_parser("sheet", help="tile images into a contact sheet")
     sh.add_argument("--out", type=Path, required=True)
+    sh.add_argument("--cols", type=int, default=4)
     sh.add_argument("images", type=Path, nargs="+")
 
     q = sub.add_parser("qc", help="measure QC frames (used by npm run qc)")
@@ -88,7 +89,7 @@ def main() -> None:
     elif args.cmd == "strips":
         stages.strips(args.project, [x for x in args.lines.split(",") if x])
     elif args.cmd == "sheet":
-        stages.sheet(args.images, args.out)
+        stages.sheet(args.images, args.out, cols=min(args.cols, len(args.images)))
     elif args.cmd == "qc":
         from . import qc
 

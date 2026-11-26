@@ -51,6 +51,12 @@ export const GraphicSchema = z.discriminatedUnion("type", [
     title: z.string(),
     subtitle: z.string().optional(),
     side: z.enum(["left", "right"]).default("left"),
+    position: z
+      .enum(["auto", "bottom", "top"])
+      .default("auto")
+      .describe(
+        "auto = bottom, or top when the lyrics sit at the bottom so the two never overlap",
+      ),
     color: z.string().default("#ffffff"),
     accent: z.string().default("#ffd27a"),
     fontFamily: z.string().nullable().default(null),

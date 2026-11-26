@@ -22,4 +22,4 @@ Thanks for helping. A few rules keep the framework dependable for everyone:
    ```
 
 New presets are welcome: add them to `src/style/presets.ts`, add a row to `docs/styles.md`, and
-regenerate the gallery with `npx tsx scripts/preset-gallery.ts`.
+regenerate the gallery with `npx tsx scripts/docs-images.ts presets`.

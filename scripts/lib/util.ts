@@ -120,18 +120,63 @@ export function which(cmd: string): string | null {
   return r.stdout.split(/\r?\n/)[0]?.trim() || null;
 }
 
+/**
+ * Where uv is: on PATH, or in its default install folder (a fresh install is
+ * not on PATH until a new terminal is opened, so look there too).
+ */
+export function uvPath(): string | null {
+  const onPath = which("uv");
+  if (onPath) return onPath;
+  const home = process.env.USERPROFILE ?? process.env.HOME ?? "";
+  const exe = process.platform === "win32" ? "uv.exe" : "uv";
+  for (const dir of [
+    path.join(home, ".local", "bin"),
+    path.join(home, ".cargo", "bin"),
+  ]) {
+    const p = path.join(dir, exe);
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
+/** Install uv with its official installer (used by npm run setup). */
+export async function installUv(): Promise<string> {
+  if (process.platform === "win32") {
+    await run(
+      "powershell",
+      [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "ByPass",
+        "-c",
+        "irm https://astral.sh/uv/install.ps1 | iex",
+      ],
+      {
+        label: "Installing uv",
+      },
+    );
+  } else {
+    await run("sh", ["-c", "curl -LsSf https://astral.sh/uv/install.sh | sh"], {
+      label: "Installing uv",
+    });
+  }
+  const uv = uvPath();
+  if (!uv)
+    fail(
+      "uv was installed but could not be found. Open a new terminal and run: npm run setup",
+    );
+  return uv;
+}
+
 /** Run a pipeline (Python) stage through uv, which manages the Python environment. */
 export function py(args: string[], label: string, quiet = false) {
-  if (!which("uv")) {
+  const uv = uvPath();
+  if (!uv)
     fail(
-      "uv is not installed. It runs the audio pipeline and installs Python for you.\n" +
-        '  Windows:      powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"\n' +
-        "  macOS/Linux:  curl -LsSf https://astral.sh/uv/install.sh | sh\n" +
-        "Then open a new terminal and run: npm run setup",
+      "The audio tools are not installed yet. Run: npm run setup (it installs everything).",
     );
-  }
   return run(
-    "uv",
+    uv,
     [
       "run",
       "--project",

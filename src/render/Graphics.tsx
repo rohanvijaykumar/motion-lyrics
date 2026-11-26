@@ -168,12 +168,16 @@ const LowerThird: React.FC<{ g: Extract<Graphic, { type: "lowerThird" }> }> = ({
   const anim = useInOut(g);
   const bar = seg(t, g.start, g.transition * 1.2, ease.out3);
   const left = g.side === "left";
+  // Never sit on top of the lyrics: with lyrics at the bottom, go to the top.
+  const atTop =
+    g.position === "top" ||
+    (g.position === "auto" && style.layout.position === "bottom");
   return (
     <div
       style={{
         position: "absolute",
         [left ? "left" : "right"]: W * 0.06,
-        bottom: H * 0.14,
+        ...(atTop ? { top: H * 0.08 } : { bottom: H * 0.14 }),
         textAlign: left ? "left" : "right",
         ...anim,
       }}

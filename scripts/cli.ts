@@ -63,12 +63,13 @@ import {
   mtime,
   ok,
   py,
+  installUv,
+  uvPath,
   readJson,
   red,
   run,
   step,
   warn,
-  which,
   writeJson,
   yellow,
 } from "./lib/util";
@@ -868,11 +869,11 @@ async function cmdDoctor() {
   } catch (e) {
     check(false, "ffmpeg", (e as Error).message);
   }
-  const uv = which("uv");
+  const uv = uvPath();
   check(
     !!uv,
     "uv (runs the audio pipeline)",
-    "Install: https://docs.astral.sh/uv/getting-started/installation/ then run npm run setup",
+    "Run: npm run setup (it installs uv for you)",
   );
   if (uv) {
     try {
@@ -897,14 +898,15 @@ async function cmdDoctor() {
 }
 
 async function cmdSetup(a: Args) {
-  step("Check uv");
-  if (!which("uv"))
-    fail(
-      "uv is required. Install it from https://docs.astral.sh/uv/getting-started/installation/ and open a new terminal.",
-    );
-  ok("uv found");
+  step("Check uv (it installs Python for the audio tools)");
+  let uv = uvPath();
+  if (!uv) {
+    info("uv is not installed; installing it now with its official installer");
+    uv = await installUv();
+  }
+  ok(`uv ready (${uv})`);
   step("Install the Python audio pipeline (first time: a few minutes)");
-  await run("uv", ["sync", "--project", PIPELINE, "--frozen"], {
+  await run(uv, ["sync", "--project", PIPELINE, "--frozen"], {
     cwd: PIPELINE,
     label: "uv sync",
   });

@@ -120,6 +120,11 @@ function main() {
     }
   }
   synthWav(path.join(DIR, "media", "tones.wav"), notes);
+  // Public-domain sunset photo (examples/photos/CREDITS.md).
+  fs.copyFileSync(
+    path.join(ROOT, "examples", "photos", "golden-sparkle.jpg"),
+    path.join(DIR, "media", "background.jpg"),
+  );
   const { song } = buildSong(parsed, { version: 1, lines }, DURATION, null);
   writeJson(path.join(DIR, "song.json"), song);
   writeJson(path.join(DIR, "analysis.json"), {
@@ -142,10 +147,7 @@ function main() {
         height: 1080,
         fps: 30,
       },
-      background: {
-        type: "gradient",
-        colors: ["#1b1033", "#3a1c4a", "#0e2a47"],
-      },
+      background: { type: "image", src: "media/background.jpg", dim: 0.2 },
       style: { preset: "golden-sparkle" },
       sectionLabels: true,
       graphics: [

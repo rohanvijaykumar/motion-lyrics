@@ -21,7 +21,7 @@ credits. List them in `project.json` under `"graphics"`. Times are in seconds. P
 | --- | --- |
 | `title` | `title`, `subtitle`, `at`, `size`, `color`, `accent`, `fontFamily`, `scrim` |
 | `text` | `text` (use `\n` for new lines), `at`, `size`, `weight`, `color`, `fontFamily`, `background` |
-| `lowerThird` | `title`, `subtitle`, `side` (`left`/`right`), `color`, `accent`, `fontFamily` |
+| `lowerThird` | `title`, `subtitle`, `side` (`left`/`right`), `position` (`auto` keeps it clear of the lyrics: top when lyrics are at the bottom), `color`, `accent`, `fontFamily` |
 | `image` | `src` (inside the project folder), `at`, `width` (fraction of frame width), `opacity` |
 | `lottie` | `src` (Lottie JSON inside the project folder), `at`, `width`, `loop` |
 | `credits` | `lines` (first line is larger), `size`, `color`, `fontFamily` |
