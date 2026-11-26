@@ -406,7 +406,7 @@ async function renderFormats(
     ok(`Saved ${out}`);
     if (qc && from === undefined && to === undefined) {
       const b = ffBinaries();
-      const v = await verifyVideo(p, fmt, out, b.ffmpeg, b.env);
+      const v = await verifyVideo(p, fmt, out, b.ffmpeg, b.env, fps);
       if (v.ok) ok(`The rendered video matches the checked frames`);
       else
         warn(

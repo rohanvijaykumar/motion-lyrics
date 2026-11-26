@@ -11,7 +11,7 @@ import { ROOT, py, readJson, writeJson } from "./lib/util";
 
 const DEMO = path.join(ROOT, "examples", "demo");
 const TMP = path.join(ROOT, ".cache", "gallery");
-const TIME = Number(process.argv[2] ?? 8.2);
+const TIME = Number(process.argv[2] ?? 7.4);
 
 async function main() {
   fs.rmSync(TMP, { recursive: true, force: true });

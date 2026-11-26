@@ -575,6 +575,7 @@ export async function verifyVideo(
   video: string,
   ffmpeg: string,
   env: NodeJS.ProcessEnv,
+  fps: number,
 ): Promise<{ ok: boolean; worst: number }> {
   const dir = path.join(p.review, "qc", fmt.label);
   const frames = fs.existsSync(dir)
@@ -596,8 +597,10 @@ export async function verifyVideo(
         "-y",
         "-v",
         "error",
+        // The same frame the QC still used (frame = round(t * fps)); seek half a frame
+        // early so ffmpeg lands on it rather than the next one.
         "-ss",
-        String(r.t),
+        String(Math.max(0, (Math.round(r.t * fps) - 0.5) / fps)),
         "-i",
         video,
         "-frames:v",
@@ -621,7 +624,7 @@ export async function verifyVideo(
   const worst = Math.max(0, ...res.map((r) => r.diff));
   for (const pr of pairs) fs.rmSync(pr.video, { force: true });
   fs.rmSync(job, { force: true });
-  return { ok: worst < 18, worst };
+  return { ok: worst < 8, worst };
 }
 
 export { DEFAULT_FONT_FOR_SCRIPT };

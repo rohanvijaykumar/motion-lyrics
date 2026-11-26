@@ -1,6 +1,6 @@
-import { Audio, Video } from "@remotion/media";
+import { Audio } from "@remotion/media";
 import React from "react";
-import { AbsoluteFill, Img, staticFile } from "remotion";
+import { AbsoluteFill, Img, OffthreadVideo, staticFile } from "remotion";
 import { cropsHeavily, videoRect } from "../core/frame";
 import type { Project } from "../schema/project";
 import { useRender } from "./context";
@@ -10,6 +10,9 @@ import { useRender } from "./context";
  * core/frame.ts: when the output shape differs from the source (e.g. 9:16 from
  * 16:9 footage) the crop follows the faces; "blur" mode shows the whole video
  * over a soft, enlarged copy instead of cropping.
+ *
+ * OffthreadVideo extracts the exact frame for every render and still, so QC
+ * frames and the final video always show the same picture.
  */
 export const Background: React.FC<{ project: Project }> = ({ project }) => {
   const { t, framing, focus, width: W, height: H } = useRender();
@@ -39,32 +42,17 @@ export const Background: React.FC<{ project: Project }> = ({ project }) => {
               scale: "1.08",
             }}
           >
-            <Video
-              src={src}
-              muted
-              objectFit="fill"
-              style={{ width: "100%", height: "100%" }}
-            />
+            <OffthreadVideo src={src} muted style={{ width: "100%", height: "100%", objectFit: "fill" }} />
           </div>
           <div style={box(r)}>
-            <Video
-              src={src}
-              muted={separateAudio}
-              objectFit="fill"
-              style={{ width: "100%", height: "100%" }}
-            />
+            <OffthreadVideo src={src} muted={separateAudio} style={{ width: "100%", height: "100%", objectFit: "fill" }} />
           </div>
         </>
       );
     } else {
       layer = (
         <div style={box(r)}>
-          <Video
-            src={src}
-            muted={separateAudio}
-            objectFit="fill"
-            style={{ width: "100%", height: "100%" }}
-          />
+          <OffthreadVideo src={src} muted={separateAudio} style={{ width: "100%", height: "100%", objectFit: "fill" }} />
         </div>
       );
     }
