@@ -83,127 +83,137 @@ async function presets() {
 }
 
 async function features(only?: string) {
+  const want = (n: string) => !only || only === n;
   const F = (n: string) => path.join(OUT, "features", `${n}.jpg`);
   // Title card at the start.
-  await shot(
-    "title",
-    "cinematic",
-    (p) => {
-      p.style = { preset: "cinematic" };
-      p.graphics = [
-        {
-          type: "title",
-          title: "Song Title",
-          subtitle: "Artist name",
-          start: 0,
-          end: 2.3,
-          at: { x: 0.5, y: 0.42 },
-        },
-      ];
-    },
-    [{ time: 1.2, out: F("title") }],
-  );
+  if (want("title"))
+    await shot(
+      "title",
+      "cinematic",
+      (p) => {
+        p.style = { preset: "cinematic" };
+        p.graphics = [
+          {
+            type: "title",
+            title: "Song Title",
+            subtitle: "Artist name",
+            start: 0,
+            end: 2.3,
+            at: { x: 0.5, y: 0.42 },
+          },
+        ];
+      },
+      [{ time: 1.2, out: F("title") }],
+    );
   // Lower third + logo + section label over lyrics.
-  await shot(
-    "lower-third",
-    "classic-karaoke",
-    (p) => {
-      p.style = { preset: "golden-sparkle", layout: { position: "bottom" } };
-      p.sectionLabels = true;
-      p.graphics = [
-        {
-          type: "lowerThird",
-          title: "The Riverside Choir",
-          subtitle: "Recorded live",
-          start: 2.0,
-          end: 6.0,
-          side: "left",
-        },
-        {
-          type: "image",
-          src: "media/logo.png",
-          start: 0,
-          end: 22,
-          width: 0.14,
-          at: { x: 0.9, y: 0.9 },
-          opacity: 0.9,
-        },
-      ];
-    },
-    [{ time: 3.8, out: F("lower-third-logo") }],
-  );
+  if (want("lower-third"))
+    await shot(
+      "lower-third",
+      "classic-karaoke",
+      (p) => {
+        p.style = { preset: "golden-sparkle", layout: { position: "bottom" } };
+        p.sectionLabels = true;
+        p.graphics = [
+          {
+            type: "lowerThird",
+            title: "The Riverside Choir",
+            subtitle: "Recorded live",
+            start: 2.0,
+            end: 6.0,
+            side: "left",
+          },
+          {
+            type: "image",
+            src: "media/logo.png",
+            start: 0,
+            end: 22,
+            width: 0.14,
+            at: { x: 0.9, y: 0.9 },
+            opacity: 0.9,
+          },
+        ];
+      },
+      [{ time: 3.8, out: F("lower-third-logo") }],
+    );
   // Translations under the sung line (Arabic, right to left).
-  await shot(
-    "translations",
-    "golden-sparkle",
-    (p) => (p.style = { preset: "golden-sparkle" }),
-    [{ time: 11.9, out: F("translations") }],
-  );
+  if (want("translations"))
+    await shot(
+      "translations",
+      "golden-sparkle",
+      (p) => (p.style = { preset: "golden-sparkle" }),
+      [{ time: 11.9, out: F("translations") }],
+    );
   // Plain subtitles.
-  await shot(
-    "subtitles",
-    "minimal-subtitles",
-    (p) => (p.style = { preset: "minimal-subtitles" }),
-    [{ time: 16.3, out: F("subtitles") }],
-  );
+  if (want("subtitles"))
+    await shot(
+      "subtitles",
+      "minimal-subtitles",
+      (p) => (p.style = { preset: "minimal-subtitles" }),
+      [{ time: 16.3, out: F("subtitles") }],
+    );
   // Vertical social captions.
-  await shot(
-    "captions",
-    "social-pop",
-    (p) => (p.style = { preset: "social-pop" }),
-    [{ time: 3.1, out: F("captions-vertical") }],
-    { size: "1080", aspect: "9:16" },
-    0.3,
-  );
+  if (want("captions"))
+    await shot(
+      "captions",
+      "social-pop",
+      (p) => (p.style = { preset: "social-pop" }),
+      [{ time: 3.1, out: F("captions-vertical") }],
+      { size: "1080", aspect: "9:16" },
+      0.3,
+    );
   // The same moment wide and tall.
-  await shot(
-    "wide",
-    "scroll-focus",
-    (p) => (p.style = { preset: "golden-sparkle" }),
-    [{ time: 7.4, out: path.join(TMP, "wide.jpg") }],
-  );
-  await shot(
-    "tall",
-    "scroll-focus",
-    (p) => (p.style = { preset: "golden-sparkle" }),
-    [{ time: 7.4, out: path.join(TMP, "tall.jpg") }],
-    { size: "1080", aspect: "9:16" },
-    0.3,
-  );
-  await py(
-    [
-      "sheet",
-      "--out",
-      F("formats"),
-      "--cols",
-      "2",
-      path.join(TMP, "wide.jpg"),
-      path.join(TMP, "tall.jpg"),
-    ],
-    "Formats",
-    true,
-  );
+  if (want("formats"))
+    await shot(
+      "wide",
+      "scroll-focus",
+      (p) => (p.style = { preset: "golden-sparkle" }),
+      [{ time: 7.4, out: path.join(TMP, "wide.jpg") }],
+    );
+  if (want("formats"))
+    await shot(
+      "tall",
+      "scroll-focus",
+      (p) => (p.style = { preset: "golden-sparkle" }),
+      [{ time: 7.4, out: path.join(TMP, "tall.jpg") }],
+      { size: "1080", aspect: "9:16" },
+      0.3,
+    );
+  if (want("formats"))
+    await py(
+      [
+        "sheet",
+        "--out",
+        F("formats"),
+        "--cols",
+        "2",
+        path.join(TMP, "wide.jpg"),
+        path.join(TMP, "tall.jpg"),
+      ],
+      "Formats",
+      true,
+    );
   // End credits.
-  await shot(
-    "credits",
-    "cinematic",
-    (p) => {
-      p.style = { preset: "cinematic" };
-      p.graphics = [
-        {
-          type: "credits",
-          lines: [
-            "Thank you for listening",
-            "Music: Your Choir",
-            "Video: Your Team",
-          ],
-          start: 18.3,
-          end: 22,
-        },
-      ];
-    },
-    [{ time: 20.5, out: F("credits") }],
-  );
+  if (want("credits"))
+    await shot(
+      "credits",
+      "cinematic",
+      (p) => {
+        p.style = { preset: "cinematic" };
+        p.graphics = [
+          {
+            type: "credits",
+            lines: [
+              "Thank you for listening",
+              "Music: Your Choir",
+              "Video: Your Team",
+            ],
+            start: 18.3,
+            end: 22,
+          },
+        ];
+      },
+      [{ time: 20.5, out: F("credits") }],
+    );
 }
 
 async function main() {
