@@ -2,7 +2,7 @@
 
 # motion-lyrics
 
-**Beautiful lyric videos from any video and its lyrics, in any language. Just ask your AI assistant.**
+**Word-synced, multilingual lyric videos from any video and its lyrics, driven by your AI coding agent and rendered with Remotion.**
 
 [![CI](https://github.com/rohanvijaykumar/motion-lyrics/actions/workflows/ci.yml/badge.svg)](https://github.com/rohanvijaykumar/motion-lyrics/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -12,19 +12,20 @@
 
 </div>
 
-You do not need to be technical. You give your AI assistant (Claude, Codex, Cursor...) a link
-to this page, your video and your lyrics. It sets everything up, times every word to the
-singing, checks every line, and hands you a finished video. To change anything, you just tell
-it what you want in your own words.
+motion-lyrics isolates the vocal, aligns every lyric word to the singing, checks every frame,
+and renders finished video in 1080p or 4K, wide or vertical. It is designed to be operated by
+an AI coding agent such as Claude Code, Codex or Cursor: point the agent at this repository,
+describe the video you want, and it handles installation, rendering, quality checks and
+revisions. Every step can also be run directly from the command line.
 
 ---
 
-## How to start
+## Quick start
 
-**1. Open your AI assistant** that can work on your computer, for example
-[Claude Code](https://claude.com/claude-code) (the desktop app or terminal), Codex, or Cursor.
+**1. Open an AI coding agent** that can run commands on your machine:
+[Claude Code](https://claude.com/claude-code) (desktop app or CLI), Codex, Cursor or similar.
 
-**2. Paste this message**, with your own file names:
+**2. Give it the repository and your material:**
 
 ```text
 Set up https://github.com/rohanvijaykumar/motion-lyrics and make a lyric video
@@ -33,18 +34,19 @@ from my video "my-song.mp4" with these lyrics:
 (paste the lyrics here, or say where the lyrics file is)
 ```
 
-**3. Answer its three questions.** It asks which **style** you like (the pictures above), where the
-lyrics should **sit** (bottom, centre or top), and whether lyrics may **move away from faces**.
+**3. Answer three questions:** the **style** (gallery above), the lyric **position** (bottom,
+centre or top, fixed for the whole video), and whether lyrics may **move away from faces**.
 
-That's it. The first time, it downloads what it needs (about 3 GB, once) and installs any
-missing programs for you. A three-minute song then takes roughly 30 to 60 minutes on a normal
-laptop. It tells you when your video is ready and where to find it.
+The agent follows [AGENTS.md](AGENTS.md): it installs missing prerequisites (Node.js, uv,
+Python), downloads the models once (about 3 GB), runs the pipeline, reviews the timing and QC
+reports, and tells you where the finished file is. A three-minute song takes roughly 30 to 60
+minutes on a typical laptop CPU, most of it rendering.
 
 ---
 
-## Then just ask for changes
+## Iterate in plain language
 
-Talk to your assistant like you would to a video editor. For example:
+Revisions are requests to the agent, the same way you would brief an editor:
 
 > *"Make the lyrics bigger."* · *"Use the Montserrat font."* · *"Here is our brand font file, use it."*
 > *"Make the sung words gold."* · *"Put the lyrics at the top."* · *"Try the neon style."*
@@ -52,70 +54,78 @@ Talk to your assistant like you would to a video editor. For example:
 > *"Add the English translation under each line."* · *"Make a vertical version for Instagram Reels."*
 > *"Make a 4K version."* · *"The second line comes in a little late."* · *"Perfect, I'm done."*
 
-When you say you are done, it keeps your final video and tidies up the working files it no
-longer needs.
+Each change is validated, re-checked by QC and re-rendered. When you approve the result, the
+agent records the approval and removes intermediate files, keeping the final video and reports.
 
 ---
 
-## What it can do
+## Capabilities
 
-### Lyrics that light up as they are sung
+### Word-level karaoke highlighting
 
-Every word is timed to the singer and lights up as it is sung, in nine styles (gallery at the
-top) or your own fonts and colours.
+Every word is aligned to the isolated vocal and highlighted as it is sung: a wipe, a colour
+change or a boxed word, with optional glints, sparkles, beat pulses and entrance and exit
+animations. Nine presets ship with the project (gallery above); fonts, colours, sizes and
+effects are all configurable, and custom presets can be saved and reused.
 
-### Translations under the lyrics
+### Translations and romanization
 
-Show a translation (or the pronunciation) under each sung line. It lights up along with the
-line. Right-to-left languages like Arabic and Hebrew read and highlight right to left.
+A translation or pronunciation line can sit under each sung line and fills in step with it.
+Right-to-left scripts (Arabic, Hebrew) are laid out and highlighted right to left; joined and
+stacked scripts (Arabic, Devanagari, Tamil) keep correct shaping.
 
 ![Translations](docs/images/features/translations.jpg)
 
 ### Title cards and end credits
 
-Open with the song title and artist; close with credits.
+Opening titles with artist, and closing credits. The final lyric screen clears before the
+credits begin.
 
 | Title card | Credits |
 | --- | --- |
 | ![Title card](docs/images/features/title.jpg) | ![Credits](docs/images/features/credits.jpg) |
 
-### Names, logos and section labels
+### Lower thirds, logos and section labels
 
-A name card for the singer or choir, your logo in a corner, and labels such as *Verse* or
-*Chorus* as each part begins. Name cards automatically stay clear of the lyrics.
+Name cards for performers, a logo or watermark, and *Verse* / *Chorus* labels at section
+starts. Lower thirds reposition automatically so they never collide with the lyrics. Lottie
+animations and free text are also supported ([graphics reference](docs/graphics.md)).
 
 ![Name card, logo and section label](docs/images/features/lower-third-logo.jpg)
 
-### Subtitles and social-media captions
+### Subtitles and short-form captions
 
-Prefer something quieter? Use simple subtitles. Making a Reel, Short or TikTok? Big captions a
-few words at a time, with the sung word boxed.
+From understated subtitles on a soft band to short-form captions a few words at a time with
+the sung word boxed, sized for vertical video.
 
 | Subtitles | Vertical captions |
 | --- | --- |
 | ![Subtitles](docs/images/features/subtitles.jpg) | ![Captions](docs/images/features/captions-vertical.jpg) |
 
-### Wide and vertical, 1080p and 4K
+### 1080p and 4K, 16:9 and 9:16
 
-One project gives you every size: wide 16:9 for YouTube and vertical 9:16 for phones, in
-1080p or 4K. For vertical versions the picture follows the people in the shot, and the lyrics
-are laid out fresh for the tall frame.
+Any project renders to wide and vertical at 1080p or 4K. The layout is recomputed for each
+frame shape; text is drawn at native resolution; vertical crops follow the faces in shot, or
+the full picture can sit over a blurred fill.
 
 ![Wide and vertical](docs/images/features/formats.jpg)
 
-### Any language
+### Multilingual by design
 
-Hindi, Arabic, Japanese, Chinese, Korean, Tamil, Thai, Spanish, French, Russian, Hebrew and
-many more, with the right fonts chosen automatically. Timing works in over 1,100 languages.
+Word segmentation (including Chinese, Japanese and Thai, which use no spaces), per-script font
+selection with Noto fallbacks, and forced alignment covering more than 1,100 languages through
+romanization. See [docs/languages.md](docs/languages.md).
 
-### It checks its own work
+### Quality control
 
-- **Timing.** It double-checks the timing of every line with a second listening model and tells you
-  (and your assistant) which lines, if any, deserve a second look.
-- **Every line on screen.** Before each video is made, it looks at every lyric line: is it on
-  screen, not cut off, readable against the picture, big enough, and in the right font? It fixes
-  problems itself (without moving your lyrics) and checks again.
-- **The final file.** It confirms the finished video matches what was checked.
+- **Timing review.** A second recognition model cross-checks the alignment; lines likely to be
+  off are flagged with spectrogram strips. On a hand-timed benchmark, 98% of mistimed words fall
+  in a flagged line ([accuracy](docs/pipeline.md#accuracy)).
+- **Visual QC.** Before each render, a frame of every lyric line is checked in every export
+  format for safe-area violations, clipping, collisions, contrast, size and missing glyphs.
+  Failures are fixed without moving the lyrics and re-checked.
+- **Output verification.** Frames from the finished file are compared with the frames QC
+  approved.
 
 ---
 
@@ -133,58 +143,58 @@ many more, with the right fonts chosen automatically. Timing works in over 1,100
 | **cinematic** | Elegant serif lettering with a soft glow | Ballads, film |
 | **neon** | Words switch on with a neon glow | Night, dance, electronic |
 
-You can also ask for your own style ("our brand colours and font") and reuse it for every video.
+Custom styles (brand fonts and colours, for example) can be saved as presets and reused across projects.
 
 ---
 
-## Questions
+## FAQ
 
 <details>
-<summary><b>Which AI assistants work?</b></summary>
+<summary><b>Which agents are supported?</b></summary>
 
-Any assistant that can run commands on your computer: Claude Code (desktop app or terminal),
-OpenAI Codex, Cursor, Gemini CLI and similar. Chat-only assistants in a browser cannot install
-software, so they cannot do this.
+Any agent that can run shell commands on your machine: Claude Code (desktop app or CLI), OpenAI
+Codex, Cursor, Gemini CLI and similar. Browser-only chat assistants cannot install software or
+render video. Claude Code also loads the bundled `/motion-lyrics` skill.
 </details>
 
 <details>
-<summary><b>Does it cost anything?</b></summary>
+<summary><b>Licensing and cost</b></summary>
 
-motion-lyrics is free. Everything runs on your own computer. You only need your AI assistant's
-own plan. Large companies (more than 3 people, for-profit) need a
-[Remotion license](https://www.remotion.dev/license) to make videos; individuals, non-profits
-and small teams do not.
+motion-lyrics is MIT licensed and runs locally. Remotion is free for individuals, non-profits
+and companies of up to three people; larger for-profit companies need a
+[Remotion company license](https://www.remotion.dev/license). The MMS alignment model is
+CC BY-NC 4.0 (non-commercial); see [THIRD_PARTY.md](THIRD_PARTY.md).
 </details>
 
 <details>
-<summary><b>What gets downloaded, and how much space does it need?</b></summary>
+<summary><b>Downloads and disk space</b></summary>
 
-About 3 GB once: the model that times each word (1.2 GB), the speech-recognition model that
-double-checks it (about 1.5 GB), a model that separates the singer from the music (80 MB), and
-the browser that draws the frames (130 MB). Each video project needs some extra space while
-it is being made; approving a video frees most of it.
+About 3 GB, once: MMS forced aligner (1.2 GB), Whisper `medium` (about 1.5 GB), Demucs vocal
+separation (80 MB), the headless Chrome used for rendering (130 MB) and a face detector. Projects
+use additional space for intermediate audio and frames; approval removes it.
 </details>
 
 <details>
-<summary><b>Is my video uploaded anywhere?</b></summary>
+<summary><b>Privacy</b></summary>
 
-No. Your video, lyrics and finished files stay on your computer. Fonts are fetched from Google
-Fonts while drawing, and models are downloaded once during setup.
+Nothing is uploaded. Media, lyrics and renders stay on your machine. Network access is used
+for the one-time model download and for fetching Google Fonts at render time.
 </details>
 
 <details>
-<summary><b>What if a lyric is slightly early or late?</b></summary>
+<summary><b>Correcting timing</b></summary>
 
-Tell your assistant, for example "the line 'every step is new' starts too early". It looks at
-a picture of the singing to find the exact moment, fixes it and makes the video again.
+Tell the agent which line is off ("'every step is new' comes in early"). It inspects the
+spectrogram strip for that line, adjusts and locks the timing, and re-renders. Locked lines are
+preserved if alignment is re-run.
 </details>
 
 <details>
-<summary><b>I want to do it myself, without an assistant</b></summary>
+<summary><b>Running it without an agent</b></summary>
 
-Everything works by hand too. Start with [docs/cli.md](docs/cli.md) (setup and every command),
-then [docs/lyrics-format.md](docs/lyrics-format.md), [docs/styles.md](docs/styles.md) and
-[docs/graphics.md](docs/graphics.md).
+Every step is a single command: [docs/cli.md](docs/cli.md) covers setup and the full CLI;
+[docs/lyrics-format.md](docs/lyrics-format.md), [docs/styles.md](docs/styles.md) and
+[docs/graphics.md](docs/graphics.md) cover configuration.
 </details>
 
 ---

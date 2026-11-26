@@ -23,7 +23,7 @@ const OUT = path.join(ROOT, "docs", "images");
 /** How much to darken each photo so lyrics stay readable. */
 const DIM: Record<string, number> = {
   neon: 0.5,
-  "social-pop": 0.35,
+  "social-pop": 0.6,
   kinetic: 0.35,
   chalk: 0.15,
   "classic-karaoke": 0.3,
@@ -31,6 +31,23 @@ const DIM: Record<string, number> = {
 };
 
 type Project = Record<string, unknown>;
+
+/**
+ * Which moment of the demo each preset is shown at, so the gallery shows
+ * several languages: English 2.4-5.4 s, Hindi 6.6-9.5 s, Arabic 10.7-13.7 s,
+ * Japanese 14.9-17.8 s (each with a translation underneath).
+ */
+const MOMENT: Record<string, number> = {
+  "golden-sparkle": 7.6,
+  chalk: 3.9,
+  "classic-karaoke": 12.2,
+  "social-pop": 3.3,
+  kinetic: 17.6,
+  "scroll-focus": 7.6,
+  "minimal-subtitles": 12.0,
+  cinematic: 16.6,
+  neon: 4.1,
+};
 
 async function shot(
   name: string,
@@ -66,14 +83,15 @@ async function shot(
   console.log(`rendered ${name}`);
 }
 
-async function presets() {
+async function presets(only?: string) {
   const images: string[] = [];
   for (const name of PRESET_NAMES) {
     const out = path.join(OUT, "presets", `${name}.jpg`);
-    await shot(`preset-${name}`, name, (p) => (p.style = { preset: name }), [
-      { time: 7.4, out },
-    ]);
     images.push(out);
+    if (only && only !== name) continue;
+    await shot(`preset-${name}`, name, (p) => (p.style = { preset: name }), [
+      { time: MOMENT[name] ?? 7.4, out },
+    ]);
   }
   await py(
     ["sheet", "--out", path.join(OUT, "presets.jpg"), ...images],
@@ -222,6 +240,10 @@ async function main() {
   if (which === "all" || which === "presets") await presets();
   if (which === "all" || which === "features") await features();
   if (which === "credits") await features("credits");
+  if (which === "preset") {
+    await presets(process.argv[3]);
+    await features(process.argv[4]);
+  }
   console.log(`Images written to ${OUT}`);
 }
 

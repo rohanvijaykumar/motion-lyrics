@@ -148,6 +148,17 @@ export const WordView: React.FC<Props> = ({
           paintOrder: "stroke fill",
         }
       : {};
+  // Inside the highlight box the dark letters need no outline (it would blur them together),
+  // so the outline and shadow fade out while the box is shown.
+  const fillStroke: React.CSSProperties =
+    ts.strokeWidth > 0 && boxA > 0
+      ? boxA >= 0.99
+        ? {}
+        : {
+            WebkitTextStroke: `${ts.strokeWidth * 2 * scale * (1 - boxA)}px ${ts.strokeColor}`,
+            paintOrder: "stroke fill",
+          }
+      : strokeCss;
   const glyphs = letterMode ? graphemes(word.text, lang) : null;
   const renderText = () => {
     if (!glyphs) return word.text;
@@ -234,6 +245,7 @@ export const WordView: React.FC<Props> = ({
           position: "relative",
           zIndex: 1,
           color: maskColor ?? ts.color,
+          opacity: !maskColor && boxA > 0 ? 1 - boxA : undefined,
           textShadow: maskColor || ts.shadow === "none" ? undefined : ts.shadow,
           ...(maskColor && ts.strokeWidth > 0
             ? {
@@ -254,12 +266,15 @@ export const WordView: React.FC<Props> = ({
             padding: `${PAD}em`,
             zIndex: 2,
             color: fillColor,
-            textShadow: ts.sungShadow === "none" ? undefined : ts.sungShadow,
+            textShadow:
+              ts.sungShadow === "none" || boxA > 0.5
+                ? undefined
+                : ts.sungShadow,
             opacity: fillOpacity,
             maskImage: mask,
             WebkitMaskImage: mask,
             whiteSpace: "nowrap",
-            ...strokeCss,
+            ...fillStroke,
           }}
         >
           {renderText()}
