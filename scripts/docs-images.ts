@@ -9,6 +9,7 @@
  *
  * Backgrounds are public-domain / CC0 photos (examples/photos/CREDITS.md).
  */
+import "./lib/tmp";
 import fs from "node:fs";
 import path from "node:path";
 import { PRESET_NAMES } from "../src/style/presets";

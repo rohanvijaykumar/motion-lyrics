@@ -6,6 +6,8 @@
  * Every command prints what it is doing and stops with a clear message if
  * something is wrong. See docs/cli.md for the full reference.
  */
+// Must be first: sends all temporary files to a private folder that is deleted on exit.
+import "./lib/tmp";
 import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";

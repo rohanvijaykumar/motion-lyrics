@@ -5,6 +5,7 @@
  *
  *   npx tsx scripts/make-demo.ts
  */
+import "./lib/tmp";
 import fs from "node:fs";
 import path from "node:path";
 import { parseLyrics } from "../src/core/lyrics";

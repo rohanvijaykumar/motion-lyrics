@@ -224,6 +224,12 @@ and bundles, QC and review frame images, drafts and unapproved renders. It keeps
 reports, the contact sheet and approved videos. Add `--media` only if the person also wants the
 copied source video removed. Never run it without the person's approval.
 
+Temporary files never need manual cleanup: every command writes them to its own
+`.cache/tmp/run-<id>` folder and deletes it when it ends (also on errors and Ctrl+C). A folder
+left by a crash is removed by the next command, and `approve` also removes Remotion leftovers
+older than six hours from the system temp folder. Never delete other files from the system temp
+folder.
+
 ## 8. Changing the look
 
 All in `projects/<name>/project.json` (autocomplete via `schema/project.schema.json`):

@@ -25,7 +25,7 @@ The setup scripts install Node.js (and Git on Windows) if missing, then run `npm
 | `npm run render -- <name> [--size 1080\|4k] [--aspect 16:9\|9:16] [--all]` | render (with visual QC) |
 | `npm run render -- <name> --draft` | quick half-size preview with a timing overlay |
 | `npm run qc -- <name> [--all] [--no-fix]` | visual QC only |
-| `npm run approve -- <name> [--yes] [--media] [--force]` | approve the video and clean up |
+| `npm run approve -- <name> [--yes] [--media] [--force]` | approve the video and clean up (also old temporary files) |
 | `npm run studio -- <name>` | live preview in the browser |
 | `npm run shift -- <name> --line <id> --by <seconds>` | nudge timing (also `--word <id> --start/--end`, `--from/--to --by`) |
 | `npm run still -- <name> --time 12.5 [--debug] [--size/--aspect]` | save one frame as an image |

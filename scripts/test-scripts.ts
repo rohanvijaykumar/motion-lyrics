@@ -6,6 +6,7 @@
  *
  *   npx tsx scripts/test-scripts.ts
  */
+import "./lib/tmp";
 import fs from "node:fs";
 import path from "node:path";
 import { parseLyrics } from "../src/core/lyrics";

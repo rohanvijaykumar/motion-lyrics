@@ -252,7 +252,9 @@ CC BY-NC 4.0 (non-commercial); see [THIRD_PARTY.md](THIRD_PARTY.md).
 
 About 3 GB, once: MMS forced aligner (1.2 GB), Whisper `medium` (about 1.5 GB), Demucs vocal
 separation (80 MB), the headless Chrome used for rendering (130 MB) and a face detector. Projects
-use additional space for intermediate audio and frames; approval removes it.
+use additional space for intermediate audio and frames; approval removes it. Temporary render
+files stay inside the repository's `.cache/tmp` folder and are deleted as soon as each command
+finishes, so they never build up on your system drive.
 </details>
 
 <details>

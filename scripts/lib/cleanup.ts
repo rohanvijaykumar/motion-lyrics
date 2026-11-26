@@ -14,6 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Project } from "../../src/schema/project";
 import type { Paths } from "./project";
+import { SYSTEM_TMP, staleRuns } from "./tmp";
 import { exists, readJson } from "./util";
 
 export type Item = { path: string; bytes: number; why: string };
@@ -84,6 +85,29 @@ export function cleanupPlan(
     for (const b of readJson<string[]>(bundles))
       add(b, "Remotion render bundle (temporary)");
     add(bundles, "bundle list");
+  }
+  // Temporary files from earlier runs that ended without cleaning up.
+  for (const dir of staleRuns())
+    add(dir, "temporary files from an earlier run");
+  // Remotion leftovers in the system temp folder from before temp files were kept private,
+  // only if older than 6 hours (so a render running elsewhere is never disturbed).
+  if (SYSTEM_TMP && exists(SYSTEM_TMP)) {
+    const cutoff = Date.now() - 6 * 3600 * 1000;
+    for (const name of fs.readdirSync(SYSTEM_TMP)) {
+      if (
+        !/^(remotion-v\d|remotion-webpack-bundle-|react-motion-render)/.test(
+          name,
+        )
+      )
+        continue;
+      const full = path.join(SYSTEM_TMP, name);
+      try {
+        if (fs.statSync(full).mtimeMs < cutoff)
+          add(full, "old Remotion temporary files in the system temp folder");
+      } catch {
+        /* vanished meanwhile */
+      }
+    }
   }
   if (opts.media)
     add(
