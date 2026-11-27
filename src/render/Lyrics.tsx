@@ -1,9 +1,11 @@
 /** The lyrics layer: schedules pages, places them and renders the active ones. */
 import React, { useMemo } from "react";
-import { Sequence } from "remotion";
+import { CameraMotionBlur, Trail } from "@remotion/motion-blur";
+import { AbsoluteFill, Sequence, useCurrentFrame } from "remotion";
 import { pageEnd, paginate, schedule } from "../core/timeline";
 import { seg } from "./anim";
-import { useRender } from "./context";
+import { Ctx, useRender } from "./context";
+import { moveCss, shakeMove } from "./effects/Camera";
 import { Band } from "./effects/Global";
 import {
   choosePosition,
@@ -14,7 +16,47 @@ import {
 import { PageView } from "./Page";
 import { ScrollView } from "./Scroll";
 
+/**
+ * Motion blur (@remotion/motion-blur) re-renders the layer at earlier frames.
+ * The lyric components read time from context, so this bridge refreshes it
+ * from the (frozen) frame each copy is drawn at.
+ */
+const TimeBridge: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const ctx = useRender();
+  const frame = useCurrentFrame();
+  return <Ctx.Provider value={{ ...ctx, t: frame / ctx.fps }}>{children}</Ctx.Provider>;
+};
+
+/** Handheld wobble of the whole lyric layer (also in QC masks, so measured positions match). */
+const Shake: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t, style, analysis, scale } = useRender();
+  if (!style.effects.shake.enabled) return <>{children}</>;
+  const m = shakeMove(style.effects.shake, t, analysis?.beats, scale);
+  return <AbsoluteFill style={moveCss(m)}>{children}</AbsoluteFill>;
+};
+
 export const LyricsLayer: React.FC = () => {
+  const { style, qcMask } = useRender();
+  const mb = style.effects.motionBlur;
+  const inner = (
+    <Shake>
+      <LyricsPages />
+    </Shake>
+  );
+  if (mb.type === "none" || qcMask) return inner;
+  const samples = Math.max(2, Math.min(16, Math.round(mb.samples)));
+  return mb.type === "trail" ? (
+    <Trail layers={samples} lagInFrames={Math.max(0.1, mb.lag)} trailOpacity={0.5}>
+      <TimeBridge>{inner}</TimeBridge>
+    </Trail>
+  ) : (
+    <CameraMotionBlur samples={samples} shutterAngle={Math.max(0, Math.min(360, mb.shutter))}>
+      <TimeBridge>{inner}</TimeBridge>
+    </CameraMotionBlur>
+  );
+};
+
+const LyricsPages: React.FC = () => {
   const ctx = useRender();
   const {
     style,

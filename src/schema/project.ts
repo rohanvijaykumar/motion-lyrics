@@ -78,6 +78,59 @@ export const GraphicSchema = z.discriminatedUnion("type", [
     loop: z.boolean().default(true),
   }),
   GraphicBase.extend({
+    type: z.literal("gif"),
+    src: z
+      .string()
+      .describe("GIF, APNG, animated WebP or AVIF inside the project folder"),
+    at: Placement.prefault({}),
+    width: z.number().default(0.25).describe("Fraction of frame width"),
+    fit: z.enum(["contain", "cover", "fill"]).default("contain"),
+    loop: z.boolean().default(true),
+  }),
+  GraphicBase.extend({
+    type: z.literal("rive"),
+    src: z.string().describe("Rive .riv file inside the project folder"),
+    at: Placement.prefault({}),
+    width: z.number().default(0.3).describe("Fraction of frame width"),
+    aspect: z.number().default(1).describe("Height / width of the artboard box"),
+    artboard: z.string().optional(),
+    animation: z.string().optional(),
+  }),
+  GraphicBase.extend({
+    type: z.literal("emoji"),
+    emoji: z
+      .string()
+      .describe(
+        "Animated emoji name from @remotion/animated-emoji, e.g. fire, red-heart, sparkles, party-popper",
+      ),
+    at: Placement.prefault({ x: 0.5, y: 0.3 }),
+    size: z.number().default(180).describe("px at 1080p"),
+  }),
+  GraphicBase.extend({
+    type: z.literal("sound"),
+    sound: z
+      .string()
+      .describe(
+        "A built-in sound effect (whoosh, whip, page-turn, switch, ding, shutter, record-scratch...) or a file inside the project folder",
+      ),
+    volume: z.number().default(0.6),
+  }),
+  GraphicBase.extend({
+    type: z.literal("lightLeak"),
+    seed: z.number().default(0).describe("Pattern of the leak"),
+    hueShift: z.number().default(0).describe("0 warm, 120 green, 240 blue"),
+    opacity: z.number().default(0.9),
+  }),
+  GraphicBase.extend({
+    type: z.literal("starburst"),
+    colors: z
+      .array(z.string())
+      .default(["#ffd23f", "#ff5a3c"]),
+    rays: z.number().default(14),
+    spin: z.number().default(10).describe("degrees per second"),
+    opacity: z.number().default(0.5),
+  }),
+  GraphicBase.extend({
     type: z.literal("credits"),
     lines: z.array(z.string()),
     size: z.number().default(44),

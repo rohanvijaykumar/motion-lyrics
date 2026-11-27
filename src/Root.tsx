@@ -26,6 +26,7 @@ export const RemotionRoot: React.FC = () => {
         debug: false,
         size: "source",
         aspect: "source",
+        preset: "",
         qcMask: false,
       }}
     />

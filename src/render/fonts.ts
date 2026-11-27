@@ -42,8 +42,34 @@ export function fontStack(
   return [...new Set(stack.filter((f): f is string => !!f))];
 }
 
+/**
+ * @remotion/google-fonts registers fonts whose names contain digits with the
+ * digits spelled out ("Press Start 2P" -> "Press Start TwoP", "B612" ->
+ * "BSixOneTwo"), so both spellings go into the CSS stack. A local font keeps
+ * its own name, which is listed first.
+ */
+const DIGITS = [
+  "Zero",
+  "One",
+  "Two",
+  "Three",
+  "Four",
+  "Five",
+  "Six",
+  "Seven",
+  "Eight",
+  "Nine",
+];
+export const registeredFamily = (family: string) =>
+  family.replace(/\d/g, (d) => DIGITS[Number(d)]);
+
 export const cssFamily = (stack: string[]) =>
-  [...stack.map((f) => `"${f}"`), "sans-serif"].join(", ");
+  [
+    ...[...new Set(stack.flatMap((f) => [f, registeredFamily(f)]))].map(
+      (f) => `"${f}"`,
+    ),
+    "sans-serif",
+  ].join(", ");
 
 type RangeList = [number, number][];
 function parseRanges(s: string | undefined): RangeList | null {

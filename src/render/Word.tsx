@@ -10,6 +10,8 @@ import { graphemes } from "../core/segment";
 import type { Word } from "../schema/song";
 import type { Style, TextStyle } from "../schema/style";
 import { ease, lerp, seg } from "./anim";
+import { noise2D } from "@remotion/noise";
+import { WordMark } from "./effects/Mark";
 import { Glint, makeSparks, Sparkles, wipeTiming } from "./effects/WordFx";
 
 export type Entrance = { start: number; dur: number };
@@ -29,6 +31,8 @@ type Props = {
   pageStart: number;
   /** QC mask mode: draw the word in this flat colour only. */
   mask?: string;
+  /** The resolved font, for marks that measure the word. */
+  font?: { family: string; px: number; weight: number; letterSpacing: number };
 };
 
 const PAD = 0.45; // em of room around the fill so glows are not cut off
@@ -46,6 +50,7 @@ export const WordView: React.FC<Props> = ({
   entrance,
   pageStart,
   mask: maskColor,
+  font,
 }) => {
   const h = style.highlight;
   const fx = style.effects;
@@ -112,6 +117,15 @@ export const WordView: React.FC<Props> = ({
       break;
     default:
       break;
+  }
+
+  // ---- drift: each word floats on its own smooth noise path ----------------
+  let rot = 0;
+  if (fx.drift.enabled) {
+    const k = fx.drift.speed;
+    tx += noise2D(`dx-${word.id}`, t * k, 0) * fx.drift.amount * scale;
+    ty += noise2D(`dy-${word.id}`, 0, t * k) * fx.drift.amount * scale;
+    rot = noise2D(`dr-${word.id}`, t * k * 0.8, 1) * fx.drift.rotate;
   }
 
   // ---- lift on the sung word -------------------------------------------------
@@ -222,6 +236,7 @@ export const WordView: React.FC<Props> = ({
         opacity,
         translate: tx || ty ? `${tx}px ${ty}px` : undefined,
         scale: sc !== 1 ? String(sc) : undefined,
+        rotate: rot ? `${rot}deg` : undefined,
         filter: blur > 0.05 && !maskColor ? `blur(${blur}px)` : undefined,
         clipPath: clip,
         whiteSpace: "nowrap",
@@ -279,6 +294,23 @@ export const WordView: React.FC<Props> = ({
         >
           {renderText()}
         </span>
+      ) : null}
+      {!maskColor && sung && h.mark.type !== "none" && font ? (
+        <WordMark
+          mark={h.mark}
+          wordId={word.id}
+          text={word.text}
+          progress={seg(
+            t,
+            word.start - h.wipeLead,
+            Math.max(0.08, Math.min(h.mark.draw, word.end - word.start)),
+            ease.out2,
+          )}
+          opacity={h.mark.persist ? 1 : 1 - seg(t, word.end + 0.12, 0.25)}
+          scale={scale}
+          rtl={dir === "rtl"}
+          font={font}
+        />
       ) : null}
       {!maskColor && h.underline.enabled && sung ? (
         <span

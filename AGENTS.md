@@ -42,7 +42,14 @@ continue with section 2.
 | "Use this font" / sends a font file | Google font name, or copy the file into `projects/<name>/fonts/`; set `style.text.*.fontFamily` |
 | "Change the colour" | `sungColor` (sung words) and `color` (not yet sung) |
 | "Move the lyrics to the top/centre" | `style.layout.position` |
-| "Try another style" | `style.preset`; show the gallery in README.md or run `npm run presets` |
+| "Try another style" / "show me the styles" | `npm run styles -- <name>`, show `review/styles.jpg`, then set `style.preset` |
+| "Something calm / playful / for kids..." | `npm run presets -- --mood <mood>`, suggest two or three |
+| "Make it look retro / VHS / black and white / comic" | `style.effects.look.type` (`vhs`, `noir`, `comic`, `halftone`, `paper`...) |
+| "Add snow / stars / bokeh / petals" | `style.effects.depth.type` |
+| "Circle / underline / highlight the sung word" | `style.highlight.mark.type` |
+| "Wipe / slide / iris between screens" | `style.transition.type` |
+| "Add a whoosh / sound effect" | a `sound` graphic |
+| "Add a heart / fire emoji", "add this GIF" | an `emoji` or `gif` graphic |
 | "Add a title / song name at the start" | a `title` graphic in `graphics` (docs/graphics.md) |
 | "Add our logo" | copy it into `projects/<name>/media/`, add an `image` graphic |
 | "Add the singer's name" | a `lowerThird` graphic |
@@ -119,7 +126,11 @@ Rules that prevent most mistakes:
 
 Before running anything for a new video, ask the person and wait for their answers:
 
-1. **Style**: which preset? Show them `npm run presets` (or the gallery in README.md).
+1. **Style**: which preset? Show them the gallery in README.md or `npm run presets`. If they
+   describe a mood ("calm", "playful", "for kids"), run `npm run presets -- --mood <mood>` and
+   suggest two or three. If they cannot decide, make the project with the default style and
+   `--no-render`, then run `npm run styles -- <name>` and show them `review/styles.jpg` (one
+   picture per style over their own footage) and let them point at one.
 2. **Position**: lyrics at the bottom, center or top? They stay there for the whole video.
 3. **Face avoidance**: on or off? On lets lyrics jump to the other end of the frame when a face
    is underneath, which makes positions change during the video. Default and recommended: off.

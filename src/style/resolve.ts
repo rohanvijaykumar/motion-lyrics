@@ -17,6 +17,7 @@ export function resolveStyle(
   }
   const presetStyle: Record<string, unknown> = { ...preset };
   delete presetStyle.description;
+  delete presetStyle.tags;
   const merged = deepMerge(
     deepMerge({} as Record<string, unknown>, presetStyle),
     overrides,

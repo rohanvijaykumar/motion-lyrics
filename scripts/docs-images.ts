@@ -29,6 +29,11 @@ const DIM: Record<string, number> = {
   chalk: 0.15,
   "classic-karaoke": 0.3,
   "minimal-subtitles": 0.4,
+  "marker-pen": 0.1,
+  "comic-pop": 0.3,
+  "dreamy-float": 0.35,
+  "winter-snow": 0.3,
+  "pixel-arcade": 0.4,
 };
 
 type Project = Record<string, unknown>;
@@ -48,7 +53,27 @@ const MOMENT: Record<string, number> = {
   "minimal-subtitles": 12.0,
   cinematic: 16.6,
   neon: 4.1,
+  "marker-pen": 3.9,
+  "hand-drawn": 7.6,
+  "comic-pop": 3.3,
+  "retro-vhs": 12.0,
+  "dreamy-float": 16.6,
+  editorial: 7.6,
+  aurora: 16.6,
+  cosmic: 3.9,
+  "club-beat": 4.1,
+  storybook: 7.6,
+  "noir-typewriter": 12.2,
+  "sunset-film": 16.6,
+  broadcast: 3.9,
+  "pixel-arcade": 3.9,
+  "winter-snow": 7.6,
+  "love-letter": 3.9,
 };
+
+/** Every preset has a photo of its own (examples/photos/<name>.jpg, see CREDITS.md). */
+const photoFor = (name: string) =>
+  fs.existsSync(path.join(PHOTOS, `${name}.jpg`)) ? name : "cinematic";
 
 async function shot(
   name: string,
@@ -90,7 +115,7 @@ async function presets(only?: string) {
     const out = path.join(OUT, "presets", `${name}.jpg`);
     images.push(out);
     if (only && only !== name) continue;
-    await shot(`preset-${name}`, name, (p) => (p.style = { preset: name }), [
+    await shot(`preset-${name}`, photoFor(name), (p) => (p.style = { preset: name }), [
       { time: MOMENT[name] ?? 7.4, out },
     ]);
   }

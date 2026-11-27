@@ -135,7 +135,23 @@
             "scroll-focus",
             "minimal-subtitles",
             "cinematic",
-            "neon"
+            "neon",
+            "marker-pen",
+            "hand-drawn",
+            "comic-pop",
+            "retro-vhs",
+            "dreamy-float",
+            "editorial",
+            "aurora",
+            "cosmic",
+            "club-beat",
+            "storybook",
+            "noir-typewriter",
+            "sunset-film",
+            "broadcast",
+            "pixel-arcade",
+            "winter-snow",
+            "love-letter"
           ],
           "default": "golden-sparkle"
         }
@@ -389,6 +405,16 @@
                   "right"
                 ]
               },
+              "position": {
+                "default": "auto",
+                "description": "auto = bottom, or top when the lyrics sit at the bottom so the two never overlap",
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "bottom",
+                  "top"
+                ]
+              },
               "color": {
                 "default": "#ffffff",
                 "type": "string"
@@ -568,6 +594,445 @@
               "end",
               "type",
               "src"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "gif"
+              },
+              "src": {
+                "type": "string",
+                "description": "GIF, APNG, animated WebP or AVIF inside the project folder"
+              },
+              "at": {
+                "default": {},
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "default": 0.5,
+                    "description": "Horizontal anchor, 0 = left edge, 1 = right edge",
+                    "type": "number"
+                  },
+                  "y": {
+                    "default": 0.5,
+                    "description": "Vertical anchor, 0 = top edge, 1 = bottom edge",
+                    "type": "number"
+                  }
+                }
+              },
+              "width": {
+                "default": 0.25,
+                "description": "Fraction of frame width",
+                "type": "number"
+              },
+              "fit": {
+                "default": "contain",
+                "type": "string",
+                "enum": [
+                  "contain",
+                  "cover",
+                  "fill"
+                ]
+              },
+              "loop": {
+                "default": true,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type",
+              "src"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "rive"
+              },
+              "src": {
+                "type": "string",
+                "description": "Rive .riv file inside the project folder"
+              },
+              "at": {
+                "default": {},
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "default": 0.5,
+                    "description": "Horizontal anchor, 0 = left edge, 1 = right edge",
+                    "type": "number"
+                  },
+                  "y": {
+                    "default": 0.5,
+                    "description": "Vertical anchor, 0 = top edge, 1 = bottom edge",
+                    "type": "number"
+                  }
+                }
+              },
+              "width": {
+                "default": 0.3,
+                "description": "Fraction of frame width",
+                "type": "number"
+              },
+              "aspect": {
+                "default": 1,
+                "description": "Height / width of the artboard box",
+                "type": "number"
+              },
+              "artboard": {
+                "type": "string"
+              },
+              "animation": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type",
+              "src"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "emoji"
+              },
+              "emoji": {
+                "type": "string",
+                "description": "Animated emoji name from @remotion/animated-emoji, e.g. fire, red-heart, sparkles, party-popper"
+              },
+              "at": {
+                "default": {
+                  "x": 0.5,
+                  "y": 0.3
+                },
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "default": 0.5,
+                    "description": "Horizontal anchor, 0 = left edge, 1 = right edge",
+                    "type": "number"
+                  },
+                  "y": {
+                    "default": 0.5,
+                    "description": "Vertical anchor, 0 = top edge, 1 = bottom edge",
+                    "type": "number"
+                  }
+                }
+              },
+              "size": {
+                "default": 180,
+                "description": "px at 1080p",
+                "type": "number"
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type",
+              "emoji"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "sound"
+              },
+              "sound": {
+                "type": "string",
+                "description": "A built-in sound effect (whoosh, whip, page-turn, switch, ding, shutter, record-scratch...) or a file inside the project folder"
+              },
+              "volume": {
+                "default": 0.6,
+                "type": "number"
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type",
+              "sound"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "lightLeak"
+              },
+              "seed": {
+                "default": 0,
+                "description": "Pattern of the leak",
+                "type": "number"
+              },
+              "hueShift": {
+                "default": 0,
+                "description": "0 warm, 120 green, 240 blue",
+                "type": "number"
+              },
+              "opacity": {
+                "default": 0.9,
+                "type": "number"
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "end": {
+                "type": "number",
+                "description": "Seconds"
+              },
+              "enter": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "rise",
+                  "scale",
+                  "pop",
+                  "none"
+                ]
+              },
+              "exit": {
+                "default": "fade",
+                "type": "string",
+                "enum": [
+                  "fade",
+                  "sink",
+                  "scale",
+                  "none"
+                ]
+              },
+              "transition": {
+                "default": 0.5,
+                "description": "Seconds for enter and exit",
+                "type": "number"
+              },
+              "type": {
+                "type": "string",
+                "const": "starburst"
+              },
+              "colors": {
+                "default": [
+                  "#ffd23f",
+                  "#ff5a3c"
+                ],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "rays": {
+                "default": 14,
+                "type": "number"
+              },
+              "spin": {
+                "default": 10,
+                "description": "degrees per second",
+                "type": "number"
+              },
+              "opacity": {
+                "default": 0.5,
+                "type": "number"
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "type"
             ]
           },
           {

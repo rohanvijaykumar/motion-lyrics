@@ -3,6 +3,14 @@
  * Handles placement, the backing scrim, line focus, beat pulse and the exit.
  */
 import React from "react";
+import type { TransitionPresentation } from "@remotion/transitions";
+import { clockWipe } from "@remotion/transitions/clock-wipe";
+import { fade } from "@remotion/transitions/fade";
+import { flip } from "@remotion/transitions/flip";
+import { iris } from "@remotion/transitions/iris";
+import { slide } from "@remotion/transitions/slide";
+import { wipe } from "@remotion/transitions/wipe";
+import type { Style } from "../schema/style";
 import type { Page } from "../core/timeline";
 import type { Line } from "../schema/song";
 import { textStyleFor } from "../style/resolve";
@@ -42,6 +50,35 @@ function focus(
     : 0;
   return { up, down, isFirst: idx <= 0 };
 }
+
+/** The @remotion/transitions presentation for a screen change, or null for none. */
+function presentationFor(
+  tr: Style["transition"],
+  W: number,
+  H: number,
+): TransitionPresentation<Record<string, unknown>> | null {
+  const p = (() => {
+    switch (tr.type) {
+      case "fade":
+        return fade();
+      case "wipe":
+        return wipe({ direction: tr.direction });
+      case "slide":
+        return slide({ direction: tr.direction });
+      case "flip":
+        return flip({ direction: tr.direction, perspective: 1400 });
+      case "clock-wipe":
+        return clockWipe({ width: W, height: H });
+      case "iris":
+        return iris({ width: W, height: H });
+      default:
+        return null;
+    }
+  })();
+  return p as TransitionPresentation<Record<string, unknown>> | null;
+}
+
+const noop = () => undefined;
 
 export const PageView: React.FC<Props> = ({ page, position, rowOffsetPx }) => {
   const {
@@ -133,7 +170,7 @@ export const PageView: React.FC<Props> = ({ page, position, rowOffsetPx }) => {
         ? { top: H * my + rowOffsetPx }
         : { top: "50%", translate: `0 calc(-50% + ${rowOffsetPx}px)` };
 
-  return (
+  const content = (
     <div
       style={{
         position: "absolute",
@@ -272,5 +309,31 @@ export const PageView: React.FC<Props> = ({ page, position, rowOffsetPx }) => {
         })}
       </div>
     </div>
+  );
+
+  // ---- screen transition (@remotion/transitions) --------------------------------
+  const tr = style.transition;
+  const pres = presentationFor(tr, W, H);
+  if (!pres) return content;
+  const inDur = Math.min(tr.duration, Math.max(ent, 0.2));
+  const pIn = seg(t, page.enterStart, inDur, ease.out3);
+  const pOut =
+    tr.exit && page.exitDur > 0
+      ? seg(t, page.exitStart, page.exitDur, ease.in2)
+      : 0;
+  const progress = Math.max(0, Math.min(1, pIn * (1 - pOut)));
+  const Pres = pres.component;
+  return (
+    <Pres
+      presentationProgress={progress}
+      presentationDirection="entering"
+      passedProps={pres.props}
+      presentationDurationInFrames={1}
+      onElementImage={noop}
+      onUnmount={noop}
+      bothEnteringAndExiting={false}
+    >
+      {content}
+    </Pres>
   );
 };

@@ -10,7 +10,9 @@ short version so you can start immediately.
 
 1. `npm run doctor` - if anything fails, `npm install` and `npm run setup` first.
 2. Put the person's exact lyrics in a `lyrics.txt` (AGENTS.md section 2).
-3. **Ask the person** (and wait): style preset (`npm run presets`), lyric position
+3. **Ask the person** (and wait): style preset (`npm run presets`, `-- --mood <mood>` to filter;
+   undecided: make with the default and `--no-render`, then `npm run styles -- <name>` and show
+   `review/styles.jpg`), lyric position
    (bottom/center/top, fixed for the whole video), face avoidance on/off (default off),
    optional font, colour and export sizes.
 4. `npm run make -- <name> --video <file> --lyrics lyrics.txt --preset <p> --position <pos> --avoid-faces off --no-render`

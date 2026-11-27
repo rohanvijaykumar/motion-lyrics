@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Built with Remotion](https://img.shields.io/badge/built%20with-Remotion-0b84f3.svg)](https://www.remotion.dev)
 
-![Nine styles](docs/images/presets.jpg)
+![Some of the styles](docs/images/presets.jpg)
 
 </div>
 
@@ -146,7 +146,8 @@ agent records the approval and removes intermediate files, keeping the final vid
 
 Every word is aligned to the isolated vocal and highlighted as it is sung: a wipe, a colour
 change or a boxed word, with optional glints, sparkles, beat pulses and entrance and exit
-animations. Nine presets ship with the project (gallery above); fonts, colours, sizes and
+animations. Twenty-five presets ship with the project (gallery above), and every part of them
+(transitions, marks, looks, 3D layers, shaders, motion) can be mixed; fonts, colours, sizes and
 effects are all configurable, and custom presets can be saved and reused.
 
 ### Translations and romanization
@@ -223,8 +224,32 @@ romanization. See [docs/languages.md](docs/languages.md).
 | **minimal-subtitles** | Quiet subtitles on a soft dark band | Talks, documentaries |
 | **cinematic** | Elegant serif lettering with a soft glow | Ballads, film |
 | **neon** | Words switch on with a neon glow | Night, dance, electronic |
+| **marker-pen** | A highlighter sweeps behind each word on a paper card | Lessons, readable on any footage |
+| **hand-drawn** | Felt-tip letters with a circle sketched round the sung word | Playful, kids |
+| **comic-pop** | Halftone comic colour, spinning rays, punchy outlined type | Fun, cartoons |
+| **retro-vhs** | Scanlines, colour fringing, terminal type | Throwbacks, lo-fi |
+| **dreamy-float** | Floating pastel words, 3D bokeh, light leaks | Lullabies, love songs |
+| **editorial** | Magazine serif, wipes, an ink line under the sung word | Elegant, brand videos |
+| **aurora** | Northern-lights shader, stars in 3D, slow push in | Calm, night skies |
+| **cosmic** | Stars streaming past in 3D, iris transitions | Space, electronic |
+| **club-beat** | Motion trails, beat kicks, an equalizer that moves with the song | Dance, parties |
+| **storybook** | Paper texture, rounded letters, a wavy underline | Children's stories |
+| **noir-typewriter** | Black and white, typewriter lettering, heavy vignette | Drama, retro film |
+| **sunset-film** | Warm grade, light leaks, glowing serif | Golden hour, ballads |
+| **broadcast** | Bold sans on a dark panel that slides up | Announcements, social |
+| **pixel-arcade** | Pixelated picture, 8-bit lettering | Games, kids |
+| **winter-snow** | Snow falling in 3D, pale blue glow | Winter, festive |
+| **love-letter** | Flowing script, rose petals in 3D | Weddings, romance |
 
-Custom styles (brand fonts and colours, for example) can be saved as presets and reused across projects.
+Not sure? Ask your agent to **show every style on your own video**: it runs
+`npm run styles -- <project>` and shows you one picture per style. You can also ask by mood
+("something calm", "make it playful") and it will suggest two or three.
+
+Every style is built from parts you can mix: screen transitions, hand-drawn marks on the sung
+word, GPU looks on the footage (noir, VHS, halftone, paper...), slow camera moves, 3D layers
+(bokeh, stars, snow, petals), shaders, light leaks, motion blur and an audio visualizer. See
+[docs/styles.md](docs/styles.md). Custom styles (brand fonts and colours, for example) can be
+saved as presets and reused across projects.
 
 ---
 

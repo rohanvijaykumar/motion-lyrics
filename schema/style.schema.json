@@ -460,6 +460,47 @@
         }
       }
     },
+    "transition": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "type": {
+          "default": "none",
+          "description": "How each screen arrives and leaves, on top of enter/exit: wipe, slide, flip, clock-wipe or iris (@remotion/transitions)",
+          "type": "string",
+          "enum": [
+            "none",
+            "fade",
+            "wipe",
+            "slide",
+            "flip",
+            "clock-wipe",
+            "iris"
+          ]
+        },
+        "direction": {
+          "default": "from-left",
+          "description": "wipe and slide: where the new screen comes from",
+          "type": "string",
+          "enum": [
+            "from-left",
+            "from-right",
+            "from-top",
+            "from-bottom"
+          ]
+        },
+        "duration": {
+          "default": 0.45,
+          "description": "Seconds",
+          "type": "number"
+        },
+        "exit": {
+          "default": true,
+          "description": "Also leave with the same transition",
+          "type": "boolean"
+        }
+      }
+    },
     "highlight": {
       "default": {},
       "type": "object",
@@ -472,6 +513,59 @@
             "color",
             "none"
           ]
+        },
+        "mark": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "type": {
+              "default": "none",
+              "description": "A mark drawn on the word being sung: marker (highlighter pen behind it), underline, circle, box, strike, crossed, bracket (hand-drawn), ink-underline or wave-underline (smooth line drawn on)",
+              "type": "string",
+              "enum": [
+                "none",
+                "marker",
+                "underline",
+                "circle",
+                "box",
+                "strike",
+                "crossed",
+                "bracket",
+                "ink-underline",
+                "wave-underline"
+              ]
+            },
+            "color": {
+              "default": "rgba(255,214,64,0.85)",
+              "type": "string",
+              "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+            },
+            "strokeWidth": {
+              "default": 4,
+              "description": "px",
+              "type": "number"
+            },
+            "padding": {
+              "default": 6,
+              "description": "px around the word",
+              "type": "number"
+            },
+            "iterations": {
+              "default": 2,
+              "description": "Hand-drawn marks: pen strokes per mark",
+              "type": "number"
+            },
+            "draw": {
+              "default": 0.35,
+              "description": "Seconds to draw the mark (capped by the word length)",
+              "type": "number"
+            },
+            "persist": {
+              "default": false,
+              "description": "Keep marks on words already sung",
+              "type": "boolean"
+            }
+          }
         },
         "softEdge": {
           "default": 0,
@@ -878,6 +972,370 @@
             "amount": {
               "default": 0.025,
               "description": "Extra scale on each beat",
+              "type": "number"
+            }
+          }
+        },
+        "look": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "type": {
+              "default": "none",
+              "description": "GPU look on the background picture (@remotion/effects): noir, duotone, halftone, comic, vhs, dreamy, warm, cool, faded, paper, pixel, dot-grid, thermal",
+              "type": "string",
+              "enum": [
+                "none",
+                "noir",
+                "duotone",
+                "halftone",
+                "comic",
+                "vhs",
+                "dreamy",
+                "warm",
+                "cool",
+                "faded",
+                "paper",
+                "pixel",
+                "dot-grid",
+                "thermal"
+              ]
+            },
+            "amount": {
+              "default": 1,
+              "description": "Strength 0-1",
+              "type": "number"
+            },
+            "colors": {
+              "default": [
+                "#1a1030",
+                "#ffb86b"
+              ],
+              "description": "duotone: dark and light colours",
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+                },
+                {
+                  "type": "string",
+                  "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        "camera": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "type": {
+              "default": "none",
+              "description": "Slow camera move on the background: push-in, pull-out, pan, breathe or handheld",
+              "type": "string",
+              "enum": [
+                "none",
+                "push-in",
+                "pull-out",
+                "pan",
+                "breathe",
+                "handheld"
+              ]
+            },
+            "amount": {
+              "default": 1,
+              "description": "1 = gentle, 2 = strong",
+              "type": "number"
+            }
+          }
+        },
+        "drift": {
+          "description": "Words float gently on their own (@remotion/noise)",
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "amount": {
+              "default": 6,
+              "description": "px each word floats",
+              "type": "number"
+            },
+            "rotate": {
+              "default": 1.5,
+              "description": "degrees each word sways",
+              "type": "number"
+            },
+            "speed": {
+              "default": 0.35,
+              "description": "cycles per second",
+              "type": "number"
+            }
+          }
+        },
+        "shake": {
+          "description": "Handheld wobble of the whole lyric layer (@remotion/noise)",
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "amount": {
+              "default": 5,
+              "description": "px",
+              "type": "number"
+            },
+            "speed": {
+              "default": 1.2,
+              "type": "number"
+            },
+            "onBeat": {
+              "default": false,
+              "description": "Shake only in a short burst on each beat",
+              "type": "boolean"
+            }
+          }
+        },
+        "motionBlur": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "type": {
+              "default": "none",
+              "description": "trail: fading echoes behind moving words. camera: real motion blur (slower to render). (@remotion/motion-blur)",
+              "type": "string",
+              "enum": [
+                "none",
+                "trail",
+                "camera"
+              ]
+            },
+            "samples": {
+              "default": 6,
+              "type": "number"
+            },
+            "shutter": {
+              "default": 180,
+              "description": "camera: shutter angle in degrees",
+              "type": "number"
+            },
+            "lag": {
+              "default": 0.6,
+              "description": "trail: frames between echoes",
+              "type": "number"
+            }
+          }
+        },
+        "lightLeaks": {
+          "description": "Film light leaks (@remotion/effects)",
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "on": {
+              "default": "sections",
+              "description": "When a light leak washes over the frame: once at the start, at each section, or at every new screen",
+              "type": "string",
+              "enum": [
+                "start",
+                "sections",
+                "screens"
+              ]
+            },
+            "duration": {
+              "default": 1.6,
+              "description": "Seconds",
+              "type": "number"
+            },
+            "hueShift": {
+              "default": 0,
+              "description": "Degrees: 0 warm orange, 120 green, 240 blue",
+              "type": "number"
+            },
+            "opacity": {
+              "default": 0.85,
+              "type": "number"
+            }
+          }
+        },
+        "starburst": {
+          "description": "Comic-book rays behind everything (@remotion/effects)",
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "colors": {
+              "default": [
+                "#ffd23f",
+                "#ff5a3c"
+              ],
+              "description": "Ray colours, blended softly over the picture",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+              }
+            },
+            "rays": {
+              "default": 16,
+              "type": "number"
+            },
+            "spin": {
+              "default": 6,
+              "description": "degrees per second",
+              "type": "number"
+            },
+            "opacity": {
+              "default": 0.4,
+              "type": "number"
+            }
+          }
+        },
+        "depth": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "type": {
+              "default": "none",
+              "description": "3D layer between the picture and the lyrics (@remotion/three): bokeh, stars, snow, petals, orbs",
+              "type": "string",
+              "enum": [
+                "none",
+                "bokeh",
+                "stars",
+                "snow",
+                "petals",
+                "orbs"
+              ]
+            },
+            "count": {
+              "default": 90,
+              "type": "number"
+            },
+            "colors": {
+              "default": [
+                "#ffe3a3",
+                "#ffb4d0",
+                "#a8d8ff"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+              }
+            },
+            "speed": {
+              "default": 1,
+              "type": "number"
+            },
+            "opacity": {
+              "default": 0.7,
+              "type": "number"
+            }
+          }
+        },
+        "shader": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "type": {
+              "default": "none",
+              "description": "GPU shader light over the picture (@remotion/skia): aurora, plasma or rays",
+              "type": "string",
+              "enum": [
+                "none",
+                "aurora",
+                "plasma",
+                "rays"
+              ]
+            },
+            "colors": {
+              "default": [
+                "#3cf2c8",
+                "#7a5cff",
+                "#ff5fa2"
+              ],
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+                },
+                {
+                  "type": "string",
+                  "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+                },
+                {
+                  "type": "string",
+                  "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+                }
+              ],
+              "items": false,
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "opacity": {
+              "default": 0.45,
+              "type": "number"
+            },
+            "speed": {
+              "default": 1,
+              "type": "number"
+            }
+          }
+        },
+        "visualizer": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "type": {
+              "default": "none",
+              "description": "Shapes that move with the music (@remotion/media-utils): bars, wave or mirror",
+              "type": "string",
+              "enum": [
+                "none",
+                "bars",
+                "wave",
+                "mirror"
+              ]
+            },
+            "position": {
+              "default": "auto",
+              "description": "auto = the edge away from the lyrics",
+              "type": "string",
+              "enum": [
+                "auto",
+                "bottom",
+                "top",
+                "center"
+              ]
+            },
+            "color": {
+              "default": "rgba(255,255,255,0.55)",
+              "type": "string",
+              "description": "Any CSS color, e.g. #ffe3a3 or rgba(255,255,255,.6)"
+            },
+            "height": {
+              "default": 0.14,
+              "description": "Fraction of frame height",
+              "type": "number"
+            },
+            "bars": {
+              "default": 48,
               "type": "number"
             }
           }

@@ -31,7 +31,8 @@ The setup scripts install Node.js (and Git on Windows) if missing, then run `npm
 | `npm run still -- <name> --time 12.5 [--debug] [--size/--aspect]` | save one frame as an image |
 | `npm run align -- <name>` | re-time the lyrics and rebuild the timing review |
 | `npm run review -- <name>` / `validate -- <name>` | rebuild the timing review / check the project files |
-| `npm run presets` | list built-in and your own presets |
+| `npm run presets` | list built-in and your own presets with their moods (`-- --mood calm` filters) |
+| `npm run styles -- <project>` | a still of every style over the project's own footage, tiled into `review/styles.jpg` (`--mood`, `--only a,b`, `--time 12.5`, `--size`, `--aspect`) |
 | `npm run doctor` / `setup` / `schema` / `bench` | check setup, install, regenerate JSON schemas, accuracy benchmark |
 
 ## Options for `make` and `new`

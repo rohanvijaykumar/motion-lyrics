@@ -92,6 +92,12 @@ export const LineView: React.FC<Props> = ({
               entrance={{ start, dur }}
               pageStart={pageStart}
               mask={mask}
+              font={{
+                family: cssFamily(fontStack),
+                px: fontSize,
+                weight: ts.fontWeight,
+                letterSpacing: ts.letterSpacing,
+              }}
             />
             {w.ws ? " " : null}
           </React.Fragment>

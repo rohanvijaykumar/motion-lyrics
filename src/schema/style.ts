@@ -96,6 +96,75 @@ const ExitType = z.enum([
 ]);
 const Ease = z.enum(["out", "inOut", "spring", "linear"]);
 
+/** Screen changes drawn with @remotion/transitions presentations. */
+export const TRANSITION_TYPES = [
+  "none",
+  "fade",
+  "wipe",
+  "slide",
+  "flip",
+  "clock-wipe",
+  "iris",
+] as const;
+
+/** Hand-drawn marks (@remotion/rough-notation) and smooth drawn lines (@remotion/paths). */
+export const MARK_TYPES = [
+  "none",
+  "marker",
+  "underline",
+  "circle",
+  "box",
+  "strike",
+  "crossed",
+  "bracket",
+  "ink-underline",
+  "wave-underline",
+] as const;
+
+/** Looks applied to the background picture on the GPU (@remotion/effects). */
+export const LOOK_TYPES = [
+  "none",
+  "noir",
+  "duotone",
+  "halftone",
+  "comic",
+  "vhs",
+  "dreamy",
+  "warm",
+  "cool",
+  "faded",
+  "paper",
+  "pixel",
+  "dot-grid",
+  "thermal",
+] as const;
+
+/** 3D layers drawn with @remotion/three. */
+export const DEPTH_TYPES = [
+  "none",
+  "bokeh",
+  "stars",
+  "snow",
+  "petals",
+  "orbs",
+] as const;
+
+/** Full-frame shaders drawn with @remotion/skia. */
+export const SHADER_TYPES = ["none", "aurora", "plasma", "rays"] as const;
+
+/** Audio-reactive shapes drawn from the song itself (@remotion/media-utils). */
+export const VISUALIZER_TYPES = ["none", "bars", "wave", "mirror"] as const;
+
+/** Slow camera moves on the background picture (@remotion/noise for handheld). */
+export const CAMERA_TYPES = [
+  "none",
+  "push-in",
+  "pull-out",
+  "pan",
+  "breathe",
+  "handheld",
+] as const;
+
 export const StyleSchema = z.object({
   name: z.string().default("custom"),
   layout: z
@@ -222,9 +291,53 @@ export const StyleSchema = z.object({
       ease: Ease.default("inOut"),
     })
     .prefault({}),
+  transition: z
+    .object({
+      type: z
+        .enum(TRANSITION_TYPES)
+        .default("none")
+        .describe(
+          "How each screen arrives and leaves, on top of enter/exit: wipe, slide, flip, clock-wipe or iris (@remotion/transitions)",
+        ),
+      direction: z
+        .enum(["from-left", "from-right", "from-top", "from-bottom"])
+        .default("from-left")
+        .describe("wipe and slide: where the new screen comes from"),
+      duration: z.number().default(0.45).describe("Seconds"),
+      exit: z
+        .boolean()
+        .default(true)
+        .describe("Also leave with the same transition"),
+    })
+    .prefault({}),
   highlight: z
     .object({
       type: z.enum(["wipe", "color", "none"]).default("wipe"),
+      mark: z
+        .object({
+          type: z
+            .enum(MARK_TYPES)
+            .default("none")
+            .describe(
+              "A mark drawn on the word being sung: marker (highlighter pen behind it), underline, circle, box, strike, crossed, bracket (hand-drawn), ink-underline or wave-underline (smooth line drawn on)",
+            ),
+          color: Color.default("rgba(255,214,64,0.85)"),
+          strokeWidth: z.number().default(4).describe("px"),
+          padding: z.number().default(6).describe("px around the word"),
+          iterations: z
+            .number()
+            .default(2)
+            .describe("Hand-drawn marks: pen strokes per mark"),
+          draw: z
+            .number()
+            .default(0.35)
+            .describe("Seconds to draw the mark (capped by the word length)"),
+          persist: z
+            .boolean()
+            .default(false)
+            .describe("Keep marks on words already sung"),
+        })
+        .prefault({}),
       softEdge: z
         .number()
         .default(0)
@@ -381,10 +494,167 @@ export const StyleSchema = z.object({
             .describe("Extra scale on each beat"),
         })
         .prefault({}),
+      look: z
+        .object({
+          type: z
+            .enum(LOOK_TYPES)
+            .default("none")
+            .describe(
+              "GPU look on the background picture (@remotion/effects): noir, duotone, halftone, comic, vhs, dreamy, warm, cool, faded, paper, pixel, dot-grid, thermal",
+            ),
+          amount: z.number().default(1).describe("Strength 0-1"),
+          colors: z
+            .tuple([Color, Color])
+            .default(["#1a1030", "#ffb86b"])
+            .describe("duotone: dark and light colours"),
+        })
+        .prefault({}),
+      camera: z
+        .object({
+          type: z
+            .enum(CAMERA_TYPES)
+            .default("none")
+            .describe(
+              "Slow camera move on the background: push-in, pull-out, pan, breathe or handheld",
+            ),
+          amount: z
+            .number()
+            .default(1)
+            .describe("1 = gentle, 2 = strong"),
+        })
+        .prefault({}),
+      drift: z
+        .object({
+          enabled: z.boolean().default(false),
+          amount: z.number().default(6).describe("px each word floats"),
+          rotate: z.number().default(1.5).describe("degrees each word sways"),
+          speed: z.number().default(0.35).describe("cycles per second"),
+        })
+        .prefault({})
+        .describe("Words float gently on their own (@remotion/noise)"),
+      shake: z
+        .object({
+          enabled: z.boolean().default(false),
+          amount: z.number().default(5).describe("px"),
+          speed: z.number().default(1.2),
+          onBeat: z
+            .boolean()
+            .default(false)
+            .describe("Shake only in a short burst on each beat"),
+        })
+        .prefault({})
+        .describe("Handheld wobble of the whole lyric layer (@remotion/noise)"),
+      motionBlur: z
+        .object({
+          type: z
+            .enum(["none", "trail", "camera"])
+            .default("none")
+            .describe(
+              "trail: fading echoes behind moving words. camera: real motion blur (slower to render). (@remotion/motion-blur)",
+            ),
+          samples: z.number().default(6),
+          shutter: z
+            .number()
+            .default(180)
+            .describe("camera: shutter angle in degrees"),
+          lag: z.number().default(0.6).describe("trail: frames between echoes"),
+        })
+        .prefault({}),
+      lightLeaks: z
+        .object({
+          enabled: z.boolean().default(false),
+          on: z
+            .enum(["start", "sections", "screens"])
+            .default("sections")
+            .describe(
+              "When a light leak washes over the frame: once at the start, at each section, or at every new screen",
+            ),
+          duration: z.number().default(1.6).describe("Seconds"),
+          hueShift: z
+            .number()
+            .default(0)
+            .describe("Degrees: 0 warm orange, 120 green, 240 blue"),
+          opacity: z.number().default(0.85),
+        })
+        .prefault({})
+        .describe("Film light leaks (@remotion/effects)"),
+      starburst: z
+        .object({
+          enabled: z.boolean().default(false),
+          colors: z
+            .array(Color)
+            .default(["#ffd23f", "#ff5a3c"])
+            .describe("Ray colours, blended softly over the picture"),
+          rays: z.number().default(16),
+          spin: z.number().default(6).describe("degrees per second"),
+          opacity: z.number().default(0.4),
+        })
+        .prefault({})
+        .describe("Comic-book rays behind everything (@remotion/effects)"),
+      depth: z
+        .object({
+          type: z
+            .enum(DEPTH_TYPES)
+            .default("none")
+            .describe(
+              "3D layer between the picture and the lyrics (@remotion/three): bokeh, stars, snow, petals, orbs",
+            ),
+          count: z.number().default(90),
+          colors: z
+            .array(Color)
+            .default(["#ffe3a3", "#ffb4d0", "#a8d8ff"]),
+          speed: z.number().default(1),
+          opacity: z.number().default(0.7),
+        })
+        .prefault({}),
+      shader: z
+        .object({
+          type: z
+            .enum(SHADER_TYPES)
+            .default("none")
+            .describe(
+              "GPU shader light over the picture (@remotion/skia): aurora, plasma or rays",
+            ),
+          colors: z
+            .tuple([Color, Color, Color])
+            .default(["#3cf2c8", "#7a5cff", "#ff5fa2"]),
+          opacity: z.number().default(0.45),
+          speed: z.number().default(1),
+        })
+        .prefault({}),
+      visualizer: z
+        .object({
+          type: z
+            .enum(VISUALIZER_TYPES)
+            .default("none")
+            .describe(
+              "Shapes that move with the music (@remotion/media-utils): bars, wave or mirror",
+            ),
+          position: z
+            .enum(["auto", "bottom", "top", "center"])
+            .default("auto")
+            .describe("auto = the edge away from the lyrics"),
+          color: Color.default("rgba(255,255,255,0.55)"),
+          height: z.number().default(0.14).describe("Fraction of frame height"),
+          bars: z.number().default(48),
+        })
+        .prefault({}),
     })
     .prefault({}),
 });
 
 export type Style = z.infer<typeof StyleSchema>;
+
+/** Parts of a style that draw with WebGL, so renders need Chrome's GPU (ANGLE) backend. */
+export function styleUsesWebGL(s: Style): boolean {
+  const fx = s.effects;
+  return (
+    fx.look.type !== "none" ||
+    fx.lightLeaks.enabled ||
+    fx.starburst.enabled ||
+    fx.depth.type !== "none" ||
+    fx.shader.type !== "none"
+  );
+}
 /** What a preset or project may write: any subset of the style. */
 export type StyleInput = z.input<typeof StyleSchema>;

@@ -35,6 +35,13 @@ import {
   type FontNeed,
 } from "./render/fonts";
 import { Background } from "./render/Background";
+import { DepthLayer } from "./render/effects/Depth";
+import {
+  LightLeaks,
+  StarburstLayer,
+  Visualizer,
+} from "./render/effects/Overlays";
+import { ShaderLayer } from "./render/effects/Shader";
 import { GraphicsLayer, sectionGraphics } from "./render/Graphics";
 import { LyricsLayer } from "./render/Lyrics";
 import { TimingOverlay } from "./render/TimingOverlay";
@@ -58,6 +65,12 @@ export const LyricVideoSchema = z.object({
     .enum(["source", "16:9", "9:16"])
     .default("source")
     .describe("Output shape"),
+  preset: z
+    .string()
+    .default("")
+    .describe(
+      "Preview another style preset (keeps the project's lyric position); empty = the project's own style",
+    ),
   qcMask: z
     .boolean()
     .default(false)
@@ -129,7 +142,22 @@ export const calculateLyricMetadata: CalculateMetadataFunction<Props> = async ({
   const analysis = rawAnalysis
     ? parseOrThrow(AnalysisSchema, rawAnalysis, "analysis.json")
     : null;
-  const style = resolveStyle(project.style as Record<string, unknown>);
+  const own = project.style as Record<string, unknown> & {
+    layout?: { position?: string; avoidFaces?: boolean };
+  };
+  const style = resolveStyle(
+    props.preset
+      ? {
+          preset: props.preset,
+          layout: {
+            ...(own.layout?.position ? { position: own.layout.position } : {}),
+            ...(own.layout?.avoidFaces !== undefined
+              ? { avoidFaces: own.layout.avoidFaces }
+              : {}),
+          },
+        }
+      : own,
+  );
   const fps = project.output.fps ?? project.media.fps;
   const duration = project.media.duration;
   const size = props.size ?? "source";
@@ -307,8 +335,22 @@ export const LyricVideo: React.FC<Props> = ({ debug, qcMask, loaded }) => {
       <AbsoluteFill style={{ background: "#000", overflow: "hidden" }}>
         <Background project={project} />
         <FontGate loaded={loaded}>
+          {fx.starburst.enabled ? (
+            <StarburstLayer
+              rays={fx.starburst.rays}
+              colors={fx.starburst.colors}
+              spin={fx.starburst.spin}
+              opacity={fx.starburst.opacity}
+            />
+          ) : null}
+          {fx.shader.type !== "none" ? <ShaderLayer /> : null}
+          {fx.lightLeaks.enabled ? <LightLeaks /> : null}
+          {fx.depth.type !== "none" ? <DepthLayer /> : null}
           {fx.vignette.enabled ? <Vignette style={style} /> : null}
           {fx.particles.enabled ? <Particles /> : null}
+          {fx.visualizer.type !== "none" ? (
+            <Visualizer project={project} />
+          ) : null}
           <AbsoluteFill>
             <LyricsLayer />
           </AbsoluteFill>

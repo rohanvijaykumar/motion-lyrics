@@ -46,7 +46,7 @@ export function customPresets(): CustomPreset[] {
     const style: Record<string, unknown> = { ...raw };
     const ext = String(raw.extends ?? "golden-sparkle");
     const description = String(raw.description ?? "");
-    for (const k of ["extends", "description", "$schema"]) delete style[k];
+    for (const k of ["extends", "description", "$schema", "tags"]) delete style[k];
     out.push({
       name: f.replace(/\.json$/, ""),
       extends: String(ext),
@@ -243,7 +243,7 @@ export async function askChoices(defaults: Choices): Promise<Choices> {
   }
 }
 
-export function listPresets() {
+export function listPresets(mood?: string) {
   const customs = customPresets();
   console.log(
     bold("Built-in presets") +
@@ -251,8 +251,14 @@ export function listPresets() {
         '  (choose with --preset <name>, or "style": { "preset": "<name>" } in project.json)\n',
       ),
   );
-  for (const name of PRESET_NAMES)
-    console.log(`  ${cyan(bold(name))}\n    ${PRESETS[name].description}\n`);
+  for (const name of PRESET_NAMES) {
+    const p = PRESETS[name];
+    if (mood && !(p.tags as string[]).includes(mood)) continue;
+    console.log(
+      `  ${cyan(bold(name))}  ${dim(p.tags.join(", "))}\n    ${p.description}\n`,
+    );
+  }
+  if (mood) return;
   console.log(
     bold("Your presets") +
       dim("  (JSON files in presets/; see presets/README.md)\n"),

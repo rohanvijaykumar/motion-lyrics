@@ -18,7 +18,7 @@ import { parseLyrics } from "../src/core/lyrics";
 import { ProjectSchema } from "../src/schema/project";
 import { SongSchema, type Song } from "../src/schema/song";
 import { StyleSchema } from "../src/schema/style";
-import { PRESET_NAMES } from "../src/style/presets";
+import { MOODS, PRESETS, PRESET_NAMES } from "../src/style/presets";
 import { resolveStyle } from "../src/style/resolve";
 import { extractAudio, ffBinaries } from "./lib/media";
 import {
@@ -616,6 +616,58 @@ async function cmdStill(a: Args) {
   ok(`Saved ${out}`);
 }
 
+/**
+ * A still of every style over the project's own footage, at one sung moment, tiled into
+ * review/styles.jpg so a person can pick a look by pointing at a picture.
+ */
+async function cmdStyles(a: Args) {
+  const { p } = loadProject(projectFrom(a));
+  const song = SongSchema.parse(readJson(path.join(p.dir, "song.json")));
+  const mood = str(a, "mood");
+  if (mood && !(MOODS as readonly string[]).includes(mood))
+    fail(`Unknown mood "${mood}". Moods: ${MOODS.join(", ")}`);
+  const only = str(a, "only")?.split(",").map((x) => x.trim()).filter(Boolean);
+  for (const n of only ?? [])
+    if (!PRESET_NAMES.includes(n))
+      fail(`Unknown preset "${n}". Available: ${PRESET_NAMES.join(", ")}`);
+  const names = (only ?? PRESET_NAMES).filter(
+    (n) => !mood || (PRESETS[n].tags as string[]).includes(mood),
+  );
+  if (!names.length) fail(`No preset has the mood "${mood}".`);
+  // A moment with a line mid-word: the middle word of the busiest screen in the first half.
+  let t = num(a, "time");
+  if (t === undefined) {
+    const half = song.groups.slice(0, Math.max(1, Math.ceil(song.groups.length / 2)));
+    const g = [...half].sort(
+      (x, y) =>
+        y.lines.reduce((n, l) => n + l.words.length, 0) -
+        x.lines.reduce((n, l) => n + l.words.length, 0),
+    )[0];
+    const words = g?.lines.find((l) => l.words.length)?.words ?? [];
+    const w = words[Math.floor(words.length / 2)];
+    t = w ? (w.start + w.end) / 2 : 1;
+  }
+  const dir = path.join(p.review, "styles");
+  fs.rmSync(dir, { recursive: true, force: true });
+  fs.mkdirSync(dir, { recursive: true });
+  const [fmt] = formatsFrom(a);
+  info(`Rendering ${names.length} styles at ${t.toFixed(2)} s...`);
+  const items = names.map((n) => ({ time: t!, out: path.join(dir, `${n}.jpg`), preset: n }));
+  await renderStills(p.dir, items, num(a, "scale") ?? 0.5, {
+    size: fmt.size,
+    aspect: fmt.aspect,
+    needs: { webgl: true, audio: "work/audio.wav" },
+  });
+  const sheet = path.join(p.review, "styles.jpg");
+  await py(
+    ["sheet", "--out", sheet, "--cols", "4", ...items.map((i) => i.out)],
+    "Contact sheet",
+    true,
+  );
+  ok(`Saved ${sheet}`);
+  console.log(dim(`  One picture per style in ${dir}. Pick one with: npm run make ... --preset <name>, or "style": { "preset": "<name>" } in project.json`));
+}
+
 async function cmdApprove(a: Args) {
   const { p } = loadProject(projectFrom(a));
   const files = str(a, "file")
@@ -841,8 +893,17 @@ function cmdStudio(a: Args) {
   child.on("close", (code) => process.exit(code ?? 0));
 }
 
-function cmdPresets() {
-  listPresets();
+function cmdPresets(a: Args) {
+  const mood = str(a, "mood");
+  if (mood && !(MOODS as readonly string[]).includes(mood))
+    fail(`Unknown mood "${mood}". Moods: ${MOODS.join(", ")}`);
+  listPresets(mood);
+  if (!mood)
+    console.log(
+      dim(
+        `  Filter by mood: npm run presets -- --mood <${MOODS.join("|")}>\n  Try every style on your own video: npm run styles -- <project>\n`,
+      ),
+    );
 }
 
 async function cmdDoctor() {
@@ -1018,7 +1079,9 @@ ${bold("Step by step")}
   npm run still -- <project> --time 12.5 [--debug]
   npm run shift -- <project> --line g3l1 --by 0.15
   npm run validate -- <project>
-  npm run presets | doctor | setup | bench
+  npm run styles -- <project> [--mood calm] [--only a,b] [--time 12.5]
+                                   a still of every style over your own footage
+  npm run presets [-- --mood <mood>] | doctor | setup | bench
 `;
 
 async function main() {
@@ -1037,6 +1100,7 @@ async function main() {
     validate: cmdValidate,
     studio: cmdStudio,
     presets: cmdPresets,
+    styles: cmdStyles,
     doctor: cmdDoctor,
     setup: cmdSetup,
     schema: () => writeSchemas(),

@@ -25,9 +25,22 @@ credits. List them in `project.json` under `"graphics"`. Times are in seconds. P
 | `image` | `src` (inside the project folder), `at`, `width` (fraction of frame width), `opacity` |
 | `lottie` | `src` (Lottie JSON inside the project folder), `at`, `width`, `loop` |
 | `credits` | `lines` (first line is larger), `size`, `color`, `fontFamily` |
+| `gif` | `src` (GIF, APNG, animated WebP or AVIF), `at`, `width`, `fit` (`contain`/`cover`/`fill`), `loop`; plays in step with the video ([@remotion/gif](https://www.remotion.dev/docs/gif)) |
+| `rive` | `src` (a `.riv` file), `at`, `width`, `aspect` (height / width), `artboard`, `animation` ([@remotion/rive](https://www.remotion.dev/docs/rive)) |
+| `emoji` | `emoji` (a name such as `fire`, `red-heart`, `sparkles`, `party-popper`, `rocket`, `clap`, `musical-notes`), `at`, `size`; Google's animated Noto emoji, by the names [@remotion/animated-emoji](https://www.remotion.dev/docs/animated-emoji) lists. Needs internet when rendering |
+| `sound` | `sound` (a built-in effect: `whoosh`, `whip`, `page-turn`, `switch`, `mouse-click`, `shutter`, `shutter-old`, `ding`, `record-scratch`, `vine-boom`, `yippee` and more from [@remotion/sfx](https://www.remotion.dev/docs/sfx), or a file such as `media/clap.wav`), `volume`. Plays at `start`. Built-in sounds need internet when rendering |
+| `lightLeak` | a film light leak washing over the frame from `start` to `end`: `seed` (pattern), `hueShift` (0 warm, 120 green, 240 blue), `opacity` |
+| `starburst` | comic-book rays behind everything: `colors`, `rays`, `spin`, `opacity` |
 
-Put image and Lottie files in the project's `media/` folder. Text in any script works; fonts
-are picked per script the same way as for lyrics.
+```jsonc
+// A whoosh and a light leak as the title appears, a heart that pops in at the chorus
+{ "type": "sound", "sound": "whoosh", "start": 0.2, "end": 1.5 },
+{ "type": "lightLeak", "start": 0, "end": 1.8, "hueShift": 20 },
+{ "type": "emoji", "emoji": "red-heart", "start": 32, "end": 36, "at": { "x": 0.85, "y": 0.2 }, "enter": "pop" }
+```
+
+Put image, GIF, Rive, Lottie and sound files in the project's `media/` folder. Text in any
+script works; fonts are picked per script the same way as for lyrics.
 
 **Section labels:** set `"sectionLabels": true` to show `[Chorus]`-style names from
 `lyrics.txt` briefly at the top of the frame as each section starts.

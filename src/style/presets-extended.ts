@@ -1,0 +1,768 @@
+/**
+ * Presets built on the extended toolkit: screen transitions (@remotion/transitions),
+ * drawn marks (@remotion/rough-notation, @remotion/paths), GPU looks and light
+ * leaks (@remotion/effects), 3D depth (@remotion/three), shaders (@remotion/skia),
+ * natural motion (@remotion/noise), motion blur (@remotion/motion-blur) and an
+ * audio visualizer (@remotion/media-utils). Merged into PRESETS in presets.ts.
+ */
+import type { Preset } from "./presets";
+
+export const EXTENDED_PRESETS: Record<string, Preset> = {
+  "marker-pen": {
+    tags: ["handmade", "minimal", "kids"],
+    description:
+      "Dark handwriting on a white paper card; a yellow highlighter pen sweeps behind each word as it is sung and stays, like a marked-up lyric sheet. Readable on any footage.",
+    layout: { type: "stack", position: "bottom", marginY: 0.08 },
+    text: {
+      primary: {
+        fontFamily: "Patrick Hand",
+        fontSize: 76,
+        fontWeight: 400,
+        lineHeight: 1.3,
+        color: "rgba(25,22,18,.62)",
+        sungColor: "#141210",
+        shadow: "none",
+        sungShadow: "none",
+      },
+      secondary: {
+        fontFamily: "Patrick Hand",
+        fontSize: 54,
+        fontWeight: 400,
+        color: "rgba(25,22,18,.55)",
+        sungColor: "#2b2620",
+        shadow: "none",
+        sungShadow: "none",
+      },
+    },
+    enter: { type: "rise", duration: 0.4, distance: 12 },
+    exit: { type: "fade", duration: 0.3 },
+    transition: { type: "wipe", direction: "from-left", duration: 0.45 },
+    highlight: {
+      type: "color",
+      liftY: 0,
+      liftScale: 1,
+      dimUpcoming: 1,
+      dimFinished: 1,
+      mark: {
+        type: "marker",
+        color: "rgba(255,221,64,0.85)",
+        padding: 5,
+        iterations: 1,
+        draw: 0.3,
+        persist: true,
+      },
+    },
+    effects: {
+      scrim: { type: "box", color: "rgba(255,252,243,0.95)" },
+    },
+  },
+
+  "hand-drawn": {
+    tags: ["handmade", "playful", "kids"],
+    description:
+      "Loose felt-tip lettering that floats gently; a hand-drawn orange circle is sketched around each word as it is sung.",
+    text: {
+      primary: {
+        fontFamily: "Gloria Hallelujah",
+        fontSize: 74,
+        fontWeight: 400,
+        lineHeight: 1.45,
+        color: "rgba(255,255,255,.66)",
+        sungColor: "#ffffff",
+        shadow: "0 2px 12px rgba(0,0,0,.65), 0 0 2px rgba(0,0,0,.5)",
+        sungShadow: "0 2px 12px rgba(0,0,0,.65), 0 0 2px rgba(0,0,0,.5)",
+      },
+      secondary: {
+        fontFamily: "Gloria Hallelujah",
+        fontSize: 52,
+        fontWeight: 400,
+        color: "rgba(255,255,255,.62)",
+        sungColor: "#fff4e0",
+        shadow: "0 2px 12px rgba(0,0,0,.65)",
+        sungShadow: "0 2px 12px rgba(0,0,0,.65)",
+      },
+    },
+    enter: { type: "letters", duration: 0.55 },
+    exit: { type: "drift-up", duration: 0.35 },
+    highlight: {
+      type: "color",
+      liftY: -3,
+      liftScale: 1.02,
+      mark: {
+        type: "circle",
+        color: "#ff9a1f",
+        strokeWidth: 4,
+        padding: 10,
+        iterations: 2,
+        draw: 0.4,
+      },
+    },
+    effects: {
+      scrim: { type: "radial", color: "rgba(10,10,20,0.55)" },
+      drift: { enabled: true, amount: 4, rotate: 1.2, speed: 0.3 },
+    },
+  },
+
+  "comic-pop": {
+    tags: ["playful", "bold", "energetic", "kids"],
+    description:
+      "Comic-book panels: halftone dots and punchy colour on the footage, spinning rays behind, big outlined yellow lettering that pops in and jolts on the beat.",
+    layout: { type: "stack", position: "bottom", marginY: 0.08 },
+    text: {
+      primary: {
+        fontFamily: "Bangers",
+        fontSize: 104,
+        fontWeight: 400,
+        lineHeight: 1.12,
+        letterSpacing: 0.03,
+        textTransform: "uppercase",
+        color: "#ffffff",
+        sungColor: "#ffe12e",
+        strokeWidth: 6,
+        strokeColor: "#111111",
+        shadow: "6px 6px 0 #111111",
+        sungShadow: "6px 6px 0 #d7261e",
+      },
+      secondary: {
+        fontFamily: "Bangers",
+        fontSize: 60,
+        fontWeight: 400,
+        letterSpacing: 0.03,
+        color: "#ffffff",
+        sungColor: "#ffffff",
+        strokeWidth: 4,
+        strokeColor: "#111111",
+        shadow: "4px 4px 0 #111111",
+        sungShadow: "4px 4px 0 #111111",
+      },
+    },
+    enter: { type: "pop", duration: 0.28, wordStagger: 0.05 },
+    exit: { type: "scale", duration: 0.22 },
+    highlight: {
+      type: "color",
+      colorTransition: 0.05,
+      liftY: -6,
+      liftScale: 1.1,
+    },
+    effects: {
+      scrim: { type: "none" },
+      look: { type: "comic", amount: 1 },
+      starburst: {
+        enabled: true,
+        rays: 18,
+        colors: ["#ffd400", "#d7261e"],
+        spin: 5,
+        opacity: 0.45,
+      },
+      shake: { enabled: true, onBeat: true, amount: 6 },
+    },
+  },
+
+  "retro-vhs": {
+    tags: ["retro", "dark", "playful"],
+    description:
+      "A worn VHS tape: scanlines, colour fringing and tape noise on the picture, chunky terminal type that types itself out, a little handheld wobble.",
+    layout: { type: "stack", position: "bottom", marginY: 0.09 },
+    text: {
+      primary: {
+        fontFamily: "VT323",
+        fontSize: 96,
+        fontWeight: 400,
+        lineHeight: 1.05,
+        textTransform: "uppercase",
+        color: "rgba(220,255,230,.55)",
+        sungColor: "#e9fff0",
+        shadow:
+          "2px 0 0 rgba(255,0,80,.55), -2px 0 0 rgba(0,220,255,.55), 0 0 12px rgba(0,0,0,.8)",
+        sungShadow:
+          "3px 0 0 rgba(255,0,80,.7), -3px 0 0 rgba(0,220,255,.7), 0 0 18px rgba(160,255,190,.6)",
+      },
+      secondary: {
+        fontFamily: "VT323",
+        fontSize: 64,
+        fontWeight: 400,
+        color: "rgba(220,255,230,.55)",
+        sungColor: "#e9fff0",
+        shadow: "0 0 10px rgba(0,0,0,.85)",
+        sungShadow: "0 0 10px rgba(0,0,0,.85)",
+      },
+    },
+    enter: { type: "typewriter", duration: 0.5, wordStagger: 0.06 },
+    exit: { type: "none", duration: 0.05 },
+    highlight: {
+      type: "color",
+      colorTransition: 0.04,
+      liftY: 0,
+      liftScale: 1,
+    },
+    effects: {
+      scrim: { type: "linear", color: "rgba(0,0,0,0.6)", height: 0.34 },
+      look: { type: "vhs", amount: 1 },
+      shake: { enabled: true, amount: 2.5, speed: 2 },
+    },
+  },
+
+  "dreamy-float": {
+    tags: ["dreamy", "calm", "romantic"],
+    description:
+      "Soft pastel words that drift like they are floating, over glowing out-of-focus bokeh in 3D depth, a hazy glow on the picture and pink light leaks at each section.",
+    text: {
+      primary: {
+        fontFamily: "Quicksand",
+        fontSize: 78,
+        fontWeight: 700,
+        lineHeight: 1.35,
+        color: "rgba(255,245,252,.55)",
+        sungColor: "#fff0fa",
+        shadow: "0 2px 18px rgba(40,10,40,.6)",
+        sungShadow:
+          "0 0 24px rgba(255,180,230,.7), 0 2px 14px rgba(40,10,40,.5)",
+      },
+      secondary: {
+        fontFamily: "Quicksand",
+        fontSize: 54,
+        fontWeight: 600,
+        color: "rgba(240,248,255,.55)",
+        sungColor: "#f0f8ff",
+        shadow: "0 2px 18px rgba(10,20,40,.6)",
+        sungShadow:
+          "0 0 18px rgba(170,210,255,.6), 0 2px 14px rgba(10,20,40,.5)",
+      },
+    },
+    timing: { lead: 0.9, tail: 1.3 },
+    enter: {
+      type: "blur-rise",
+      duration: 1.0,
+      blur: 16,
+      distance: 18,
+      wordStagger: 0.07,
+    },
+    exit: { type: "blur-rise", duration: 0.8, blur: 14 },
+    highlight: { type: "wipe", softEdge: 0.5, liftY: -3, liftScale: 1.02 },
+    effects: {
+      scrim: { type: "radial", color: "rgba(30,10,40,0.5)" },
+      look: { type: "dreamy", amount: 0.8 },
+      camera: { type: "breathe", amount: 1 },
+      drift: { enabled: true, amount: 5, rotate: 0.8, speed: 0.22 },
+      depth: {
+        type: "bokeh",
+        count: 60,
+        colors: ["#ffd6ec", "#cfe6ff", "#fff2c9"],
+        opacity: 0.45,
+        speed: 0.8,
+      },
+      lightLeaks: {
+        enabled: true,
+        on: "sections",
+        hueShift: 300,
+        opacity: 0.55,
+      },
+    },
+  },
+
+  editorial: {
+    tags: ["elegant", "minimal", "cinematic"],
+    description:
+      "Magazine typography: a tall serif with a clean sans translation, wiped on screen by screen, a red ink line drawn under each sung word, over slightly faded film colour.",
+    fontFallback: "serif",
+    layout: { type: "stack", position: "bottom", marginY: 0.1 },
+    text: {
+      primary: {
+        fontFamily: "Playfair Display",
+        fontSize: 82,
+        fontWeight: 700,
+        lineHeight: 1.25,
+        color: "rgba(255,255,255,.6)",
+        sungColor: "#ffffff",
+        shadow: "0 2px 16px rgba(0,0,0,.6)",
+        sungShadow: "0 2px 16px rgba(0,0,0,.6)",
+      },
+      secondary: {
+        fontFamily: "Space Grotesk",
+        fontSize: 44,
+        fontWeight: 500,
+        letterSpacing: 0.04,
+        textTransform: "uppercase",
+        color: "rgba(255,255,255,.62)",
+        sungColor: "rgba(255,255,255,.95)",
+        shadow: "0 1px 10px rgba(0,0,0,.6)",
+        sungShadow: "0 1px 10px rgba(0,0,0,.6)",
+      },
+    },
+    enter: { type: "none", duration: 0.3 },
+    exit: { type: "none", duration: 0.45 },
+    transition: { type: "wipe", direction: "from-left", duration: 0.55 },
+    highlight: {
+      type: "color",
+      liftY: 0,
+      liftScale: 1,
+      mark: {
+        type: "ink-underline",
+        color: "#ff5b3a",
+        strokeWidth: 4,
+        draw: 0.35,
+      },
+    },
+    effects: {
+      scrim: { type: "linear", color: "rgba(0,0,0,0.55)", height: 0.38 },
+      look: { type: "faded", amount: 0.8 },
+      vignette: { enabled: true, strength: 0.35 },
+    },
+  },
+
+  aurora: {
+    tags: ["dreamy", "dark", "calm"],
+    description:
+      "Northern lights: ribbons of green and violet light drawn by a GPU shader ripple across the sky, stars hang in 3D depth and the camera slowly pushes in.",
+    text: {
+      primary: {
+        fontFamily: "Outfit",
+        fontSize: 80,
+        fontWeight: 600,
+        lineHeight: 1.3,
+        color: "rgba(230,255,248,.5)",
+        sungColor: "#effffa",
+        shadow: "0 2px 18px rgba(0,10,20,.7)",
+        sungShadow:
+          "0 0 22px rgba(60,242,200,.65), 0 2px 14px rgba(0,10,20,.6)",
+      },
+      secondary: {
+        fontFamily: "Outfit",
+        fontSize: 54,
+        fontWeight: 500,
+        color: "rgba(235,230,255,.5)",
+        sungColor: "#f3efff",
+        shadow: "0 2px 18px rgba(0,10,20,.7)",
+        sungShadow:
+          "0 0 18px rgba(122,92,255,.6), 0 2px 14px rgba(0,10,20,.6)",
+      },
+    },
+    enter: { type: "blur-rise", duration: 0.8 },
+    exit: { type: "blur-rise", duration: 0.6 },
+    highlight: { type: "wipe", softEdge: 0.4, liftY: -2, liftScale: 1.01 },
+    effects: {
+      scrim: { type: "radial", color: "rgba(0,8,16,0.6)" },
+      shader: { type: "aurora", opacity: 0.65, speed: 1 },
+      depth: {
+        type: "stars",
+        count: 140,
+        colors: ["#ffffff", "#cfeaff"],
+        speed: 0.25,
+        opacity: 0.8,
+      },
+      camera: { type: "push-in", amount: 1 },
+    },
+  },
+
+  cosmic: {
+    tags: ["energetic", "dark", "bold"],
+    description:
+      "Hyperspace: stars stream past in 3D, a cool blue grade on the footage, wide spaced uppercase lettering that irises open screen by screen.",
+    text: {
+      primary: {
+        fontFamily: "Orbitron",
+        fontSize: 64,
+        fontWeight: 800,
+        lineHeight: 1.35,
+        letterSpacing: 0.08,
+        textTransform: "uppercase",
+        color: "rgba(210,235,255,.5)",
+        sungColor: "#eaf6ff",
+        shadow: "0 0 14px rgba(0,10,30,.85)",
+        sungShadow:
+          "0 0 10px #59c8ff, 0 0 30px rgba(89,200,255,.6), 0 0 14px rgba(0,10,30,.8)",
+      },
+      secondary: {
+        fontFamily: "Orbitron",
+        fontSize: 40,
+        fontWeight: 600,
+        letterSpacing: 0.08,
+        color: "rgba(210,235,255,.55)",
+        sungColor: "#eaf6ff",
+        shadow: "0 0 12px rgba(0,10,30,.85)",
+        sungShadow: "0 0 12px rgba(0,10,30,.85)",
+      },
+    },
+    enter: { type: "scale", duration: 0.45 },
+    exit: { type: "scale", duration: 0.35 },
+    transition: { type: "iris", duration: 0.5 },
+    highlight: { type: "wipe", softEdge: 0.2, liftY: 0, liftScale: 1.03 },
+    effects: {
+      scrim: { type: "radial", color: "rgba(0,6,20,0.6)" },
+      look: { type: "cool", amount: 0.9 },
+      depth: {
+        type: "stars",
+        count: 220,
+        colors: ["#ffffff", "#9fd8ff", "#c9b6ff"],
+        speed: 1.4,
+        opacity: 0.9,
+      },
+    },
+  },
+
+  "club-beat": {
+    tags: ["party", "energetic", "bold", "social"],
+    description:
+      "Dance-floor energy: tall condensed type with motion trails, the whole layer kicks on every beat and a mirrored equalizer pumps with the music.",
+    layout: { type: "stack", position: "center", maxWidth: 0.84 },
+    text: {
+      primary: {
+        fontFamily: "Bebas Neue",
+        fontSize: 132,
+        fontWeight: 400,
+        lineHeight: 1.0,
+        letterSpacing: 0.02,
+        textTransform: "uppercase",
+        color: "rgba(255,255,255,.55)",
+        sungColor: "#ffffff",
+        shadow: "0 6px 30px rgba(0,0,0,.65)",
+        sungShadow: "0 0 18px rgba(255,46,151,.85), 0 6px 30px rgba(0,0,0,.6)",
+      },
+      secondary: {
+        fontFamily: "Bebas Neue",
+        fontSize: 64,
+        fontWeight: 400,
+        letterSpacing: 0.06,
+        color: "rgba(255,255,255,.65)",
+        sungColor: "#ffffff",
+        shadow: "0 4px 20px rgba(0,0,0,.7)",
+        sungShadow: "0 4px 20px rgba(0,0,0,.7)",
+      },
+    },
+    timing: { lead: 0.2, tail: 0.5 },
+    enter: { type: "slide", duration: 0.3, distance: 40, wordStagger: 0.04 },
+    exit: { type: "scale", duration: 0.25 },
+    highlight: { type: "wipe", wipeEase: "linear", liftY: 0, liftScale: 1.04 },
+    effects: {
+      scrim: {
+        type: "radial",
+        color: "rgba(10,0,20,0.55)",
+        width: 0.95,
+        height: 0.6,
+      },
+      beatPulse: { enabled: true, amount: 0.035 },
+      shake: { enabled: true, onBeat: true, amount: 4 },
+      motionBlur: { type: "trail", samples: 4, lag: 0.7 },
+      visualizer: {
+        type: "mirror",
+        position: "bottom",
+        color: "rgba(255,46,151,0.55)",
+        height: 0.16,
+        bars: 56,
+      },
+      vignette: { enabled: true, strength: 0.5 },
+    },
+  },
+
+  storybook: {
+    tags: ["kids", "playful", "warm"],
+    description:
+      "A picture book: the footage takes on a soft paper texture, rounded friendly letters, each screen opens like an iris and a wavy line is drawn under the word being sung.",
+    text: {
+      primary: {
+        fontFamily: "Fredoka",
+        fontSize: 82,
+        fontWeight: 600,
+        lineHeight: 1.3,
+        color: "rgba(255,251,240,.62)",
+        sungColor: "#fff3c4",
+        shadow: "0 3px 14px rgba(40,20,0,.7)",
+        sungShadow: "0 0 16px rgba(255,200,90,.6), 0 3px 12px rgba(40,20,0,.6)",
+      },
+      secondary: {
+        fontFamily: "Fredoka",
+        fontSize: 56,
+        fontWeight: 500,
+        color: "rgba(255,251,240,.6)",
+        sungColor: "#fff3c4",
+        shadow: "0 3px 14px rgba(40,20,0,.7)",
+        sungShadow: "0 3px 14px rgba(40,20,0,.7)",
+      },
+    },
+    enter: { type: "pop", duration: 0.4, wordStagger: 0.05 },
+    exit: { type: "sink", duration: 0.35 },
+    transition: { type: "iris", duration: 0.55 },
+    highlight: {
+      type: "wipe",
+      softEdge: 0.2,
+      liftY: -4,
+      liftScale: 1.04,
+      mark: {
+        type: "wave-underline",
+        color: "#ffb347",
+        strokeWidth: 5,
+        draw: 0.4,
+      },
+    },
+    effects: {
+      scrim: { type: "radial", color: "rgba(40,20,0,0.5)" },
+      look: { type: "paper", amount: 0.7 },
+      sparkles: {
+        enabled: true,
+        perWord: [3, 7],
+        colors: ["#fff3c4", "#ffd2a8"],
+      },
+    },
+  },
+
+  "noir-typewriter": {
+    tags: ["cinematic", "dark", "retro"],
+    description:
+      "Film noir: the picture goes black and white with deep contrast, words are typed out on an old typewriter, framed by a heavy vignette and grain.",
+    fontFallback: "serif",
+    text: {
+      primary: {
+        fontFamily: "Special Elite",
+        fontSize: 70,
+        fontWeight: 400,
+        lineHeight: 1.35,
+        color: "rgba(245,240,230,.55)",
+        sungColor: "#f7f2e6",
+        shadow: "0 2px 14px rgba(0,0,0,.8)",
+        sungShadow: "0 0 10px rgba(255,250,235,.35), 0 2px 14px rgba(0,0,0,.8)",
+      },
+      secondary: {
+        fontFamily: "Courier Prime",
+        fontSize: 46,
+        fontWeight: 400,
+        italic: true,
+        color: "rgba(245,240,230,.55)",
+        sungColor: "#f7f2e6",
+        shadow: "0 2px 12px rgba(0,0,0,.8)",
+        sungShadow: "0 2px 12px rgba(0,0,0,.8)",
+      },
+    },
+    enter: { type: "typewriter", duration: 0.6, wordStagger: 0.08 },
+    exit: { type: "fade", duration: 0.5 },
+    highlight: {
+      type: "color",
+      colorTransition: 0.15,
+      liftY: 0,
+      liftScale: 1,
+    },
+    effects: {
+      scrim: { type: "radial", color: "rgba(0,0,0,0.6)" },
+      look: { type: "noir", amount: 1 },
+      vignette: { enabled: true, strength: 0.7 },
+      grain: { enabled: true, opacity: 0.1 },
+    },
+  },
+
+  "sunset-film": {
+    tags: ["warm", "cinematic", "romantic"],
+    description:
+      "Golden hour on film: a warm grade, light leaks washing over each new screen, a slow push in and soft serif lettering that glows like late sun.",
+    fontFallback: "serif",
+    text: {
+      primary: {
+        fontFamily: "Fraunces",
+        fontSize: 80,
+        fontWeight: 600,
+        lineHeight: 1.28,
+        color: "rgba(255,240,220,.55)",
+        sungColor: "#fff1d6",
+        shadow: "0 2px 18px rgba(40,10,0,.7)",
+        sungShadow: "0 0 24px rgba(255,170,80,.75), 0 2px 14px rgba(40,10,0,.6)",
+      },
+      secondary: {
+        fontFamily: "Fraunces",
+        fontSize: 56,
+        fontWeight: 500,
+        italic: true,
+        color: "rgba(255,240,220,.55)",
+        sungColor: "#fff1d6",
+        shadow: "0 2px 18px rgba(40,10,0,.7)",
+        sungShadow: "0 0 18px rgba(255,170,80,.6), 0 2px 14px rgba(40,10,0,.6)",
+      },
+    },
+    timing: { lead: 0.8, tail: 1.2 },
+    enter: { type: "blur-rise", duration: 0.9 },
+    exit: { type: "blur-rise", duration: 0.7 },
+    highlight: { type: "wipe", softEdge: 0.4, liftY: -2, liftScale: 1.015 },
+    effects: {
+      scrim: { type: "radial", color: "rgba(30,8,0,0.55)" },
+      look: { type: "warm", amount: 1 },
+      camera: { type: "push-in", amount: 1.2 },
+      lightLeaks: { enabled: true, on: "screens", duration: 1.8, opacity: 0.4 },
+      grain: { enabled: true, opacity: 0.05 },
+    },
+  },
+
+  broadcast: {
+    tags: ["bold", "minimal", "social"],
+    description:
+      "TV graphics: strong geometric sans on a solid dark panel that slides up from the bottom of the frame, with a bright accent box on the sung word.",
+    layout: { type: "stack", position: "bottom", marginY: 0.08 },
+    text: {
+      primary: {
+        fontFamily: "Lexend",
+        fontSize: 66,
+        fontWeight: 700,
+        lineHeight: 1.3,
+        color: "rgba(255,255,255,.8)",
+        sungColor: "#ffffff",
+        shadow: "none",
+        sungShadow: "none",
+      },
+      secondary: {
+        fontFamily: "Lexend",
+        fontSize: 44,
+        fontWeight: 500,
+        color: "rgba(255,255,255,.72)",
+        sungColor: "#ffffff",
+        shadow: "none",
+        sungShadow: "none",
+      },
+    },
+    enter: { type: "none", duration: 0.3 },
+    exit: { type: "none", duration: 0.35 },
+    transition: { type: "slide", direction: "from-bottom", duration: 0.4 },
+    highlight: {
+      type: "color",
+      liftY: 0,
+      liftScale: 1,
+      dimUpcoming: 1,
+      dimFinished: 1,
+      box: {
+        enabled: true,
+        color: "#00c2ff",
+        textColor: "#06121a",
+        radius: 8,
+        padX: 0.14,
+      },
+    },
+    effects: { scrim: { type: "box", color: "rgba(8,12,20,0.88)" } },
+  },
+
+  "pixel-arcade": {
+    tags: ["retro", "playful", "kids"],
+    description:
+      "An 8-bit arcade game: the footage turns into chunky pixels, blocky video-game lettering types itself out and the screen jolts on the beat.",
+    layout: { type: "stack", position: "bottom", marginY: 0.1 },
+    text: {
+      primary: {
+        fontFamily: "Press Start 2P",
+        fontSize: 44,
+        fontWeight: 400,
+        lineHeight: 1.7,
+        textTransform: "uppercase",
+        color: "rgba(255,255,255,.6)",
+        sungColor: "#7dfcff",
+        shadow: "4px 4px 0 #000000",
+        sungShadow: "4px 4px 0 #ff2bd6",
+      },
+      secondary: {
+        fontFamily: "Press Start 2P",
+        fontSize: 28,
+        fontWeight: 400,
+        color: "rgba(255,255,255,.65)",
+        sungColor: "#fff27d",
+        shadow: "3px 3px 0 #000000",
+        sungShadow: "3px 3px 0 #000000",
+      },
+    },
+    enter: { type: "typewriter", duration: 0.4, wordStagger: 0.05 },
+    exit: { type: "none", duration: 0.05 },
+    highlight: { type: "color", colorTransition: 0, liftY: -4, liftScale: 1 },
+    effects: {
+      scrim: { type: "linear", color: "rgba(0,0,0,0.65)", height: 0.32 },
+      look: { type: "pixel", amount: 0.7 },
+      shake: { enabled: true, onBeat: true, amount: 3 },
+    },
+  },
+
+  "winter-snow": {
+    tags: ["calm", "dreamy"],
+    description:
+      "A quiet winter night: snow falls in 3D depth over a cool grade, soft rounded letters glow pale blue as they are sung.",
+    text: {
+      primary: {
+        fontFamily: "Comfortaa",
+        fontSize: 74,
+        fontWeight: 700,
+        lineHeight: 1.35,
+        color: "rgba(240,248,255,.55)",
+        sungColor: "#f4fbff",
+        shadow: "0 2px 16px rgba(0,10,30,.7)",
+        sungShadow: "0 0 20px rgba(170,215,255,.7), 0 2px 14px rgba(0,10,30,.6)",
+      },
+      secondary: {
+        fontFamily: "Comfortaa",
+        fontSize: 50,
+        fontWeight: 600,
+        color: "rgba(240,248,255,.55)",
+        sungColor: "#f4fbff",
+        shadow: "0 2px 16px rgba(0,10,30,.7)",
+        sungShadow: "0 2px 16px rgba(0,10,30,.7)",
+      },
+    },
+    timing: { lead: 0.8, tail: 1.2 },
+    enter: { type: "blur-rise", duration: 0.8 },
+    exit: { type: "blur-rise", duration: 0.6 },
+    highlight: { type: "wipe", softEdge: 0.35, liftY: -2, liftScale: 1.01 },
+    effects: {
+      scrim: { type: "radial", color: "rgba(0,10,30,0.55)" },
+      look: { type: "cool", amount: 0.7 },
+      depth: {
+        type: "snow",
+        count: 160,
+        colors: ["#ffffff", "#e6f2ff"],
+        speed: 0.8,
+        opacity: 0.85,
+      },
+    },
+  },
+
+  "love-letter": {
+    tags: ["romantic", "handmade", "warm"],
+    description:
+      "A handwritten love note: flowing script, rose petals drifting through the frame in 3D, a hand-drawn pink underline under every sung word.",
+    text: {
+      primary: {
+        fontFamily: "Caveat",
+        fontSize: 92,
+        fontWeight: 700,
+        lineHeight: 1.2,
+        color: "rgba(255,240,245,.6)",
+        sungColor: "#fff0f5",
+        shadow: "0 2px 16px rgba(40,0,15,.7)",
+        sungShadow: "0 0 18px rgba(255,120,170,.6), 0 2px 14px rgba(40,0,15,.6)",
+      },
+      secondary: {
+        fontFamily: "Caveat",
+        fontSize: 62,
+        fontWeight: 600,
+        color: "rgba(255,240,245,.6)",
+        sungColor: "#fff0f5",
+        shadow: "0 2px 16px rgba(40,0,15,.7)",
+        sungShadow: "0 2px 16px rgba(40,0,15,.7)",
+      },
+    },
+    enter: { type: "letters", duration: 0.7 },
+    exit: { type: "drift-up", duration: 0.5 },
+    highlight: {
+      type: "wipe",
+      softEdge: 0.3,
+      liftY: -2,
+      liftScale: 1.02,
+      mark: {
+        type: "underline",
+        color: "#ff7eb0",
+        strokeWidth: 3,
+        iterations: 2,
+        draw: 0.35,
+      },
+    },
+    effects: {
+      scrim: { type: "radial", color: "rgba(40,0,15,0.5)" },
+      look: { type: "warm", amount: 0.6 },
+      depth: {
+        type: "petals",
+        count: 50,
+        colors: ["#ff9ec4", "#ffc2d8", "#ff6f9f"],
+        speed: 0.9,
+        opacity: 0.9,
+      },
+    },
+  },
+};

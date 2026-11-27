@@ -2,14 +2,23 @@
  * Graphics that are not lyrics: title cards, free text, lower thirds, logos,
  * Lottie animations, credits and section labels. Listed in project.json.
  */
+import { getAvailableEmojis } from "@remotion/animated-emoji";
+import { lightLeak } from "@remotion/effects/light-leak";
+import { Gif } from "@remotion/gif";
 import { Lottie, type LottieAnimationData } from "@remotion/lottie";
+import { Audio } from "@remotion/media";
+import { RemotionRiveCanvas } from "@remotion/rive";
+import * as SFX from "@remotion/sfx";
 import React, { useEffect, useState } from "react";
 import {
+  AbsoluteFill,
+  AnimatedImage,
   cancelRender,
   continueRender,
   delayRender,
   Img,
   Sequence,
+  Solid,
   staticFile,
 } from "remotion";
 import { detectScript } from "../core/script";
@@ -18,6 +27,7 @@ import type { Style } from "../schema/style";
 import { ease, lerp, seg } from "./anim";
 import { useRender } from "./context";
 import { cssFamily, fontStack } from "./fonts";
+import { StarburstLayer } from "./effects/Overlays";
 
 function useInOut(g: {
   start: number;
@@ -73,6 +83,9 @@ const At: React.FC<{
       top: `${y * 100}%`,
       translate: "-50% -50%",
       textAlign: "center",
+      // Anchored at its centre, the box would otherwise wrap at half the frame width.
+      width: "max-content",
+      maxWidth: "90%",
       ...style,
     }}
   >
@@ -264,6 +277,129 @@ const LottieGraphic: React.FC<{ g: Extract<Graphic, { type: "lottie" }> }> = ({
   );
 };
 
+/** Lottie JSON fetched once (local file or URL), held with delayRender until it arrives. */
+function useLottieJson(src: string): LottieAnimationData | null {
+  const [data, setData] = useState<LottieAnimationData | null>(null);
+  const [handle] = useState(() =>
+    delayRender(`Loading animation ${src}`, { timeoutInMilliseconds: 60000 }),
+  );
+  useEffect(() => {
+    fetch(src)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status} for ${src}`);
+        return r.json();
+      })
+      .then((json) => {
+        setData(json);
+        continueRender(handle);
+      })
+      .catch((e) => cancelRender(e));
+  }, [src, handle]);
+  return data;
+}
+
+const GifGraphic: React.FC<{ g: Extract<Graphic, { type: "gif" }> }> = ({ g }) => {
+  const { width: W } = useRender();
+  const anim = useInOut(g);
+  const w = g.width * W;
+  const src = staticFile(g.src);
+  return (
+    <At x={g.at.x} y={g.at.y} style={anim}>
+      {/\.gif$/i.test(g.src) ? (
+        <Gif
+          src={src}
+          width={w}
+          height={w}
+          fit={g.fit}
+          loopBehavior={g.loop ? "loop" : "pause-after-finish"}
+        />
+      ) : (
+        <AnimatedImage src={src} width={w} height={w} fit={g.fit} />
+      )}
+    </At>
+  );
+};
+
+const RiveGraphic: React.FC<{ g: Extract<Graphic, { type: "rive" }> }> = ({ g }) => {
+  const { width: W } = useRender();
+  const anim = useInOut(g);
+  const w = g.width * W;
+  return (
+    <At x={g.at.x} y={g.at.y} style={anim}>
+      <div style={{ width: w, height: w * g.aspect }}>
+        <RemotionRiveCanvas
+          src={staticFile(g.src)}
+          fit="contain"
+          artboard={g.artboard}
+          animation={g.animation}
+        />
+      </div>
+    </At>
+  );
+};
+
+/** Google's Noto animated emoji (Lottie), by the names @remotion/animated-emoji uses. */
+export function emojiLottieUrl(name: string): string {
+  const e = getAvailableEmojis().find((x) => x.name === name);
+  if (!e)
+    throw new Error(
+      `Unknown emoji "${name}". Use a name from @remotion/animated-emoji, e.g. fire, red-heart, sparkles, party-popper, rocket.`,
+    );
+  return `https://fonts.gstatic.com/s/e/notoemoji/latest/${e.codepoint}/lottie.json`;
+}
+
+const EmojiGraphic: React.FC<{ g: Extract<Graphic, { type: "emoji" }> }> = ({ g }) => {
+  const { scale } = useRender();
+  const anim = useInOut(g);
+  const data = useLottieJson(emojiLottieUrl(g.emoji));
+  if (!data) return null;
+  const s = g.size * scale;
+  return (
+    <At x={g.at.x} y={g.at.y} style={anim}>
+      <div style={{ width: s, height: s }}>
+        <Lottie animationData={data} loop />
+      </div>
+    </At>
+  );
+};
+
+const kebab = (k: string) => k.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+/** Built-in sound effects from @remotion/sfx, by kebab-case name (whoosh, page-turn, ...). */
+export const SOUNDS: Record<string, string> = Object.fromEntries([
+  ...Object.entries(SFX)
+    .filter(([, v]) => typeof v === "string" && v.startsWith("https://"))
+    .map(([k, v]) => [kebab(k), v as string]),
+  ["switch", SFX.uiSwitch],
+  ["shutter", SFX.shutterModern],
+]);
+
+const SoundGraphic: React.FC<{ g: Extract<Graphic, { type: "sound" }> }> = ({ g }) => (
+  <Audio src={SOUNDS[g.sound] ?? staticFile(g.sound)} volume={g.volume} />
+);
+
+const LightLeakGraphic: React.FC<{ g: Extract<Graphic, { type: "lightLeak" }> }> = ({ g }) => {
+  const { t, width: W, height: H } = useRender();
+  const p = seg(t, g.start, Math.max(0.1, g.end - g.start));
+  return (
+    <AbsoluteFill style={{ opacity: g.opacity, mixBlendMode: "screen" }}>
+      <Solid
+        width={W}
+        height={H}
+        effects={[lightLeak({ seed: g.seed, hueShift: g.hueShift, progress: p })]}
+      />
+    </AbsoluteFill>
+  );
+};
+
+const StarburstGraphic: React.FC<{ g: Extract<Graphic, { type: "starburst" }> }> = ({ g }) => {
+  const anim = useInOut(g);
+  return (
+    <AbsoluteFill style={anim}>
+      <StarburstLayer rays={g.rays} colors={g.colors} spin={g.spin} opacity={g.opacity} />
+    </AbsoluteFill>
+  );
+};
+
 const Credits: React.FC<{ g: Extract<Graphic, { type: "credits" }> }> = ({
   g,
 }) => {
@@ -310,6 +446,18 @@ export const GraphicsLayer: React.FC<{ graphics: Graphic[] }> = ({
             <Image g={g} />
           ) : g.type === "lottie" ? (
             <LottieGraphic g={g} />
+          ) : g.type === "gif" ? (
+            <GifGraphic g={g} />
+          ) : g.type === "rive" ? (
+            <RiveGraphic g={g} />
+          ) : g.type === "emoji" ? (
+            <EmojiGraphic g={g} />
+          ) : g.type === "sound" ? (
+            <SoundGraphic g={g} />
+          ) : g.type === "lightLeak" ? (
+            <LightLeakGraphic g={g} />
+          ) : g.type === "starburst" ? (
+            <StarburstGraphic g={g} />
           ) : (
             <Credits g={g} />
           );

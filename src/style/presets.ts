@@ -4,14 +4,39 @@
  * and override any field next to it. See docs/styles.md for pictures and tips.
  */
 import type { StyleInput } from "../schema/style";
+import { EXTENDED_PRESETS } from "./presets-extended";
 
 const GOLD_UNSUNG_SHADOW =
   "0 2px 18px rgba(15,8,0,.7), 0 1px 3px rgba(0,0,0,.5)";
 const GOLD_SUNG_SHADOW =
   "0 0 22px rgba(255,160,48,.8), 0 0 6px rgba(255,214,140,.55), 0 2px 6px rgba(40,18,0,.5)";
 
-export const PRESETS: Record<string, StyleInput & { description: string }> = {
+/** Words people use for a mood, so a request like "something calm" maps to presets. */
+export const MOODS = [
+  "calm",
+  "energetic",
+  "elegant",
+  "playful",
+  "bold",
+  "dreamy",
+  "retro",
+  "cinematic",
+  "handmade",
+  "minimal",
+  "party",
+  "romantic",
+  "kids",
+  "dark",
+  "warm",
+  "social",
+] as const;
+export type Mood = (typeof MOODS)[number];
+
+export type Preset = StyleInput & { description: string; tags: Mood[] };
+
+export const PRESETS: Record<string, Preset> = {
   "golden-sparkle": {
+    tags: ["warm", "elegant", "calm"],
     description:
       "Warm gold karaoke fill with a spinning star at the wipe head and sparkles shed from each sung word. Lines rise out of a soft blur over a dark halo in the lower third.",
     text: {
@@ -46,6 +71,7 @@ export const PRESETS: Record<string, StyleInput & { description: string }> = {
   },
 
   chalk: {
+    tags: ["handmade", "playful", "kids"],
     description:
       "Hand-written chalk lettering in soft white with a warm yellow fill, over a cool dark halo. Friendly and classroom-like.",
     text: {
@@ -80,6 +106,7 @@ export const PRESETS: Record<string, StyleInput & { description: string }> = {
   },
 
   "classic-karaoke": {
+    tags: ["retro", "bold"],
     description:
       "Two alternating rows like a karaoke machine: the next line waits in the other row while the current one fills from white to blue. Bold outlined type, no backing.",
     layout: { type: "alternate", position: "bottom", marginY: 0.08 },
@@ -124,6 +151,7 @@ export const PRESETS: Record<string, StyleInput & { description: string }> = {
   },
 
   "social-pop": {
+    tags: ["social", "energetic", "bold"],
     description:
       "Short-form captions: two or three words at a time, big and uppercase, with a bright box jumping to the word being sung. Built for vertical and square video.",
     layout: {
@@ -168,6 +196,7 @@ export const PRESETS: Record<string, StyleInput & { description: string }> = {
   },
 
   kinetic: {
+    tags: ["energetic", "bold"],
     description:
       "Big centred type where each word lands the moment it is sung, then the line clears for the next. Energetic and rhythmic.",
     layout: { type: "kinetic", position: "center", maxWidth: 0.8 },
@@ -216,6 +245,7 @@ export const PRESETS: Record<string, StyleInput & { description: string }> = {
   },
 
   "scroll-focus": {
+    tags: ["calm", "minimal"],
     description:
       "The whole lyric sheet scrolls smoothly; the line being sung is bright and large while the others fade back. Great over a dimmed or abstract background.",
     layout: {
@@ -253,6 +283,7 @@ export const PRESETS: Record<string, StyleInput & { description: string }> = {
   },
 
   "minimal-subtitles": {
+    tags: ["minimal", "calm"],
     description:
       "Clean, quiet subtitles: one screen at a time, a gentle brightening on the sung word, a thin dark band for legibility.",
     layout: { type: "stack", position: "bottom", marginY: 0.07 },
@@ -293,6 +324,7 @@ export const PRESETS: Record<string, StyleInput & { description: string }> = {
   },
 
   cinematic: {
+    tags: ["cinematic", "elegant", "calm"],
     description:
       "Elegant serif lettering that blooms in slowly with a soft glowing fill, framed by a vignette, film grain and drifting light motes.",
     fontFallback: "serif",
@@ -344,6 +376,7 @@ export const PRESETS: Record<string, StyleInput & { description: string }> = {
   },
 
   neon: {
+    tags: ["party", "dark", "retro"],
     description:
       "Electric neon tubes: words switch on with a hot pink glow as they are sung, over a deep purple haze.",
     layout: { type: "stack", position: "bottom" },
@@ -383,6 +416,7 @@ export const PRESETS: Record<string, StyleInput & { description: string }> = {
       vignette: { enabled: true, strength: 0.4 },
     },
   },
+  ...EXTENDED_PRESETS,
 };
 
 export const PRESET_NAMES = Object.keys(PRESETS);
